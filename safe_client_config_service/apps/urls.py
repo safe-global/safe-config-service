@@ -1,5 +1,9 @@
+from django.urls import path
 
+from .views import SafeAppsListView
+
+app_name = 'apps'
 
 urlpatterns = [
-    path('safes/<str:address>/apps/', admin.site.urls),
+    path('safe-apps/', SafeAppsListView.as_view()),
 ]

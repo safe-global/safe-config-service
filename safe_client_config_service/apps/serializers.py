@@ -1,10 +1,9 @@
 from rest_framework import serializers
 
+from .models import SafeApp
 
-class SafeAppsResponseSerializer(serializers.Serializer):
 
-    def update(self, instance, validated_data):
-        pass
-
-    def create(self, validated_data):
-        pass
+class SafeAppsResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SafeApp
+        fields = '__all__'

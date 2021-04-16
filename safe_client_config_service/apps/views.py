@@ -1,5 +1,9 @@
-from django.shortcuts import render
+from rest_framework.generics import ListAPIView
 
-# Create your views here.
+from .models import SafeApp
+from .serializers import SafeAppsResponseSerializer
 
-class SafeAppsListView(ListView)
+
+class SafeAppsListView(ListAPIView):
+    queryset = SafeApp.objects.all()
+    serializer_class = SafeAppsResponseSerializer
