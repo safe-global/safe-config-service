@@ -2,3 +2,4 @@ Django==3.2
 djangorestframework==3.12.4
 gnosis-py==2.9.0
 psycopg2-binary==2.8.6
+pytest-django==4.2.0
