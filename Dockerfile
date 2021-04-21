@@ -1,4 +1,4 @@
-FROM python:3.9-alpine as python-base
+FROM python:3.9-slim as python-base
 
 # python
 ENV PYTHONUNBUFFERED=1 \
@@ -25,23 +25,23 @@ ENV PYTHONUNBUFFERED=1 \
     PYSETUP_PATH="/opt/pysetup" \
     VENV_PATH="/opt/pysetup/.venv"
 
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:${PATH}"
 
 FROM python-base as builder-base
-RUN \
-    apk add --no-cache autoconf automake build-base libffi-dev libtool pkgconfig curl openssl-dev libressl-dev musl-dev libffi-dev && \
-    apk add --no-cache postgresql-libs && \
-    apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
-    apk --purge del .build-deps
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        curl \
+        build-essential \
+        libpq-dev
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 ENV POETRY_VERSION=1.1.6
-RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 
 # We copy our Python requirements here to cache them
 # and install only runtime deps using poetry
 WORKDIR $PYSETUP_PATH
-COPY ./poetry.lock ./pyproject.toml ./
+COPY poetry.lock pyproject.toml ./
 RUN poetry install --no-dev  # respects
 
 # 'development' stage installs all dev deps and can be used to develop code.
@@ -58,5 +58,3 @@ RUN poetry install
 
 WORKDIR /app
 COPY . .
-
-#########
