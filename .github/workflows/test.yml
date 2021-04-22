@@ -44,9 +44,6 @@ jobs:
           source .venv/bin/activate
           pytest src
       - name: flake8
-        uses: liskin/gh-problem-matcher-wrap@v1
-        with:
-          linters: flake8
-          run: |
-            source .venv/bin/activate
-            flake8
+        run: |
+          source .venv/bin/activate
+          flake8 src/
