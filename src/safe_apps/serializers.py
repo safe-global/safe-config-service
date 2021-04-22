@@ -6,4 +6,4 @@ from .models import SafeApp
 class SafeAppsResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = SafeApp
-        fields = '__all__'
+        fields = ['url', 'name', 'icon_url', 'description', 'networks']

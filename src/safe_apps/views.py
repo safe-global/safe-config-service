@@ -11,6 +11,7 @@ class SafeAppsListView(ListAPIView):
         queryset = SafeApp.objects.all()
 
         network_id = self.request.query_params.get('network_id')
-        if network_id is not None:
+        if network_id is not None and network_id.isdigit():
             queryset = queryset.filter(networks__contains=[network_id])
+
         return queryset
