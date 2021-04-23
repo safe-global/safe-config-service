@@ -1,48 +1,23 @@
-name: Python CI
-on: [push, pull_request]
+name: "CI"
+
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - "main"
+      - "master"
+      - "run_script"
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:10
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
+    runs-on: "ubuntu-20.04"
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-      - name: Install Poetry
+      - uses: "actions/checkout@v2"
+      - name: "Test"
         run: |
-          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-          source $HOME/.poetry/env
-          poetry config virtualenvs.in-project true
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          source $HOME/.poetry/env
-          poetry install --no-interaction --no-root
-      - name: Run tests
-        run: |
-          source .venv/bin/activate
-          pytest src
-      - name: flake8
-        run: |
-          source .venv/bin/activate
-          flake8 src/
+          ./run ci:test
+        env:
+          DOCKER_BUILDKIT: "1"

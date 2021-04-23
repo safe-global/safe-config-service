@@ -13,6 +13,7 @@ services:
     - "5432:5432"
   web:
     build: .
+    tty: true
     env_file:
       - .env
     command: poetry run python manage.py runserver 0.0.0.0:8000
