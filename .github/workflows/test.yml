@@ -6,9 +6,9 @@ on:
       - "*"
   push:
     branches:
+      - "run_script"
       - "main"
       - "master"
-      - "run_script"
 
 jobs:
   test:
