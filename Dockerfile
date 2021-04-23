@@ -1,4 +1,4 @@
-FROM python:3.9.4-alpine3.13
+FROM python:3.9.4-alpine3.13 as python-base
 
 # python
 ENV PYTHONUNBUFFERED=1 \
@@ -9,34 +9,25 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
-    CRYPTOGRAPHY_DONT_BUILD_RUST=1 \
-    \
-    # poetry
-    # https://python-poetry.org/docs/configuration/#using-environment-variables
-    POETRY_VERSION=1.1.6 \
-    # make poetry install to this location
-    POETRY_HOME="/opt/poetry" \
-    # make poetry create the virtual environment in the project's root
-    # it gets named `.venv`
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    # do not ask any interactive question
-    POETRY_NO_INTERACTION=1 \
-    \
-    # paths
-    # this is where our requirements + virtual environment will live
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
+    CRYPTOGRAPHY_DONT_BUILD_RUST=1
 
-
-# prepend poetry and venv to path
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+ENV PYTHONUSERBASE=/python-deps
 
 RUN set -ex \
-    && apk add --no-cache --virtual .build-deps postgresql-dev build-base curl libffi-dev
+    && apk add --no-cache --virtual .build-deps postgresql-dev build-base libffi-dev
 
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+# Install Python deps
+COPY requirements.txt ./
+RUN pip3 install --no-warn-script-location --user -r requirements.txt
+
+# ------- development image -------
+
+FROM python-base as development
+ENV PATH="${PATH}:${PYTHONUSERBASE}/bin"
+
+# venv already has runtime deps installed we get a quicker install
+COPY requirements-dev.txt ./
+RUN pip3 install --no-warn-script-location --user -r requirements-dev.txt
 
 WORKDIR /app
 COPY . .
-
-RUN poetry install

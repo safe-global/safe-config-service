@@ -29,21 +29,21 @@ function manage {
 
   # We need to collectstatic before we run our tests.
   if [ "${1-''}" == "test" ]; then
-    cmd poetry run python3 manage.py collectstatic --no-input
+    cmd python manage.py collectstatic --no-input
   fi
 
-  cmd poetry run python3 manage.py "${@}"
+  cmd python manage.py "${@}"
 }
 
 function test {
   # Run pytest commands
 
-  cmd poetry run pytest "${@}"
+  cmd pytest "${@}"
 }
 
 function flake8 {
   # Lint Python code with flake8
-  cmd poetry run flake8 "${@}"
+  cmd flake8 "${@}"
 }
 
 

@@ -1,14 +1,6 @@
 name: "CI"
 
-on:
-  pull_request:
-    branches:
-      - "*"
-  push:
-    branches:
-      - "run_script"
-      - "main"
-      - "master"
+on: [push, pull_request]
 
 jobs:
   test:

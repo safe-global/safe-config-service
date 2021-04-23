@@ -1,0 +1,3 @@
+-r requirements.txt
+pytest-django==4.2.0
+flake8==3.9.1
