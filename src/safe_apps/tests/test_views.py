@@ -139,7 +139,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 'name': 'test_safe_app_1',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_1',
-                'networks': [1]
+                'networks': [2]
             },
             {
                 'url': 'https://example.com',
