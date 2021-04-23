@@ -35,6 +35,12 @@ function manage {
   cmd poetry run python3 manage.py "${@}"
 }
 
+function test {
+  # Run pytest commands
+
+  cmd poetry run pytest "${@}"
+}
+
 function flake8 {
   # Lint Python code with flake8
   cmd poetry run flake8 "${@}"
@@ -51,7 +57,7 @@ function ci:test {
 
   flake8 "${@}"
   manage migrate
-  manage test
+  test
 }
 
 function help {
