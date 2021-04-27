@@ -4,7 +4,7 @@ The `safe-config-service` is a service that provides configuration information i
 
 ## Requirements
 
-- Docker
+- `docker-compose` – https://docs.docker.com/compose/install/
 
 ## Setup
 
