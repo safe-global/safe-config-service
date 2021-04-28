@@ -47,7 +47,7 @@ class FilterSafeAppListViewTests(APITestCase):
 
     def setUp(self) -> None:
         SafeApp.objects.create(
-            url="https://example.com",
+            url="https://example.com/1",
             name="test_safe_app_1",
             icon_url="https://example.com/icon",
             description="safe_app_description_1",
@@ -55,7 +55,7 @@ class FilterSafeAppListViewTests(APITestCase):
         )
 
         SafeApp.objects.create(
-            url="https://example.com",
+            url="https://example.com/2",
             name="test_safe_app_2",
             icon_url="https://example.com/icon",
             description="safe_app_description_2",
@@ -63,7 +63,7 @@ class FilterSafeAppListViewTests(APITestCase):
         )
 
         SafeApp.objects.create(
-            url="https://example.com",
+            url="https://example.com/3",
             name="test_safe_app_3",
             icon_url="https://example.com/icon",
             description="safe_app_description_3",
@@ -73,21 +73,21 @@ class FilterSafeAppListViewTests(APITestCase):
     def test_all_safes_returned(self):
         json_response = [
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/1',
                 'name': 'test_safe_app_1',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_1',
                 'networks': [1]
             },
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/2',
                 'name': 'test_safe_app_2',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_2',
                 'networks': [1]
             },
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/3',
                 'name': 'test_safe_app_3',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_3',
@@ -104,21 +104,21 @@ class FilterSafeAppListViewTests(APITestCase):
     def test_all_apps_returned_on_empty_network_value(self):
         json_response = [
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/1',
                 'name': 'test_safe_app_1',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_1',
                 'networks': [1]
             },
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/2',
                 'name': 'test_safe_app_2',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_2',
                 'networks': [1]
             },
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/3',
                 'name': 'test_safe_app_3',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_3',
@@ -135,14 +135,14 @@ class FilterSafeAppListViewTests(APITestCase):
     def test_apps_returned_on_filtered_network(self):
         json_response = [
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/1',
                 'name': 'test_safe_app_1',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_1',
                 'networks': [1]
             },
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/2',
                 'name': 'test_safe_app_2',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_2',
@@ -168,14 +168,14 @@ class FilterSafeAppListViewTests(APITestCase):
     def test_apps_returned_on_same_key_pair(self):
         json_response = [
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/1',
                 'name': 'test_safe_app_1',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_1',
                 'networks': [1]
             },
             {
-                'url': 'https://example.com',
+                'url': 'https://example.com/2',
                 'name': 'test_safe_app_2',
                 'icon_url': 'https://example.com/icon',
                 'description': 'safe_app_description_2',
