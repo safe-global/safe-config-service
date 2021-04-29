@@ -1,222 +1,307 @@
 [
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://app.aave.com/",
-    "fields": {
-      "name": "Aave v2",
-      "icon_url": "https://app.aave.com/aave.svg",
-      "description": "Non-custodial liquidity protocol to earn interest on deposits and borrow",
-      "networks": "[\"1\"]"
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://1inch.exchange",
+        "fields": {
+            "name": "1inch corporation"
+        }
+    },
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://aave.com",
+        "fields": {
+            "name": "Aave"
+        }
+    },
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://avolabs.io/",
+        "fields": {
+            "name": "Avo Labs"
+        }
+    },
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://balancer.finance",
+        "fields": {
+            "name": "Balancer Labs"
+        }
+    },
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://lido.fi",
+        "fields": {
+            "name": "Lido"
+        }
+    },
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://request.network",
+        "fields": {
+            "name": "Request"
+        }
+    },
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://sablier.finance",
+        "fields": {
+            "name": "Sablier"
+        }
+    },
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://www.dhedge.org/",
+        "fields": {
+            "name": "dHEDGE"
+        }
+    },
+    {
+        "model": "safe_apps.provider",
+        "pk": "https://yearn.finance",
+        "fields": {
+            "name": "Yearn Finance"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://app.aave.com/",
+        "fields": {
+            "name": "Aave v2",
+            "icon_url": "https://app.aave.com/aave.svg",
+            "description": "Non-custodial liquidity protocol to earn interest on deposits and borrow",
+            "networks": "[\"1\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://app.dhedge.org/",
+        "fields": {
+            "name": "dHEDGE",
+            "icon_url": "https://app.dhedge.org/logo.svg",
+            "description": "Decentralized asset management",
+            "networks": "[\"1\"]",
+            "provider": "https://www.dhedge.org/"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://app.ens.domains/",
+        "fields": {
+            "name": "ENS App",
+            "icon_url": "https://app.ens.domains/android-chrome-144x144.png",
+            "description": "Decentralised naming for wallets, websites, & more.",
+            "networks": "[\"1\", \"4\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmQ3w2ezp2zx3u2LYQHyuNzMrLDJFjyL1rjAFTjNMcQ4cK",
+        "fields": {
+            "name": "Aave",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmQ3w2ezp2zx3u2LYQHyuNzMrLDJFjyL1rjAFTjNMcQ4cK/aave.svg",
+            "description": "Lend and borrow straight from your Gnosis Safe",
+            "networks": "[\"1\"]",
+            "provider": "https://aave.com"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmQovvfYYMUXjZfNbysQDUEXR8nr55iJRwcYgJQGJR7KEA",
+        "fields": {
+            "name": "OpenZeppelin",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmQovvfYYMUXjZfNbysQDUEXR8nr55iJRwcYgJQGJR7KEA/openzeppelin.png",
+            "description": "Securely manage and monitor your Ethereum project.",
+            "networks": "[\"1\", \"4\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmRb2VfPVYBrv6gi2zDywgVgTg3A19ZCRMqwL13Ez5f5AS",
+        "fields": {
+            "name": "Balancer Exchange",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmRb2VfPVYBrv6gi2zDywgVgTg3A19ZCRMqwL13Ez5f5AS/logo512.png",
+            "description": "Exchange tokens using the Balancer DEX",
+            "networks": "[\"1\"]",
+            "provider": "https://balancer.finance"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmT96aES2YA9BssByc6DVizQDkofmKRErs8gJyqWipjyS8",
+        "fields": {
+            "name": "Mushrooms Finance",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmT96aES2YA9BssByc6DVizQDkofmKRErs8gJyqWipjyS8/logo.png",
+            "description": "Mushrooms Finance is a yield aggregator with focus on seeking sustainable profit",
+            "networks": "[\"1\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmTBBaiDQyGa17DJ7DdviyHbc51fTVgf6Z5PW5w2YUTkgR",
+        "fields": {
+            "name": "Request",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmTBBaiDQyGa17DJ7DdviyHbc51fTVgf6Z5PW5w2YUTkgR/request_icon_green.svg",
+            "description": "Create, receive and pay crypto invoices straight from your Gnosis Safe",
+            "networks": "[\"1\"]",
+            "provider": "https://request.network"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmTa21pi77hiT1sLCGy5BeVwcyzExUSp2z7byxZukye8hr",
+        "fields": {
+            "name": "PoolTogether",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmTa21pi77hiT1sLCGy5BeVwcyzExUSp2z7byxZukye8hr/pool-together.png",
+            "description": "No-loss lotteries on your Gnosis Safe",
+            "networks": "[\"1\", \"4\"]",
+            "provider": "https://avolabs.io/"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmTvrLwJtyjG8QFHgvqdPhcV5DBMQ7oZceSU4uvPw9vQaj",
+        "fields": {
+            "name": "Idle v4",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmTvrLwJtyjG8QFHgvqdPhcV5DBMQ7oZceSU4uvPw9vQaj/logo.svg",
+            "description": "Always the best yield, with no effort",
+            "networks": "[\"1\", \"4\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmUXF1yVGdqUfMbhNyfM3jpP6Bw66cYnKPoWq6iHkhd3Aw",
+        "fields": {
+            "name": "1inch.exchange",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmUXF1yVGdqUfMbhNyfM3jpP6Bw66cYnKPoWq6iHkhd3Aw/assets/1inch.png",
+            "description": "DEX aggregator with the best prices on the market",
+            "networks": "[\"1\"]",
+            "provider": "https://1inch.exchange"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmVaxypk2FTyfcTS9oZKxmpQziPUTu2VRhhW7sso1mGysf",
+        "fields": {
+            "name": "Balancer Pool Management",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmVaxypk2FTyfcTS9oZKxmpQziPUTu2VRhhW7sso1mGysf/logo512.png",
+            "description": "Manage liquidity on Balancer from your Gnosis Safe",
+            "networks": "[\"1\"]",
+            "provider": "https://balancer.finance"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmX31xCdhFDmJzoVG33Y6kJtJ5Ujw8r5EJJBrsp8Fbjm7k",
+        "fields": {
+            "name": "Compound",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmX31xCdhFDmJzoVG33Y6kJtJ5Ujw8r5EJJBrsp8Fbjm7k/Compound.png",
+            "description": "Money markets on the Ethereum blockchain",
+            "networks": "[\"1\", \"4\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmX9B982ZAaBzbm6yBoZUS3uLgcizYA6wW65RCXVRZkG6f",
+        "fields": {
+            "name": "WalletConnect",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmX9B982ZAaBzbm6yBoZUS3uLgcizYA6wW65RCXVRZkG6f/wallet-connect.svg",
+            "description": "Allows your Gnosis Safe Multisig to connect to dapps via WalletConnect.",
+            "networks": "[\"1\", \"4\", \"246\", \"73799\", \"100\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmXLxxczMH4MBEYDeeN9zoiHDzVkeBmB5rBjA3UniPEFcA",
+        "fields": {
+            "name": "Synthetix",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmXLxxczMH4MBEYDeeN9zoiHDzVkeBmB5rBjA3UniPEFcA/Synthetix.png",
+            "description": "Trade synthetic assets on Ethereum",
+            "networks": "[\"1\", \"4\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmYzTAH6Nzexu35tbWmhVrLYwWj9MdbD1iECejgaGHFk8P",
+        "fields": {
+            "name": "Liquity Frontend",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmYzTAH6Nzexu35tbWmhVrLYwWj9MdbD1iECejgaGHFk8P/logo256.png",
+            "description": "Simple frontend with high kickback rate, hosted on Arweave and ENS for maximal decentralisation.",
+            "networks": "[\"1\", \"4\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmZBgEvjqi9Jg8xATr9uUgNUVmnfYiECNxZv9Taux7mzgV",
+        "fields": {
+            "name": "Transaction Builder",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmZBgEvjqi9Jg8xATr9uUgNUVmnfYiECNxZv9Taux7mzgV/tx-builder.png",
+            "description": "A Safe app to compose custom transactions",
+            "networks": "[\"1\", \"4\", \"246\", \"73799\", \"100\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/Qmb1Xpfu9mnX4A3trpoVeBZ9sTiNtEuRoFKEiaVXWntDxB",
+        "fields": {
+            "name": "Sablier",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/Qmb1Xpfu9mnX4A3trpoVeBZ9sTiNtEuRoFKEiaVXWntDxB/logo.svg",
+            "description": "Safe App for interacting with the Sablier protocol",
+            "networks": "[\"1\", \"4\"]",
+            "provider": "https://sablier.finance"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/QmdCwUutYH8GXXNgTShB4cKJ8YJq4PqZ55QxMznKc9DbeS",
+        "fields": {
+            "name": "Gnosis Auction Starter",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/QmdCwUutYH8GXXNgTShB4cKJ8YJq4PqZ55QxMznKc9DbeS/logo.svg",
+            "description": "Safe app to start new auctions on Gnosis Auction",
+            "networks": "[\"1\", \"4\"]",
+            "provider": null
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/Qmde8dsa9r8bB59CNGww6LRiaZABuKaJfuzvu94hFkatJC",
+        "fields": {
+            "name": "Lido Staking",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/Qmde8dsa9r8bB59CNGww6LRiaZABuKaJfuzvu94hFkatJC/logo.svg",
+            "description": "Lido is the liquid staking solution for Ethereum.",
+            "networks": "[\"1\"]",
+            "provider": "https://lido.fi"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://cloudflare-ipfs.com/ipfs/Qme9HuPPhgCtgfj1CktvaDKhTesMueGCV2Kui1Sqna3Xs9",
+        "fields": {
+            "name": "Yearn Vaults",
+            "icon_url": "https://cloudflare-ipfs.com/ipfs/Qme9HuPPhgCtgfj1CktvaDKhTesMueGCV2Kui1Sqna3Xs9/logo.svg",
+            "description": "Safe App for interacting with Yearn Vaults",
+            "networks": "[\"1\"]",
+            "provider": "https://yearn.finance"
+        }
+    },
+    {
+        "model": "safe_apps.safeapp",
+        "pk": "https://safe-cmm.gnosis.io",
+        "fields": {
+            "name": "Gnosis Custom Market Maker",
+            "icon_url": "https://safe-cmm.gnosis.io/img/appIcon.svg",
+            "description": "Allows you to deploy, withdraw and manage your custom market maker strategies",
+            "networks": "[\"4\", \"100\"]",
+            "provider": null
+        }
     }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://app.dhedge.org/",
-    "fields": {
-      "name": "dHEDGE",
-      "icon_url": "https://app.dhedge.org/logo.svg",
-      "description": "Decentralized asset management",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://app.ens.domains/",
-    "fields": {
-      "name": "ENS App",
-      "icon_url": "https://app.ens.domains/android-chrome-144x144.png",
-      "description": "Decentralised naming for wallets, websites, & more.",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmQ3w2ezp2zx3u2LYQHyuNzMrLDJFjyL1rjAFTjNMcQ4cK",
-    "fields": {
-      "name": "Aave",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmQ3w2ezp2zx3u2LYQHyuNzMrLDJFjyL1rjAFTjNMcQ4cK/aave.svg",
-      "description": "Lend and borrow straight from your Gnosis Safe",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmQovvfYYMUXjZfNbysQDUEXR8nr55iJRwcYgJQGJR7KEA",
-    "fields": {
-      "name": "OpenZeppelin",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmQovvfYYMUXjZfNbysQDUEXR8nr55iJRwcYgJQGJR7KEA/openzeppelin.png",
-      "description": "Securely manage and monitor your Ethereum project.",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmRb2VfPVYBrv6gi2zDywgVgTg3A19ZCRMqwL13Ez5f5AS",
-    "fields": {
-      "name": "Balancer Exchange",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmRb2VfPVYBrv6gi2zDywgVgTg3A19ZCRMqwL13Ez5f5AS/logo512.png",
-      "description": "Exchange tokens using the Balancer DEX",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmT96aES2YA9BssByc6DVizQDkofmKRErs8gJyqWipjyS8",
-    "fields": {
-      "name": "Mushrooms Finance",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmT96aES2YA9BssByc6DVizQDkofmKRErs8gJyqWipjyS8/logo.png",
-      "description": "Mushrooms Finance is a yield aggregator with focus on seeking sustainable profit",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmTBBaiDQyGa17DJ7DdviyHbc51fTVgf6Z5PW5w2YUTkgR",
-    "fields": {
-      "name": "Request",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmTBBaiDQyGa17DJ7DdviyHbc51fTVgf6Z5PW5w2YUTkgR/request_icon_green.svg",
-      "description": "Create, receive and pay crypto invoices straight from your Gnosis Safe",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmTa21pi77hiT1sLCGy5BeVwcyzExUSp2z7byxZukye8hr",
-    "fields": {
-      "name": "PoolTogether",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmTa21pi77hiT1sLCGy5BeVwcyzExUSp2z7byxZukye8hr/pool-together.png",
-      "description": "No-loss lotteries on your Gnosis Safe",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmTvrLwJtyjG8QFHgvqdPhcV5DBMQ7oZceSU4uvPw9vQaj",
-    "fields": {
-      "name": "Idle v4",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmTvrLwJtyjG8QFHgvqdPhcV5DBMQ7oZceSU4uvPw9vQaj/logo.svg",
-      "description": "Always the best yield, with no effort",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmUXF1yVGdqUfMbhNyfM3jpP6Bw66cYnKPoWq6iHkhd3Aw",
-    "fields": {
-      "name": "1inch.exchange",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmUXF1yVGdqUfMbhNyfM3jpP6Bw66cYnKPoWq6iHkhd3Aw/assets/1inch.png",
-      "description": "DEX aggregator with the best prices on the market",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmVaxypk2FTyfcTS9oZKxmpQziPUTu2VRhhW7sso1mGysf",
-    "fields": {
-      "name": "Balancer Pool Management",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmVaxypk2FTyfcTS9oZKxmpQziPUTu2VRhhW7sso1mGysf/logo512.png",
-      "description": "Manage liquidity on Balancer from your Gnosis Safe",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmX31xCdhFDmJzoVG33Y6kJtJ5Ujw8r5EJJBrsp8Fbjm7k",
-    "fields": {
-      "name": "Compound",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmX31xCdhFDmJzoVG33Y6kJtJ5Ujw8r5EJJBrsp8Fbjm7k/Compound.png",
-      "description": "Money markets on the Ethereum blockchain",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmX9B982ZAaBzbm6yBoZUS3uLgcizYA6wW65RCXVRZkG6f",
-    "fields": {
-      "name": "WalletConnect",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmX9B982ZAaBzbm6yBoZUS3uLgcizYA6wW65RCXVRZkG6f/wallet-connect.svg",
-      "description": "Allows your Gnosis Safe Multisig to connect to dapps via WalletConnect.",
-      "networks": "[\"1\", \"4\", \"246\", \"73799\", \"100\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmXLxxczMH4MBEYDeeN9zoiHDzVkeBmB5rBjA3UniPEFcA",
-    "fields": {
-      "name": "Synthetix",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmXLxxczMH4MBEYDeeN9zoiHDzVkeBmB5rBjA3UniPEFcA/Synthetix.png",
-      "description": "Trade synthetic assets on Ethereum",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmYzTAH6Nzexu35tbWmhVrLYwWj9MdbD1iECejgaGHFk8P",
-    "fields": {
-      "name": "Liquity Frontend",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmYzTAH6Nzexu35tbWmhVrLYwWj9MdbD1iECejgaGHFk8P/logo256.png",
-      "description": "Simple frontend with high kickback rate, hosted on Arweave and ENS for maximal decentralisation.",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmZBgEvjqi9Jg8xATr9uUgNUVmnfYiECNxZv9Taux7mzgV",
-    "fields": {
-      "name": "Transaction Builder",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmZBgEvjqi9Jg8xATr9uUgNUVmnfYiECNxZv9Taux7mzgV/tx-builder.png",
-      "description": "A Safe app to compose custom transactions",
-      "networks": "[\"1\", \"4\", \"246\", \"73799\", \"100\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/Qmb1Xpfu9mnX4A3trpoVeBZ9sTiNtEuRoFKEiaVXWntDxB",
-    "fields": {
-      "name": "Sablier",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/Qmb1Xpfu9mnX4A3trpoVeBZ9sTiNtEuRoFKEiaVXWntDxB/logo.svg",
-      "description": "Safe App for interacting with the Sablier protocol",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/QmdCwUutYH8GXXNgTShB4cKJ8YJq4PqZ55QxMznKc9DbeS",
-    "fields": {
-      "name": "Gnosis Auction Starter",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/QmdCwUutYH8GXXNgTShB4cKJ8YJq4PqZ55QxMznKc9DbeS/logo.svg",
-      "description": "Safe app to start new auctions on Gnosis Auction",
-      "networks": "[\"1\", \"4\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/Qmde8dsa9r8bB59CNGww6LRiaZABuKaJfuzvu94hFkatJC",
-    "fields": {
-      "name": "Lido Staking",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/Qmde8dsa9r8bB59CNGww6LRiaZABuKaJfuzvu94hFkatJC/logo.svg",
-      "description": "Lido is the liquid staking solution for Ethereum.",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://cloudflare-ipfs.com/ipfs/Qme9HuPPhgCtgfj1CktvaDKhTesMueGCV2Kui1Sqna3Xs9",
-    "fields": {
-      "name": "Yearn Vaults",
-      "icon_url": "https://cloudflare-ipfs.com/ipfs/Qme9HuPPhgCtgfj1CktvaDKhTesMueGCV2Kui1Sqna3Xs9/logo.svg",
-      "description": "Safe App for interacting with Yearn Vaults",
-      "networks": "[\"1\"]"
-    }
-  },
-  {
-    "model": "safe_apps.safeapp",
-    "pk": "https://safe-cmm.gnosis.io",
-    "fields": {
-      "name": "Gnosis Custom Market Maker",
-      "icon_url": "https://safe-cmm.gnosis.io/img/appIcon.svg",
-      "description": "Allows you to deploy, withdraw and manage your custom market maker strategies",
-      "networks": "[\"4\", \"100\"]"
-    }
-  }
 ]
