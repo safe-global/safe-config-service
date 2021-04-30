@@ -7,7 +7,7 @@ class Provider(models.Model):
     name = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'{self.name} | {self.url}'
+        return f"{self.name} | {self.url}"
 
 
 class SafeApp(models.Model):
@@ -19,4 +19,4 @@ class SafeApp(models.Model):
     provider = models.ForeignKey(Provider, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return f'{self.name} | {self.url} | networks={self.networks}'
+        return f"{self.name} | {self.url} | networks={self.networks}"

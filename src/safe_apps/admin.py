@@ -4,11 +4,11 @@ from .models import SafeApp, Provider
 
 
 class NetworksFilter(admin.SimpleListFilter):
-    title = 'Networks'
-    parameter_name = 'networks'
+    title = "Networks"
+    parameter_name = "networks"
 
     def lookups(self, request, model_admin):
-        values = SafeApp.objects.values_list('networks', flat=True)
+        values = SafeApp.objects.values_list("networks", flat=True)
         # lookups requires a tuple to be returned – (value, verbose value)
         networks = [(network, network) for networks in values for network in networks]
         networks = sorted(set(networks))
@@ -22,14 +22,14 @@ class NetworksFilter(admin.SimpleListFilter):
 
 @admin.register(SafeApp)
 class SafeAppAdmin(admin.ModelAdmin):
-    list_display = ('name', 'url', 'networks')
+    list_display = ("name", "url", "networks")
     list_filter = (NetworksFilter,)
-    search_fields = ('name', 'url')
-    ordering = ('name',)
+    search_fields = ("name", "url")
+    ordering = ("name",)
 
 
 @admin.register(Provider)
 class ProviderAdmin(admin.ModelAdmin):
-    list_display = ('name', 'url')
-    search_fields = ('name',)
-    ordering = ('name',)
+    list_display = ("name", "url")
+    search_fields = ("name",)
+    ordering = ("name",)

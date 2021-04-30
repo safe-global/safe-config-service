@@ -6,7 +6,7 @@ from .models import SafeApp, Provider
 class ProviderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Provider
-        fields = ['url', 'name']
+        fields = ["url", "name"]
 
 
 class SafeAppsResponseSerializer(serializers.ModelSerializer):
@@ -14,4 +14,4 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SafeApp
-        fields = ['url', 'name', 'icon_url', 'description', 'networks', 'provider']
+        fields = ["url", "name", "icon_url", "description", "networks", "provider"]
