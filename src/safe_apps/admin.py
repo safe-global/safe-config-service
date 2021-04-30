@@ -12,12 +12,10 @@ class NetworksFilter(admin.SimpleListFilter):
         # lookups requires a tuple to be returned – (value, verbose value)
         networks = [(network, network) for networks in values for network in networks]
         networks = sorted(set(networks))
-        print(networks)
         return networks
 
     def queryset(self, request, queryset):
-        value = self.value()
-        if value:
+        if value := self.value():
             queryset = queryset.filter(networks__contains=[value])
         return queryset
 
