@@ -55,6 +55,7 @@ function ci:test {
 
   . .env
 
+  manage check
   flake8 "${@}"
   manage migrate
   test
