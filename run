@@ -51,6 +51,11 @@ function flake8 {
   cmd flake8 "${@}"
 }
 
+function isort {
+  # Sort imports with isort
+  cmd isort "${@}"
+}
+
 
 function ci:test {
   cp --no-clobber .env.example .env
