@@ -9,26 +9,37 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Provider',
+            name="Provider",
             fields=[
-                ('url', models.URLField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=200)),
+                ("url", models.URLField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=200)),
             ],
         ),
         migrations.CreateModel(
-            name='SafeApp',
+            name="SafeApp",
             fields=[
-                ('url', models.URLField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=200)),
-                ('icon_url', models.URLField()),
-                ('description', models.CharField(max_length=200)),
-                ('networks', django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), size=None)),
-                ('provider', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='safe_apps.provider')),
+                ("url", models.URLField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=200)),
+                ("icon_url", models.URLField()),
+                ("description", models.CharField(max_length=200)),
+                (
+                    "networks",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.IntegerField(), size=None
+                    ),
+                ),
+                (
+                    "provider",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="safe_apps.provider",
+                    ),
+                ),
             ],
         ),
     ]

@@ -41,6 +41,11 @@ function test {
   cmd pytest "${@}"
 }
 
+function black {
+  # Run Black code formatter check
+  cmd black "${@}"
+}
+
 function flake8 {
   # Lint Python code with flake8
   cmd flake8 "${@}"
@@ -56,7 +61,8 @@ function ci:test {
   . .env
 
   manage check
-  flake8 "${@}"
+  black --check .
+  flake8 .
   manage migrate
   test
 }
