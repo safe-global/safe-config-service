@@ -114,9 +114,9 @@ pytest src
 of these tools to check how to integrate them with your editor/IDE.
 
 ```shell
+isort --profile black src # sorts imports according to the isort spec with a profile compatible with Black
 black src # formats the files in the src folder using Black
 flake8 src # runs flake8 Linter in the src folder
-isort --profile black src # sorts imports according to the isort spec with a profile compatible with Black
 ```
 
 There's also a pre-commit hook that you can install locally via `pre-commit` so that it formats the files changed on each commit automatically:

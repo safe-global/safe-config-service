@@ -61,9 +61,9 @@ function ci:test {
   . .env
 
   manage check
+  isort --check --profile black .
   black --check .
   flake8 .
-  isort --check --profile black .
   manage migrate
   test
 }
