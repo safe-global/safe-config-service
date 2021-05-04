@@ -25,7 +25,7 @@ http {
       # server unix:/run/gunicorn.sock fail_timeout=0;
 
       # for a TCP configuration
-      server web:8000 fail_timeout=0;
+      server web:${GUNICORN_BIND_PORT} fail_timeout=0;
       keepalive 32;
     }
 

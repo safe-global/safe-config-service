@@ -3,13 +3,14 @@ version: "3.9"
 services:
   nginx:
     image: nginx:1.20-alpine
-    hostname: nginx
     links:
       - web:web
+    env_file:
+      - .env
     ports:
-      - "8080:80"
+      - "${NGINX_HOST_PORT}:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/templates:/etc/nginx/templates
     depends_on:
       - web
   db:
@@ -19,13 +20,13 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
   web:
     build: .
     tty: true
     env_file:
       - .env
-    command: gunicorn -c python:config.gunicorn config.wsgi -b 0.0.0.0:8000
+    command: gunicorn -c python:config.gunicorn config.wsgi -b 0.0.0.0:${GUNICORN_BIND_PORT}
     working_dir: /app/src
     depends_on:
       - db
