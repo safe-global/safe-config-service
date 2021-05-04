@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import SafeApp, Provider
+from .models import Provider, SafeApp
 
 
 class NetworksFilter(admin.SimpleListFilter):

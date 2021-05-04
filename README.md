@@ -110,10 +110,11 @@ pytest src
 
 ### Code Style Formatter and Linter
 
-[Black](https://black.readthedocs.io/en/stable/) and [Flake8](https://flake8.pycqa.org/en/latest/) are the tools used to validate the style of the changes being pushed. You can refer to the documentation
+[Black](https://black.readthedocs.io/en/stable/), [Flake8](https://flake8.pycqa.org/en/latest/) and [isort](https://pycqa.github.io/isort/) are the tools used to validate the style of the changes being pushed. You can refer to the documentation
 of these tools to check how to integrate them with your editor/IDE.
 
 ```shell
+isort --profile black src # sorts imports according to the isort spec with a profile compatible with Black
 black src # formats the files in the src folder using Black
 flake8 src # runs flake8 Linter in the src folder
 ```
