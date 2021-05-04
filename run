@@ -58,12 +58,12 @@ function isort {
 
 
 function ci:test {
-  cp --no-clobber .env.example .env
+  # Set environment
+  cp .env.example .env
+  cp docker-compose.override.yml.ci docker-compose.override.yml
 
   docker-compose build
   docker-compose up -d
-
-  . .env
 
   manage check
   isort --check --profile black .
