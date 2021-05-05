@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "config.middleware.LoggingMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -51,6 +52,38 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "short": {"format": "%(asctime)s %(message)s"},
+        "verbose": {
+            "format": "%(asctime)s [%(levelname)s] [%(processName)s] %(message)s"
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "console_short": {
+            "class": "logging.StreamHandler",
+            "formatter": "short",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),
+    },
+    "loggers": {
+        "LoggingMiddleware": {
+            "handlers": ["console_short"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
 
 ROOT_URLCONF = "config.urls"
 
