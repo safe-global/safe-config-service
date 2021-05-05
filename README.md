@@ -14,11 +14,14 @@ The service uses Gunicorn+Nginx as a connection proxy, Django as the main applic
 
 ### 1. Configuration
 
-The environment variables are set via the `.env` file. The configuration in `.env.example` is meant to be production ready for the most part. You can copy it and adjust it to your development needs (refer to the file for the explanation about each environment variable)
+The environment variables are set via the `.env` file. The configuration in `.env.example` is meant to be production ready. You can copy it and adjust it to your development needs (refer to the file for the explanation about each environment variable).
 
 ```shell
 cp .env.example .env
 ```
+
+Some variables are required to be set before running the application: `SECRET_KEY`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
+They can be set either locally on your environment or (as a provided example) by uncommenting these variables from the `.env` file.
 
 ### 2. Service deployment/development
 
