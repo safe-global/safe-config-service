@@ -9,7 +9,7 @@ from .serializers import SafeAppsResponseSerializer
 class SafeAppsListView(ListAPIView):
     serializer_class = SafeAppsResponseSerializer
 
-    @method_decorator(cache_page(60 * 60 * 1))  # Cache 1 hour
+    @method_decorator(cache_page(60 * 10))  # Cache 10 minutes
     def get(self, request, *args, **kwargs):
         return super().get(self, request, *args, **kwargs)
 
