@@ -1,7 +1,5 @@
 import json
 
-from django.core.cache import cache
-from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -18,9 +16,6 @@ class EmptySafeAppsListViewTests(APITestCase):
         self.assertEqual(json.loads(response.content), [])
 
 
-@override_settings(
-    CACHES={"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
-)
 class FilterSafeAppListViewTests(APITestCase):
     def test_all_safes_returned(self):
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
@@ -152,9 +147,6 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(json.loads(response.content), json_response)
 
 
-@override_settings(
-    CACHES={"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
-)
 class ProviderInfoTests(APITestCase):
     def test_provider_returned_in_response(self):
         provider = ProviderFactory.create()
@@ -200,8 +192,6 @@ class ProviderInfoTests(APITestCase):
 
 class CacheSafeAppTests(APITestCase):
     def test_should_cache_response(self):
-        # Clear cache and insert item
-        cache.clear()
         safe_app_1 = SafeAppFactory.create()
 
         json_response = [
@@ -218,13 +208,9 @@ class CacheSafeAppTests(APITestCase):
 
         response = self.client.get(path=url, data=None, format="json")
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), json_response)
+        cache_control = response.headers.get("Cache-Control")
 
-        # Insert another item
-        SafeAppFactory.create()
-
-        # Response should not have changed
-        response = self.client.get(path=url, data=None, format="json")
         self.assertEqual(response.status_code, 200)
+        # Cache-Control should be 10 minutes (60 * 10)
+        self.assertEqual(cache_control, "max-age=600")
         self.assertEqual(json.loads(response.content), json_response)
