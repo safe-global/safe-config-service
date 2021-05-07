@@ -89,5 +89,9 @@ jobs:
         run: python src/manage.py migrate
       - name: Django System Check
         run: python src/manage.py check
-      - name: Run tests
-        run: pytest src/
+      - name: Run tests with coverage
+        run: coverage run --source=src/ -m pytest src
+      - name: Upload coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: coveralls --service=github

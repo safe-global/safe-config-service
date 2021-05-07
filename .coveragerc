@@ -1,0 +1,6 @@
+[run]
+omit =
+    src/config/asgi.py
+    src/config/gunicorn.py
+    src/config/wsgi.py
+    src/manage.py
