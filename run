@@ -37,44 +37,6 @@ function manage {
   cmd python manage.py "${@}"
 }
 
-function test {
-  # Run pytest commands
-
-  cmd pytest "${@}"
-}
-
-function black {
-  # Run Black code formatter check
-  cmd black "${@}"
-}
-
-function flake8 {
-  # Lint Python code with flake8
-  cmd flake8 "${@}"
-}
-
-function isort {
-  # Sort imports with isort
-  cmd isort "${@}"
-}
-
-
-function ci:test {
-  # Set environment
-  cp .env.example .env
-  cp docker-compose.override.yml.ci docker-compose.override.yml
-
-  docker-compose build
-  docker-compose up -d
-
-  manage check
-  isort --check --profile black .
-  black --check .
-  flake8 .
-  manage migrate
-  test
-}
-
 function help {
   printf "%s <task> [args]\n\nTasks:\n" "${0}"
 
