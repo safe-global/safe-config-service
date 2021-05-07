@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.generics import ListAPIView
 
 from .models import SafeApp
@@ -6,6 +8,10 @@ from .serializers import SafeAppsResponseSerializer
 
 class SafeAppsListView(ListAPIView):
     serializer_class = SafeAppsResponseSerializer
+
+    @method_decorator(cache_page(60 * 10))  # Cache 10 minutes
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = SafeApp.objects.all()
