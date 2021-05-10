@@ -92,6 +92,7 @@ jobs:
       - name: Run tests with coverage
         run: coverage run --source=src/ -m pytest src
       - name: Upload coverage
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github
