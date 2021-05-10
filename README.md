@@ -1,5 +1,7 @@
 # safe-config-service
 
+[![Coverage Status](https://coveralls.io/repos/github/gnosis/safe-config-service/badge.svg)](https://coveralls.io/github/gnosis/safe-config-service)
+
 The `safe-config-service` is a service that provides configuration information in the context of the Safe clients environment (eg.: list of available safe apps).
 
 ## Requirements
