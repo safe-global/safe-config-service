@@ -31,6 +31,8 @@ jobs:
         with:
           context: .
           push: true
+          # Target production image from multi-stage build (check Dockerfile)
+          target: python-base
           tags: gnosispm/safe-config-service:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
