@@ -26,7 +26,6 @@ services:
     tty: true
     env_file:
       - .env
-    command: gunicorn -c python:config.gunicorn config.wsgi -b 0.0.0.0:${GUNICORN_BIND_PORT}
-    working_dir: /app/src
+    command: gunicorn -c /app/src/config/gunicorn.py config.wsgi -b 0.0.0.0:${GUNICORN_BIND_PORT} --chdir /app/src/
     depends_on:
       - db
