@@ -1,0 +1,62 @@
+from django.contrib.admin import site
+from django.contrib.auth.models import User
+from django.test import RequestFactory, TestCase
+
+from ..admin import SafeAppAdmin
+from ..models import SafeApp
+from ..tests.factories import SafeAppFactory
+
+
+class NetworkFilterTest(TestCase):
+    request_factory = RequestFactory()
+
+    @classmethod
+    def setUpTestData(cls):
+        # Create superuser (alfred)
+        cls.alfred = User.objects.create_superuser(
+            "alfred", "alfred@example.com", "password"
+        )
+
+    def test_look_up(self):
+        # Add safe apps and configure request
+        SafeAppFactory.create(networks=[3])
+        SafeAppFactory.create(networks=[1])
+        SafeAppFactory.create(networks=[100])
+        safe_app_admin = SafeAppAdmin(SafeApp, site)
+        request = self.request_factory.get("/")
+        request.user = self.alfred
+
+        changelist = safe_app_admin.get_changelist_instance(request)
+
+        filterspec = changelist.get_filters(request)[0][0]
+        # The lookup should return a tuple of (network, network)
+        expected = [(1, 1), (3, 3), (100, 100)]
+        self.assertEqual(filterspec.lookup_choices, expected)
+
+    def test_unfiltered_lookup(self):
+        safe_app_1 = SafeAppFactory.create(networks=[3])
+        safe_app_2 = SafeAppFactory.create(networks=[1])
+        safe_app_3 = SafeAppFactory.create(networks=[100])
+        safe_app_admin = SafeAppAdmin(SafeApp, site)
+        request = self.request_factory.get("/")
+        request.user = self.alfred
+
+        changelist = safe_app_admin.get_changelist_instance(request)
+
+        # The queryset should contain all apps (no filter)
+        queryset = changelist.get_queryset(request)
+        self.assertEqual(set(queryset), {safe_app_2, safe_app_1, safe_app_3})
+
+    def test_filtered_lookup(self):
+        safe_app_2 = SafeAppFactory.create(networks=[1])
+        SafeAppFactory.create(networks=[3])
+        SafeAppFactory.create(networks=[100])
+        safe_app_admin = SafeAppAdmin(SafeApp, site)
+        request = self.request_factory.get("/", {"networks": "1"})
+        request.user = self.alfred
+
+        changelist = safe_app_admin.get_changelist_instance(request)
+
+        # The queryset should contain apps with network 1
+        queryset = changelist.get_queryset(request)
+        self.assertEqual(set(queryset), {safe_app_2})
