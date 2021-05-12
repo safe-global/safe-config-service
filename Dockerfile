@@ -1,4 +1,4 @@
-FROM python:3.9.4-alpine3.13 as python-base
+FROM python:3.9.4-alpine3.13 as production
 
 # python
 ENV PYTHONUNBUFFERED=1 \
@@ -12,22 +12,17 @@ ENV PYTHONUNBUFFERED=1 \
     CRYPTOGRAPHY_DONT_BUILD_RUST=1
 
 ENV PYTHONUSERBASE=/python-deps
+ENV PATH="${PATH}:${PYTHONUSERBASE}/bin"
 
 RUN set -ex \
     && apk add --no-cache --virtual .build-deps postgresql-dev build-base libffi-dev
 
-# Install Python deps
-COPY requirements.txt ./
+WORKDIR /app
+COPY . .
 RUN pip3 install --no-warn-script-location --user -r requirements.txt
 
 # ------- development image -------
+FROM production as development
 
-FROM python-base as development
 ENV PATH="${PATH}:${PYTHONUSERBASE}/bin"
-
-# venv already has runtime deps installed we get a quicker install
-COPY requirements-dev.txt ./
 RUN pip3 install --no-warn-script-location --user -r requirements-dev.txt
-
-WORKDIR /app
-COPY . .
