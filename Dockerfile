@@ -15,11 +15,18 @@ ENV PYTHONUSERBASE=/python-deps
 ENV PATH="${PATH}:${PYTHONUSERBASE}/bin"
 
 RUN set -ex \
-    && apk add --no-cache --virtual .build-deps postgresql-dev build-base libffi-dev
+    && apk add --no-cache --virtual .build-deps \
+    build-base \
+    libffi-dev \
+    postgresql-dev \
+    tini
 
 WORKDIR /app
 COPY . .
-RUN pip3 install --no-warn-script-location --user -r requirements.txt
+RUN pip3 install --no-warn-script-location --user -r requirements.txt \
+    && chmod +x docker-entrypoint.sh
+
+ENTRYPOINT ["/sbin/tini", "--", "./docker-entrypoint.sh"]
 
 # ------- development image -------
 FROM production as development
