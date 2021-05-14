@@ -27,9 +27,20 @@ DEBUG = bool(strtobool(os.getenv("DEBUG", "false")))
 
 # https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-ALLOWED_HOSTS
 allowed_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", ".localhost,127.0.0.1,[::1]")
-ALLOWED_HOSTS = list(map(str.strip, allowed_hosts.split(",")))
+ALLOWED_HOSTS = [allowed_host.strip() for allowed_host in allowed_hosts.split(",")]
 
 # Application definition
+
+default_renderer_classes = os.getenv(
+    "REST_DEFAULT_RENDERER_CLASSES", "rest_framework.renderers.JSONRenderer"
+)
+REST_FRAMEWORK = {
+    # https://www.django-rest-framework.org/api-guide/renderers/
+    "DEFAULT_RENDERER_CLASSES": [
+        default_renderer_class.strip()
+        for default_renderer_class in default_renderer_classes.split(",")
+    ]
+}
 
 INSTALLED_APPS = [
     "safe_apps.apps.AppsConfig",
