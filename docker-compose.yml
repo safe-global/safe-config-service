@@ -1,16 +1,18 @@
 version: "3.9"
 
+volumes:
+  nginx-shared:
+
 services:
   nginx:
     image: nginx:1.20-alpine
-    links:
-      - web:web
     env_file:
       - .env
     ports:
       - "${NGINX_HOST_PORT}:80"
     volumes:
       - ./nginx/templates:/etc/nginx/templates
+      - nginx-shared:${DOCKER_NGINX_VOLUME_ROOT}
     depends_on:
       - web
   db:
@@ -24,6 +26,8 @@ services:
   web:
     build: .
     tty: true
+    volumes:
+      - nginx-shared:${DOCKER_NGINX_VOLUME_ROOT}
     env_file:
       - .env
     depends_on:
