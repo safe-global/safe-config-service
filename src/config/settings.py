@@ -31,6 +31,17 @@ ALLOWED_HOSTS = list(map(str.strip, allowed_hosts.split(",")))
 
 # Application definition
 
+
+default_renderer_classes = os.getenv(
+    "REST_DEFAULT_RENDERER_CLASSES", "rest_framework.renderers.JSONRenderer"
+)
+REST_FRAMEWORK = {
+    # https://www.django-rest-framework.org/api-guide/renderers/
+    "DEFAULT_RENDERER_CLASSES": list(
+        map(str.strip, default_renderer_classes.split(","))
+    )
+}
+
 INSTALLED_APPS = [
     "safe_apps.apps.AppsConfig",
     "django.contrib.admin",
