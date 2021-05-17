@@ -23,7 +23,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
-                "icon_url": safe_app_1.icon_url,
+                "iconUrl": safe_app_1.icon_url,
                 "description": safe_app_1.description,
                 "networks": safe_app_1.networks,
                 "provider": None,
@@ -31,7 +31,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_2.url,
                 "name": safe_app_2.name,
-                "icon_url": safe_app_2.icon_url,
+                "iconUrl": safe_app_2.icon_url,
                 "description": safe_app_2.description,
                 "networks": safe_app_2.networks,
                 "provider": None,
@@ -39,7 +39,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_3.url,
                 "name": safe_app_3.name,
-                "icon_url": safe_app_3.icon_url,
+                "iconUrl": safe_app_3.icon_url,
                 "description": safe_app_3.description,
                 "networks": safe_app_3.networks,
                 "provider": None,
@@ -58,7 +58,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
-                "icon_url": safe_app_1.icon_url,
+                "iconUrl": safe_app_1.icon_url,
                 "description": safe_app_1.description,
                 "networks": safe_app_1.networks,
                 "provider": None,
@@ -66,7 +66,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_2.url,
                 "name": safe_app_2.name,
-                "icon_url": safe_app_2.icon_url,
+                "iconUrl": safe_app_2.icon_url,
                 "description": safe_app_2.description,
                 "networks": safe_app_2.networks,
                 "provider": None,
@@ -74,7 +74,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_3.url,
                 "name": safe_app_3.name,
-                "icon_url": safe_app_3.icon_url,
+                "iconUrl": safe_app_3.icon_url,
                 "description": safe_app_3.description,
                 "networks": safe_app_3.networks,
                 "provider": None,
@@ -95,7 +95,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_4.url,
                 "name": safe_app_4.name,
-                "icon_url": safe_app_4.icon_url,
+                "iconUrl": safe_app_4.icon_url,
                 "description": safe_app_4.description,
                 "networks": safe_app_4.networks,
                 "provider": None,
@@ -103,7 +103,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_5.url,
                 "name": safe_app_5.name,
-                "icon_url": safe_app_5.icon_url,
+                "iconUrl": safe_app_5.icon_url,
                 "description": safe_app_5.description,
                 "networks": safe_app_5.networks,
                 "provider": None,
@@ -133,7 +133,7 @@ class FilterSafeAppListViewTests(APITestCase):
             {
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
-                "icon_url": safe_app_1.icon_url,
+                "iconUrl": safe_app_1.icon_url,
                 "description": safe_app_1.description,
                 "networks": safe_app_1.networks,
                 "provider": None,
@@ -156,7 +156,7 @@ class ProviderInfoTests(APITestCase):
             {
                 "url": safe_app.url,
                 "name": safe_app.name,
-                "icon_url": safe_app.icon_url,
+                "iconUrl": safe_app.icon_url,
                 "description": safe_app.description,
                 "networks": safe_app.networks,
                 "provider": {"name": provider.name, "url": provider.url},
@@ -176,7 +176,7 @@ class ProviderInfoTests(APITestCase):
             {
                 "url": safe_app.url,
                 "name": safe_app.name,
-                "icon_url": safe_app.icon_url,
+                "iconUrl": safe_app.icon_url,
                 "description": safe_app.description,
                 "networks": safe_app.networks,
                 "provider": None,
@@ -198,7 +198,7 @@ class CacheSafeAppTests(APITestCase):
             {
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
-                "icon_url": safe_app_1.icon_url,
+                "iconUrl": safe_app_1.icon_url,
                 "description": safe_app_1.description,
                 "networks": safe_app_1.networks,
                 "provider": None,
