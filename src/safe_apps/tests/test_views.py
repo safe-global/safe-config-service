@@ -1,5 +1,3 @@
-import json
-
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -13,7 +11,29 @@ class EmptySafeAppsListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), [])
+        self.assertEqual(response.data, [])
+
+
+class JsonPayloadFormatViewTests(APITestCase):
+    def test_json_payload_format(self):
+        safe_app = SafeAppFactory.create()
+
+        json_response = [
+            {
+                "url": safe_app.url,
+                "name": safe_app.name,
+                "iconUrl": safe_app.icon_url,
+                "description": safe_app.description,
+                "networks": safe_app.networks,
+                "provider": None,
+            }
+        ]
+        url = reverse("v1:safe-apps")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), json_response)
 
 
 class FilterSafeAppListViewTests(APITestCase):
@@ -50,7 +70,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), json_response)
+        self.assertEqual(response.data, json_response)
 
     def test_all_apps_returned_on_empty_network_value(self):
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
@@ -85,7 +105,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), json_response)
+        self.assertEqual(response.data, json_response)
 
     def test_apps_returned_on_filtered_network(self):
         SafeAppFactory.create_batch(3, networks=[10])
@@ -114,7 +134,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), json_response)
+        self.assertEqual(response.data, json_response)
 
     def test_apps_returned_on_unexisting_network(self):
         SafeAppFactory.create_batch(3, networks=[12])
@@ -124,7 +144,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), json_response)
+        self.assertEqual(response.data, json_response)
 
     def test_apps_returned_on_same_key_pair(self):
         safe_app_1 = SafeAppFactory.create(networks=[1])
@@ -144,7 +164,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), json_response)
+        self.assertEqual(response.data, json_response)
 
 
 class ProviderInfoTests(APITestCase):
@@ -167,7 +187,7 @@ class ProviderInfoTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), json_response)
+        self.assertEqual(response.data, json_response)
 
     def test_provider_not_returned_in_response(self):
         safe_app = SafeAppFactory.create()
@@ -187,7 +207,7 @@ class ProviderInfoTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), json_response)
+        self.assertEqual(response.data, json_response)
 
 
 class CacheSafeAppTests(APITestCase):
@@ -213,4 +233,4 @@ class CacheSafeAppTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         # Cache-Control should be 10 minutes (60 * 10)
         self.assertEqual(cache_control, "max-age=600")
-        self.assertEqual(json.loads(response.content), json_response)
+        self.assertEqual(response.data, json_response)
