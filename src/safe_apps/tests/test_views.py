@@ -14,6 +14,28 @@ class EmptySafeAppsListViewTests(APITestCase):
         self.assertEqual(response.data, [])
 
 
+class JsonPayloadFormatViewTests(APITestCase):
+    def test_json_payload_format(self):
+        safe_app = SafeAppFactory.create()
+
+        json_response = [
+            {
+                "url": safe_app.url,
+                "name": safe_app.name,
+                "iconUrl": safe_app.icon_url,
+                "description": safe_app.description,
+                "networks": safe_app.networks,
+                "provider": None,
+            }
+        ]
+        url = reverse("v1:safe-apps")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), json_response)
+
+
 class FilterSafeAppListViewTests(APITestCase):
     def test_all_safes_returned(self):
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)

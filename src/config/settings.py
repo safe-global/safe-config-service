@@ -31,15 +31,10 @@ ALLOWED_HOSTS = [allowed_host.strip() for allowed_host in allowed_hosts.split(",
 
 # Application definition
 
-default_renderer_classes = os.getenv(
-    "REST_DEFAULT_RENDERER_CLASSES",
-    "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
-)
 REST_FRAMEWORK = {
     # https://www.django-rest-framework.org/api-guide/renderers/
     "DEFAULT_RENDERER_CLASSES": [
-        default_renderer_class.strip()
-        for default_renderer_class in default_renderer_classes.split(",")
+        "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
     ]
 }
 
