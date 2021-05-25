@@ -3,22 +3,17 @@ updates:
   - package-ecosystem: pip
     directory: "/"
     schedule:
-      interval: daily
-    reviewers:
-      - "fmrsabino"
+      interval: weekly
+      day: monday
 
   - package-ecosystem: docker
     directory: "/"
     schedule:
       interval: weekly
       day: monday
-    reviewers:
-      - "fmrsabino"
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
       day: monday
-    reviewers:
-      - "fmrsabino"
