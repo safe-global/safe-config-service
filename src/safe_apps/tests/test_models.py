@@ -10,9 +10,9 @@ class ProviderTestCase(TestCase):
 
 
 class SafeAppTestCase(TestCase):
-    def test_str_method_outputs_name_url_networks(self):
+    def test_str_method_outputs_name_url_chain_id(self):
         safe_app = SafeAppFactory.create()
         self.assertEqual(
             str(safe_app),
-            f"{safe_app.name} | {safe_app.url} | networks={safe_app.networks}",
+            f"{safe_app.name} | {safe_app.url} | chain_ids={safe_app.chain_ids}",
         )
