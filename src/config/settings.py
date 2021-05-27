@@ -39,6 +39,7 @@ REST_FRAMEWORK = {
 }
 
 INSTALLED_APPS = [
+    "corsheaders",
     "safe_apps.apps.AppsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "config.middleware.LoggingMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -182,3 +184,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SWAGGER_SETTINGS = {
     "DEFAULT_INFO": "config.swagger_info.SAFE_CONFIG_SERVICE_SWAGGER_INFO"
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_URLS_REGEX = r"^/api/.*$"
