@@ -12,9 +12,9 @@ class SafeAppsListView(ListAPIView):
     serializer_class = SafeAppsResponseSerializer
 
     _swagger_network_id_param = openapi.Parameter(
-        "network_id",
+        "chainId",
         openapi.IN_QUERY,
-        description="Used to filter Safe Apps that are available on `network_id`",
+        description="Used to filter Safe Apps that are available on `chainId`",
         type=openapi.TYPE_INTEGER,
     )
 
@@ -22,7 +22,7 @@ class SafeAppsListView(ListAPIView):
     @swagger_auto_schema(manual_parameters=[_swagger_network_id_param])
     def get(self, request, *args, **kwargs):
         """
-        Returns a collection of Safe Apps (across different networks).
+        Returns a collection of Safe Apps (across different chains).
         Each Safe App can optionally include the information about the `Provider`
         """
         return super().get(self, request, *args, **kwargs)
@@ -30,8 +30,8 @@ class SafeAppsListView(ListAPIView):
     def get_queryset(self):
         queryset = SafeApp.objects.all()
 
-        network_id = self.request.query_params.get("network_id")
+        network_id = self.request.query_params.get("chainId")
         if network_id is not None and network_id.isdigit():
-            queryset = queryset.filter(networks__contains=[network_id])
+            queryset = queryset.filter(chain_ids__contains=[network_id])
 
         return queryset

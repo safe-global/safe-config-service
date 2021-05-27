@@ -24,7 +24,7 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "name": safe_app.name,
                 "iconUrl": safe_app.icon_url,
                 "description": safe_app.description,
-                "networks": safe_app.networks,
+                "chainIds": safe_app.chain_ids,
                 "provider": None,
             }
         ]
@@ -45,7 +45,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "name": safe_app_1.name,
                 "icon_url": safe_app_1.icon_url,
                 "description": safe_app_1.description,
-                "networks": safe_app_1.networks,
+                "chain_ids": safe_app_1.chain_ids,
                 "provider": None,
             },
             {
@@ -53,7 +53,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "name": safe_app_2.name,
                 "icon_url": safe_app_2.icon_url,
                 "description": safe_app_2.description,
-                "networks": safe_app_2.networks,
+                "chain_ids": safe_app_2.chain_ids,
                 "provider": None,
             },
             {
@@ -61,7 +61,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "name": safe_app_3.name,
                 "icon_url": safe_app_3.icon_url,
                 "description": safe_app_3.description,
-                "networks": safe_app_3.networks,
+                "chain_ids": safe_app_3.chain_ids,
                 "provider": None,
             },
         ]
@@ -72,7 +72,7 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, json_response)
 
-    def test_all_apps_returned_on_empty_network_value(self):
+    def test_all_apps_returned_on_empty_chain_id_value(self):
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
         json_response = [
             {
@@ -80,7 +80,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "name": safe_app_1.name,
                 "icon_url": safe_app_1.icon_url,
                 "description": safe_app_1.description,
-                "networks": safe_app_1.networks,
+                "chain_ids": safe_app_1.chain_ids,
                 "provider": None,
             },
             {
@@ -88,7 +88,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "name": safe_app_2.name,
                 "icon_url": safe_app_2.icon_url,
                 "description": safe_app_2.description,
-                "networks": safe_app_2.networks,
+                "chain_ids": safe_app_2.chain_ids,
                 "provider": None,
             },
             {
@@ -96,20 +96,20 @@ class FilterSafeAppListViewTests(APITestCase):
                 "name": safe_app_3.name,
                 "icon_url": safe_app_3.icon_url,
                 "description": safe_app_3.description,
-                "networks": safe_app_3.networks,
+                "chain_ids": safe_app_3.chain_ids,
                 "provider": None,
             },
         ]
-        url = reverse("v1:safe-apps") + f'{"?network_id="}'
+        url = reverse("v1:safe-apps") + f'{"?chainId="}'
 
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, json_response)
 
-    def test_apps_returned_on_filtered_network(self):
-        SafeAppFactory.create_batch(3, networks=[10])
-        (safe_app_4, safe_app_5) = SafeAppFactory.create_batch(2, networks=[1])
+    def test_apps_returned_on_filtered_chain_id(self):
+        SafeAppFactory.create_batch(3, chain_ids=[10])
+        (safe_app_4, safe_app_5) = SafeAppFactory.create_batch(2, chain_ids=[1])
 
         json_response = [
             {
@@ -117,7 +117,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "name": safe_app_4.name,
                 "icon_url": safe_app_4.icon_url,
                 "description": safe_app_4.description,
-                "networks": safe_app_4.networks,
+                "chain_ids": safe_app_4.chain_ids,
                 "provider": None,
             },
             {
@@ -125,21 +125,21 @@ class FilterSafeAppListViewTests(APITestCase):
                 "name": safe_app_5.name,
                 "icon_url": safe_app_5.icon_url,
                 "description": safe_app_5.description,
-                "networks": safe_app_5.networks,
+                "chain_ids": safe_app_5.chain_ids,
                 "provider": None,
             },
         ]
-        url = reverse("v1:safe-apps") + f'{"?network_id=1"}'
+        url = reverse("v1:safe-apps") + f'{"?chainId=1"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, json_response)
 
-    def test_apps_returned_on_unexisting_network(self):
-        SafeAppFactory.create_batch(3, networks=[12])
+    def test_apps_returned_on_unexisting_chain(self):
+        SafeAppFactory.create_batch(3, chain_ids=[12])
         json_response = []
-        url = reverse("v1:safe-apps") + f'{"?network_id=10"}'
+        url = reverse("v1:safe-apps") + f'{"?chainId=10"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -147,19 +147,19 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(response.data, json_response)
 
     def test_apps_returned_on_same_key_pair(self):
-        safe_app_1 = SafeAppFactory.create(networks=[1])
-        SafeAppFactory.create(networks=[2])
+        safe_app_1 = SafeAppFactory.create(chain_ids=[1])
+        SafeAppFactory.create(chain_ids=[2])
         json_response = [
             {
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
                 "icon_url": safe_app_1.icon_url,
                 "description": safe_app_1.description,
-                "networks": safe_app_1.networks,
+                "chain_ids": safe_app_1.chain_ids,
                 "provider": None,
             }
         ]
-        url = reverse("v1:safe-apps") + f'{"?network_id=2&network_id=1"}'
+        url = reverse("v1:safe-apps") + f'{"?chainId=2&chainId=1"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -178,7 +178,7 @@ class ProviderInfoTests(APITestCase):
                 "name": safe_app.name,
                 "icon_url": safe_app.icon_url,
                 "description": safe_app.description,
-                "networks": safe_app.networks,
+                "chain_ids": safe_app.chain_ids,
                 "provider": {"name": provider.name, "url": provider.url},
             }
         ]
@@ -198,7 +198,7 @@ class ProviderInfoTests(APITestCase):
                 "name": safe_app.name,
                 "icon_url": safe_app.icon_url,
                 "description": safe_app.description,
-                "networks": safe_app.networks,
+                "chain_ids": safe_app.chain_ids,
                 "provider": None,
             }
         ]
@@ -220,7 +220,7 @@ class CacheSafeAppTests(APITestCase):
                 "name": safe_app_1.name,
                 "icon_url": safe_app_1.icon_url,
                 "description": safe_app_1.description,
-                "networks": safe_app_1.networks,
+                "chain_ids": safe_app_1.chain_ids,
                 "provider": None,
             }
         ]

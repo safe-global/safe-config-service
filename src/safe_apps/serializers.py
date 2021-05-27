@@ -14,4 +14,4 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SafeApp
-        fields = ["url", "name", "icon_url", "description", "networks", "provider"]
+        fields = ["url", "name", "icon_url", "description", "chain_ids", "provider"]

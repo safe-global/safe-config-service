@@ -20,5 +20,5 @@ class SafeAppFactory(DjangoModelFactory):
     name = factory.Faker("company")
     icon_url = factory.Faker("image_url")
     description = factory.Faker("catch_phrase")
-    networks = factory.Faker("pylist", nb_elements=2, value_types=(int,))
+    chain_ids = factory.Faker("pylist", nb_elements=2, value_types=(int,))
     provider = None
