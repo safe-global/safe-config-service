@@ -16,7 +16,7 @@ services:
     depends_on:
       - web
   db:
-    image: postgres:13-alpine
+    image: postgres:13.3-alpine
     env_file:
       - .env
     volumes:
