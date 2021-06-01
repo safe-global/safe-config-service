@@ -6,7 +6,7 @@ from .factories import ProviderFactory, SafeAppFactory
 
 class EmptySafeAppsListViewTests(APITestCase):
     def test_empty_set(self):
-        url = reverse("safe-apps:safe-apps")
+        url = reverse("v1:safe-apps")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -28,7 +28,7 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "provider": None,
             }
         ]
-        url = reverse("safe-apps:safe-apps")
+        url = reverse("v1:safe-apps")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -65,7 +65,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             },
         ]
-        url = reverse("safe-apps:safe-apps")
+        url = reverse("v1:safe-apps")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -100,7 +100,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             },
         ]
-        url = reverse("safe-apps:safe-apps") + f'{"?chainId="}'
+        url = reverse("v1:safe-apps") + f'{"?chainId="}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -129,7 +129,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             },
         ]
-        url = reverse("safe-apps:safe-apps") + f'{"?chainId=1"}'
+        url = reverse("v1:safe-apps") + f'{"?chainId=1"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -139,7 +139,7 @@ class FilterSafeAppListViewTests(APITestCase):
     def test_apps_returned_on_unexisting_chain(self):
         SafeAppFactory.create_batch(3, chain_ids=[12])
         json_response = []
-        url = reverse("safe-apps:safe-apps") + f'{"?chainId=10"}'
+        url = reverse("v1:safe-apps") + f'{"?chainId=10"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -159,7 +159,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             }
         ]
-        url = reverse("safe-apps:safe-apps") + f'{"?chainId=2&chainId=1"}'
+        url = reverse("v1:safe-apps") + f'{"?chainId=2&chainId=1"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -182,7 +182,7 @@ class ProviderInfoTests(APITestCase):
                 "provider": {"name": provider.name, "url": provider.url},
             }
         ]
-        url = reverse("safe-apps:safe-apps")
+        url = reverse("v1:safe-apps")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -202,7 +202,7 @@ class ProviderInfoTests(APITestCase):
                 "provider": None,
             }
         ]
-        url = reverse("safe-apps:safe-apps")
+        url = reverse("v1:safe-apps")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -224,7 +224,7 @@ class CacheSafeAppTests(APITestCase):
                 "provider": None,
             }
         ]
-        url = reverse("safe-apps:safe-apps")
+        url = reverse("v1:safe-apps")
 
         response = self.client.get(path=url, data=None, format="json")
 
