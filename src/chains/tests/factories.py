@@ -13,5 +13,5 @@ class ChainFactory(DjangoModelFactory):
     rpc_url = factory.Faker("url")
     block_explorer_url = factory.Faker("url")
     currency_name = factory.Faker("cryptocurrency_name")
-    currency_symbol = factory.Faker("currency_symbol")
+    currency_symbol = factory.Faker("cryptocurrency_code")
     currency_decimals = factory.Faker("pyint")
