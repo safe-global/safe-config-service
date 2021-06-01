@@ -13,5 +13,4 @@ class ChainsListView(ListAPIView):
         return super().get(self, request, *args, **kwargs)
 
     def get_queryset(self):
-        queryset = Chain.objects.all()
-        return queryset
+        return Chain.objects.all()
