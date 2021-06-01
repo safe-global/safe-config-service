@@ -6,7 +6,7 @@ from .factories import ChainFactory
 
 class EmptyChainsListViewTests(APITestCase):
     def test_empty_chains(self):
-        url = reverse("chains:chains")
+        url = reverse("chains:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -30,7 +30,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                 },
             }
         ]
-        url = reverse("chains:chains")
+        url = reverse("chains:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
