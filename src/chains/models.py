@@ -2,8 +2,8 @@ from django.db import models
 
 
 class Chain(models.Model):
-    id = models.PositiveBigIntegerField(primary_key=True)
-    name = models.CharField(max_length=255)
+    id = models.PositiveBigIntegerField(verbose_name="Chain Id", primary_key=True)
+    name = models.CharField(verbose_name="Chain name", max_length=255)
     rpc_url = models.URLField()
     block_explorer_url = models.URLField(null=True)
     currency_name = models.CharField(null=True, max_length=255)
