@@ -10,6 +10,7 @@ from .serializers import SafeAppsResponseSerializer
 
 class SafeAppsListView(ListAPIView):
     serializer_class = SafeAppsResponseSerializer
+    pagination_class = None
 
     _swagger_network_id_param = openapi.Parameter(
         "chainId",
