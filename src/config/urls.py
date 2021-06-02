@@ -12,6 +12,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("api/v1/", include("safe_apps.urls", namespace="v1")),
+    path("api/v1/", include("chains.urls", namespace="chains")),
     path("admin/", admin.site.urls),
     path("check/", lambda request: HttpResponse("Ok"), name="check"),
     re_path(

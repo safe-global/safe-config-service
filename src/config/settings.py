@@ -40,6 +40,7 @@ REST_FRAMEWORK = {
 
 INSTALLED_APPS = [
     "corsheaders",
+    "chains.apps.AppsConfig",
     "safe_apps.apps.AppsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
