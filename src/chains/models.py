@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Chain(models.Model):
-    id = models.CharField(primary_key=True, max_length=255)
+    id = models.PositiveBigIntegerField(primary_key=True)
     name = models.CharField(max_length=255)
     rpc_url = models.URLField()
     block_explorer_url = models.URLField(null=True)
