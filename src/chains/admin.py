@@ -5,4 +5,6 @@ from .models import Chain
 
 @admin.register(Chain)
 class ChainAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("id", "name", "rpc_url")
+    search_fields = ("name", "id")
+    ordering = ("id",)
