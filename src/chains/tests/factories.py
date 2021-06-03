@@ -8,7 +8,7 @@ class ChainFactory(DjangoModelFactory):
     class Meta:
         model = Chain
 
-    id = factory.Faker("pystr_format", string_format="#{{random_int}}")
+    id = factory.Faker("pyint")
     name = factory.Faker("company")
     rpc_url = factory.Faker("url")
     block_explorer_url = factory.Faker("url")

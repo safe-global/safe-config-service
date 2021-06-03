@@ -24,7 +24,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
             "previous": None,
             "results": [
                 {
-                    "chainId": chain.id,
+                    "chainId": str(chain.id),
                     "chainName": chain.name,
                     "rpcUrl": chain.rpc_url,
                     "blockExplorerUrl": chain.block_explorer_url,
@@ -53,14 +53,14 @@ class ChainPaginationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         # number of items should be equal to the number of total items
-        self.assertEqual(response.json()["count"], 11)
+        self.assertEqual(response.data["count"], 11)
         self.assertEqual(
-            response.json()["next"],
+            response.data["next"],
             "http://testserver/api/v1/chains/?limit=10&offset=10",
         )
-        self.assertEqual(response.json()["previous"], None)
+        self.assertEqual(response.data["previous"], None)
         # returned items should be equal to max_limit
-        self.assertEqual(len(response.json()["results"]), 10)
+        self.assertEqual(len(response.data["results"]), 10)
 
     def test_request_more_than_max_limit_should_return_max_limit(self):
         ChainFactory.create_batch(11)
@@ -71,14 +71,14 @@ class ChainPaginationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         # number of items should be equal to the number of total items
-        self.assertEqual(response.json()["count"], 11)
+        self.assertEqual(response.data["count"], 11)
         self.assertEqual(
-            response.json()["next"],
+            response.data["next"],
             "http://testserver/api/v1/chains/?limit=10&offset=10",
         )
-        self.assertEqual(response.json()["previous"], None)
+        self.assertEqual(response.data["previous"], None)
         # returned items should still be equal to max_limit
-        self.assertEqual(len(response.json()["results"]), 10)
+        self.assertEqual(len(response.data["results"]), 10)
 
     def test_offset_greater_than_count(self):
         ChainFactory.create_batch(11)
@@ -87,13 +87,62 @@ class ChainPaginationViewTests(APITestCase):
 
         response = self.client.get(path=url, data=None, format="json")
 
-        print(response.json())
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["count"], 11)
-        self.assertEqual(response.json()["next"], None)
+        self.assertEqual(response.data["count"], 11)
+        self.assertEqual(response.data["next"], None)
         self.assertEqual(
-            response.json()["previous"],
+            response.data["previous"],
             "http://testserver/api/v1/chains/?limit=10&offset=1",
         )
         # returned items should still be zero
-        self.assertEqual(len(response.json()["results"]), 0)
+        self.assertEqual(len(response.data["results"]), 0)
+
+
+class ChainDetailViewTests(APITestCase):
+    def test_json_payload_format(self):
+        chain = ChainFactory.create(id=1)
+        url = reverse("chains:detail", args=[1])
+        json_response = {
+            "chainId": str(chain.id),
+            "chainName": chain.name,
+            "rpcUrl": chain.rpc_url,
+            "blockExplorerUrl": chain.block_explorer_url,
+            "nativeCurrency": {
+                "name": chain.currency_name,
+                "symbol": chain.currency_symbol,
+                "decimals": chain.currency_decimals,
+            },
+        }
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), json_response)
+
+    def test_no_match(self):
+        ChainFactory.create(id=1)
+        url = reverse("chains:detail", args=[2])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_match(self):
+        chain = ChainFactory.create(id=1)
+        url = reverse("chains:detail", args=[1])
+        json_response = {
+            "chain_id": str(chain.id),
+            "chain_name": chain.name,
+            "rpc_url": chain.rpc_url,
+            "block_explorer_url": chain.block_explorer_url,
+            "native_currency": {
+                "name": chain.currency_name,
+                "symbol": chain.currency_symbol,
+                "decimals": chain.currency_decimals,
+            },
+        }
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, json_response)
