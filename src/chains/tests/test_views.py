@@ -33,6 +33,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "symbol": chain.currency_symbol,
                         "decimals": chain.currency_decimals,
                     },
+                    "transactionService": chain.transaction_service_url,
                 }
             ],
         }
@@ -112,6 +113,7 @@ class ChainDetailViewTests(APITestCase):
                 "symbol": chain.currency_symbol,
                 "decimals": chain.currency_decimals,
             },
+            "transactionService": chain.transaction_service_url,
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -140,6 +142,7 @@ class ChainDetailViewTests(APITestCase):
                 "symbol": chain.currency_symbol,
                 "decimals": chain.currency_decimals,
             },
+            "transaction_service": chain.transaction_service_url,
         }
 
         response = self.client.get(path=url, data=None, format="json")

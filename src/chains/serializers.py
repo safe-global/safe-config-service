@@ -14,6 +14,9 @@ class ChainSerializer(serializers.ModelSerializer):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
     native_currency = serializers.SerializerMethodField()
+    transaction_service = serializers.URLField(
+        source="transaction_service_url", default=None
+    )
 
     class Meta:
         model = Chain
@@ -23,6 +26,7 @@ class ChainSerializer(serializers.ModelSerializer):
             "rpc_url",
             "block_explorer_url",
             "native_currency",
+            "transaction_service",
         ]
 
     @staticmethod
