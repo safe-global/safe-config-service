@@ -5,7 +5,7 @@ repos:
       - id: isort
         args: [ "--profile", "black", "--filter-files" ]
   - repo: https://github.com/psf/black
-    rev: 21.4b2
+    rev: 21.6b0
     hooks:
       - id: black
         language_version: python3
