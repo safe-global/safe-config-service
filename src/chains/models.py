@@ -9,6 +9,7 @@ class Chain(models.Model):
     currency_name = models.CharField(null=True, max_length=255)
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
+    transaction_service_url = models.URLField(null=True)
 
     def __str__(self):
         return f"{self.name} | chain_id={self.id}"

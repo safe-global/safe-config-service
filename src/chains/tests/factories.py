@@ -15,3 +15,4 @@ class ChainFactory(DjangoModelFactory):
     currency_name = factory.Faker("cryptocurrency_name")
     currency_symbol = factory.Faker("cryptocurrency_code")
     currency_decimals = factory.Faker("pyint")
+    transaction_service_url = factory.Faker("url")
