@@ -6,7 +6,7 @@ from .factories import ChainFactory
 
 class EmptyChainsListViewTests(APITestCase):
     def test_empty_chains(self):
-        url = reverse("chains:list")
+        url = reverse("v1:chains:list")
         json_response = {"count": 0, "next": None, "previous": None, "results": []}
 
         response = self.client.get(path=url, data=None, format="json")
@@ -37,7 +37,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                 }
             ],
         }
-        url = reverse("chains:list")
+        url = reverse("v1:chains:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -48,7 +48,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
 class ChainPaginationViewTests(APITestCase):
     def test_pagination_next_page(self):
         ChainFactory.create_batch(11)
-        url = reverse("chains:list")
+        url = reverse("v1:chains:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -66,7 +66,7 @@ class ChainPaginationViewTests(APITestCase):
     def test_request_more_than_max_limit_should_return_max_limit(self):
         ChainFactory.create_batch(11)
         # requesting limit > max_limit
-        url = reverse("chains:list") + f'{"?limit=11"}'
+        url = reverse("v1:chains:list") + f'{"?limit=11"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -84,7 +84,7 @@ class ChainPaginationViewTests(APITestCase):
     def test_offset_greater_than_count(self):
         ChainFactory.create_batch(11)
         # requesting offset of number of chains
-        url = reverse("chains:list") + f'{"?offset=11"}'
+        url = reverse("v1:chains:list") + f'{"?offset=11"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -102,7 +102,7 @@ class ChainPaginationViewTests(APITestCase):
 class ChainDetailViewTests(APITestCase):
     def test_json_payload_format(self):
         chain = ChainFactory.create(id=1)
-        url = reverse("chains:detail", args=[1])
+        url = reverse("v1:chains:detail", args=[1])
         json_response = {
             "chainId": str(chain.id),
             "chainName": chain.name,
@@ -123,7 +123,7 @@ class ChainDetailViewTests(APITestCase):
 
     def test_no_match(self):
         ChainFactory.create(id=1)
-        url = reverse("chains:detail", args=[2])
+        url = reverse("v1:chains:detail", args=[2])
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -131,7 +131,7 @@ class ChainDetailViewTests(APITestCase):
 
     def test_match(self):
         chain = ChainFactory.create(id=1)
-        url = reverse("chains:detail", args=[1])
+        url = reverse("v1:chains:detail", args=[1])
         json_response = {
             "chain_id": str(chain.id),
             "chain_name": chain.name,

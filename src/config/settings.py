@@ -35,7 +35,8 @@ REST_FRAMEWORK = {
     # https://www.django-rest-framework.org/api-guide/renderers/
     "DEFAULT_RENDERER_CLASSES": [
         "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
-    ]
+    ],
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
 }
 
 INSTALLED_APPS = [

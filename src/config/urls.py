@@ -10,9 +10,13 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+urlpatterns_v1 = [
+    path("safe-apps/", include("safe_apps.urls", namespace="safe-apps")),
+    path("chains/", include("chains.urls", namespace="chains")),
+]
+
 urlpatterns = [
-    path("api/v1/", include("safe_apps.urls", namespace="safe-apps")),
-    path("api/v1/", include("chains.urls", namespace="chains")),
+    path("api/v1/", include((urlpatterns_v1, "v1"), namespace="v1")),
     path("admin/", admin.site.urls),
     path("check/", lambda request: HttpResponse("Ok"), name="check"),
     re_path(
