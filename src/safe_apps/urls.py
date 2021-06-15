@@ -5,5 +5,5 @@ from .views import SafeAppsListView
 app_name = "apps"
 
 urlpatterns = [
-    path("safe-apps/", SafeAppsListView.as_view(), name="list"),
+    path("", SafeAppsListView.as_view(), name="list"),
 ]
