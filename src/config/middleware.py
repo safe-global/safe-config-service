@@ -22,9 +22,7 @@ class LoggingMiddleware:
         # after view is called
         if request.resolver_match:
             route = (
-                request.resolver_match.route[1:]
-                if request.resolver_match
-                else request.path
+                request.resolver_match.route if request.resolver_match else request.path
             )
             self.logger.info(
                 "MT::%s::%s::%s::%d::%s",
