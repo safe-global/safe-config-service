@@ -34,6 +34,10 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "decimals": chain.currency_decimals,
                     },
                     "transactionService": chain.transaction_service_url,
+                    "theme": {
+                        "textColor": chain.theme_text_color,
+                        "backgroundColor": chain.theme_background_color,
+                    },
                 }
             ],
         }
@@ -114,6 +118,10 @@ class ChainDetailViewTests(APITestCase):
                 "decimals": chain.currency_decimals,
             },
             "transactionService": chain.transaction_service_url,
+            "theme": {
+                "textColor": chain.theme_text_color,
+                "backgroundColor": chain.theme_background_color,
+            },
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -143,6 +151,10 @@ class ChainDetailViewTests(APITestCase):
                 "decimals": chain.currency_decimals,
             },
             "transaction_service": chain.transaction_service_url,
+            "theme": {
+                "text_color": chain.theme_text_color,
+                "background_color": chain.theme_background_color,
+            },
         }
 
         response = self.client.get(path=url, data=None, format="json")
