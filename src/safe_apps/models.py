@@ -16,7 +16,9 @@ class SafeApp(models.Model):
     icon_url = models.URLField()
     description = models.CharField(max_length=200)
     chain_ids = ArrayField(models.IntegerField())
-    provider = models.ForeignKey(Provider, null=True, on_delete=models.SET_NULL)
+    provider = models.ForeignKey(
+        Provider, null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     def __str__(self):
         return f"{self.name} | {self.url} | chain_ids={self.chain_ids}"

@@ -16,3 +16,10 @@ class SafeAppTestCase(TestCase):
             str(safe_app),
             f"{safe_app.name} | {safe_app.url} | chain_ids={safe_app.chain_ids}",
         )
+
+    @staticmethod
+    def test_empty_provider_validation():
+        safe_app = SafeAppFactory.create(provider=None)
+
+        # Run validations including blank checks
+        safe_app.full_clean()
