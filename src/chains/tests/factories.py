@@ -18,3 +18,7 @@ class ChainFactory(DjangoModelFactory):
     transaction_service_url = factory.Faker("url")
     theme_text_color = factory.Faker("hex_color")
     theme_background_color = factory.Faker("hex_color")
+    gas_price_oracle_url = factory.Faker("url")
+    gas_price_oracle_parameter = factory.Faker(
+        "random_element", elements=("safeLow", "average", "fast")
+    )

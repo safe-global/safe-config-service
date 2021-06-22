@@ -38,6 +38,10 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "textColor": chain.theme_text_color,
                         "backgroundColor": chain.theme_background_color,
                     },
+                    "gasPriceOracle": {
+                        "url": chain.gas_price_oracle_url,
+                        "gasParameter": chain.gas_price_oracle_parameter,
+                    },
                 }
             ],
         }
@@ -122,6 +126,10 @@ class ChainDetailViewTests(APITestCase):
                 "textColor": chain.theme_text_color,
                 "backgroundColor": chain.theme_background_color,
             },
+            "gasPriceOracle": {
+                "url": chain.gas_price_oracle_url,
+                "gasParameter": chain.gas_price_oracle_parameter,
+            },
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -154,6 +162,10 @@ class ChainDetailViewTests(APITestCase):
             "theme": {
                 "text_color": chain.theme_text_color,
                 "background_color": chain.theme_background_color,
+            },
+            "gas_price_oracle": {
+                "url": chain.gas_price_oracle_url,
+                "gas_parameter": chain.gas_price_oracle_parameter,
             },
         }
 

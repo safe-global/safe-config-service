@@ -4,6 +4,11 @@ from rest_framework import serializers
 from .models import Chain
 
 
+class GasPriceOracleSerializer(serializers.Serializer):
+    url = serializers.URLField(source="gas_price_oracle_url")
+    gas_parameter = serializers.CharField(source="gas_price_oracle_parameter")
+
+
 class ThemeSerializer(serializers.Serializer):
     text_color = serializers.CharField(source="theme_text_color")
     background_color = serializers.CharField(source="theme_background_color")
@@ -23,6 +28,7 @@ class ChainSerializer(serializers.ModelSerializer):
         source="transaction_service_url", default=None
     )
     theme = serializers.SerializerMethodField()
+    gas_price_oracle = serializers.SerializerMethodField()
 
     class Meta:
         model = Chain
@@ -34,6 +40,7 @@ class ChainSerializer(serializers.ModelSerializer):
             "native_currency",
             "transaction_service",
             "theme",
+            "gas_price_oracle",
         ]
 
     @staticmethod
@@ -45,3 +52,8 @@ class ChainSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=ThemeSerializer)
     def get_theme(obj):
         return ThemeSerializer(obj).data
+
+    @staticmethod
+    @swagger_serializer_method(serializer_or_field=GasPriceOracleSerializer)
+    def get_gas_price_oracle(obj):
+        return GasPriceOracleSerializer(obj).data
