@@ -1,5 +1,6 @@
 import re
 
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -23,6 +24,16 @@ class Chain(models.Model):
     theme_background_color = models.CharField(
         validators=[color_validator], max_length=9, default="#000"
     )
+    gas_price_oracle_url = models.URLField(blank=True, null=True)
+    gas_price_oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
+
+    def clean(self):
+        if self.gas_price_oracle_parameter and self.gas_price_oracle_url is None:
+            raise ValidationError(
+                {
+                    "gas_price_oracle_parameter": "An oracle parameter was set with no Oracle url"
+                }
+            )
 
     def __str__(self):
         return f"{self.name} | chain_id={self.id}"
