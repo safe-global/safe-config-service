@@ -56,4 +56,6 @@ class ChainSerializer(serializers.ModelSerializer):
     @staticmethod
     @swagger_serializer_method(serializer_or_field=GasPriceOracleSerializer)
     def get_gas_price_oracle(obj):
+        if obj.gas_price_oracle_url is None:
+            return None
         return GasPriceOracleSerializer(obj).data
