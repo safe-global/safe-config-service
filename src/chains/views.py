@@ -10,7 +10,7 @@ class ChainsListView(ListAPIView):
     pagination_class = LimitOffsetPagination
     pagination_class.max_limit = 10
     pagination_class.default_limit = 10
-    queryset = Chain.objects.all()
+    queryset = Chain.objects.order_by("relevance", "id")
 
 
 class ChainsDetailView(RetrieveAPIView):

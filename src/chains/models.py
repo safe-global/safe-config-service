@@ -11,6 +11,9 @@ color_validator = RegexValidator(HEX_ARGB_REGEX, "Invalid hex color", "invalid")
 
 class Chain(models.Model):
     id = models.PositiveBigIntegerField(verbose_name="Chain Id", primary_key=True)
+    relevance = models.SmallIntegerField(
+        default=100
+    )  # A lower number will indicate more relevance
     name = models.CharField(verbose_name="Chain name", max_length=255)
     rpc_url = models.URLField()
     block_explorer_url = models.URLField(null=True)
