@@ -173,3 +173,29 @@ class ChainDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, json_response)
+
+    def test_null_oracle_url_should_return_null_object(self):
+        chain = ChainFactory.create(id=1, gas_price_oracle_url=None)
+        url = reverse("v1:chains:detail", args=[1])
+        json_response = {
+            "chain_id": str(chain.id),
+            "chain_name": chain.name,
+            "rpc_url": chain.rpc_url,
+            "block_explorer_url": chain.block_explorer_url,
+            "native_currency": {
+                "name": chain.currency_name,
+                "symbol": chain.currency_symbol,
+                "decimals": chain.currency_decimals,
+            },
+            "transaction_service": chain.transaction_service_url,
+            "theme": {
+                "text_color": chain.theme_text_color,
+                "background_color": chain.theme_background_color,
+            },
+            "gas_price_oracle": None,
+        }
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, json_response)
