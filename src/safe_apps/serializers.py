@@ -10,8 +10,17 @@ class ProviderSerializer(serializers.ModelSerializer):
 
 
 class SafeAppsResponseSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source="app_id")
     provider = ProviderSerializer()
 
     class Meta:
         model = SafeApp
-        fields = ["url", "name", "icon_url", "description", "chain_ids", "provider"]
+        fields = [
+            "id",
+            "url",
+            "name",
+            "icon_url",
+            "description",
+            "chain_ids",
+            "provider",
+        ]

@@ -20,6 +20,7 @@ class JsonPayloadFormatViewTests(APITestCase):
 
         json_response = [
             {
+                "id": safe_app.app_id,
                 "url": safe_app.url,
                 "name": safe_app.name,
                 "iconUrl": safe_app.icon_url,
@@ -41,6 +42,7 @@ class FilterSafeAppListViewTests(APITestCase):
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
         json_response = [
             {
+                "id": safe_app_1.app_id,
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
                 "icon_url": safe_app_1.icon_url,
@@ -49,6 +51,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             },
             {
+                "id": safe_app_2.app_id,
                 "url": safe_app_2.url,
                 "name": safe_app_2.name,
                 "icon_url": safe_app_2.icon_url,
@@ -57,6 +60,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             },
             {
+                "id": safe_app_3.app_id,
                 "url": safe_app_3.url,
                 "name": safe_app_3.name,
                 "icon_url": safe_app_3.icon_url,
@@ -76,6 +80,7 @@ class FilterSafeAppListViewTests(APITestCase):
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
         json_response = [
             {
+                "id": safe_app_1.app_id,
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
                 "icon_url": safe_app_1.icon_url,
@@ -84,6 +89,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             },
             {
+                "id": safe_app_2.app_id,
                 "url": safe_app_2.url,
                 "name": safe_app_2.name,
                 "icon_url": safe_app_2.icon_url,
@@ -92,6 +98,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             },
             {
+                "id": safe_app_3.app_id,
                 "url": safe_app_3.url,
                 "name": safe_app_3.name,
                 "icon_url": safe_app_3.icon_url,
@@ -113,6 +120,7 @@ class FilterSafeAppListViewTests(APITestCase):
 
         json_response = [
             {
+                "id": safe_app_4.app_id,
                 "url": safe_app_4.url,
                 "name": safe_app_4.name,
                 "icon_url": safe_app_4.icon_url,
@@ -121,6 +129,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
             },
             {
+                "id": safe_app_5.app_id,
                 "url": safe_app_5.url,
                 "name": safe_app_5.name,
                 "icon_url": safe_app_5.icon_url,
@@ -151,6 +160,7 @@ class FilterSafeAppListViewTests(APITestCase):
         SafeAppFactory.create(chain_ids=[2])
         json_response = [
             {
+                "id": safe_app_1.app_id,
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
                 "icon_url": safe_app_1.icon_url,
@@ -174,6 +184,7 @@ class ProviderInfoTests(APITestCase):
 
         json_response = [
             {
+                "id": safe_app.app_id,
                 "url": safe_app.url,
                 "name": safe_app.name,
                 "icon_url": safe_app.icon_url,
@@ -194,6 +205,7 @@ class ProviderInfoTests(APITestCase):
 
         json_response = [
             {
+                "id": safe_app.app_id,
                 "url": safe_app.url,
                 "name": safe_app.name,
                 "icon_url": safe_app.icon_url,
@@ -216,6 +228,7 @@ class CacheSafeAppTests(APITestCase):
 
         json_response = [
             {
+                "id": safe_app_1.app_id,
                 "url": safe_app_1.url,
                 "name": safe_app_1.name,
                 "icon_url": safe_app_1.icon_url,

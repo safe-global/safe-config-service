@@ -11,7 +11,8 @@ class Provider(models.Model):
 
 
 class SafeApp(models.Model):
-    url = models.URLField(primary_key=True)
+    app_id = models.BigAutoField(primary_key=True)
+    url = models.URLField()
     name = models.CharField(max_length=200)
     icon_url = models.URLField()
     description = models.CharField(max_length=200)
