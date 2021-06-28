@@ -14,5 +14,5 @@ class ChainAdmin(admin.ModelAdmin):
     search_fields = ("name", "id")
     ordering = (
         "relevance",
-        "id",
+        "name",
     )
