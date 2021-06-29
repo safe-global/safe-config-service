@@ -9,6 +9,7 @@ class ChainFactory(DjangoModelFactory):
         model = Chain
 
     id = factory.Faker("pyint")
+    relevance = factory.Faker("pyint")
     name = factory.Faker("company")
     rpc_url = factory.Faker("url")
     block_explorer_url = factory.Faker("url")

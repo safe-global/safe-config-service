@@ -1,3 +1,4 @@
+from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import LimitOffsetPagination
 
@@ -11,6 +12,12 @@ class ChainsListView(ListAPIView):
     pagination_class.max_limit = 10
     pagination_class.default_limit = 10
     queryset = Chain.objects.all()
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ["relevance", "name"]
+    ordering = [
+        "relevance",
+        "name",
+    ]
 
 
 class ChainsDetailView(RetrieveAPIView):

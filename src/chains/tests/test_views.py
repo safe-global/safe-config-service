@@ -199,3 +199,30 @@ class ChainDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, json_response)
+
+
+class ChainsListViewRelevanceTests(APITestCase):
+    def test_relevance_sorting(self):
+        safe_app_1 = ChainFactory.create(name="aaa", relevance=10)
+        safe_app_2 = ChainFactory.create(name="bbb", relevance=1)
+        url = reverse("v1:chains:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        chain_ids = [result["chain_id"] for result in response.data["results"]]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(chain_ids, [str(safe_app_2.id), str(safe_app_1.id)])
+
+    def test_same_relevance_sorting(self):
+        safe_app_1 = ChainFactory.create(name="ccc", relevance=10)
+        safe_app_2 = ChainFactory.create(name="bbb", relevance=10)
+        safe_app_3 = ChainFactory.create(name="aaa", relevance=10)
+        url = reverse("v1:chains:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        chain_ids = [result["chain_id"] for result in response.data["results"]]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            chain_ids, [str(safe_app_3.id), str(safe_app_2.id), str(safe_app_1.id)]
+        )
