@@ -16,6 +16,7 @@ class SafeAppFactory(DjangoModelFactory):
     class Meta:
         model = SafeApp
 
+    app_id = factory.Faker("pyint")
     url = factory.Faker("url")
     name = factory.Faker("company")
     icon_url = factory.Faker("image_url")
