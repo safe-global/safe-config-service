@@ -12,6 +12,9 @@ class Provider(models.Model):
 
 class SafeApp(models.Model):
     app_id = models.BigAutoField(primary_key=True)
+    visible = models.BooleanField(
+        default=True
+    )  # True if this safe-app should be visible from the view. False otherwise
     url = models.URLField()
     name = models.CharField(max_length=200)
     icon_url = models.URLField()

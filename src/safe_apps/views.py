@@ -29,7 +29,7 @@ class SafeAppsListView(ListAPIView):
         return super().get(self, request, *args, **kwargs)
 
     def get_queryset(self):
-        queryset = SafeApp.objects.all()
+        queryset = SafeApp.objects.filter(visible=True)
 
         network_id = self.request.query_params.get("chainId")
         if network_id is not None and network_id.isdigit():

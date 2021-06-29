@@ -247,3 +247,35 @@ class CacheSafeAppTests(APITestCase):
         # Cache-Control should be 10 minutes (60 * 10)
         self.assertEqual(cache_control, "max-age=600")
         self.assertEqual(response.data, json_response)
+
+
+class SafeAppsVisibilityTests(APITestCase):
+    def test_visible_safe_app_is_shown(self):
+        visible_safe_app = SafeAppFactory.create(visible=True)
+        json_response = [
+            {
+                "id": visible_safe_app.app_id,
+                "url": visible_safe_app.url,
+                "name": visible_safe_app.name,
+                "icon_url": visible_safe_app.icon_url,
+                "description": visible_safe_app.description,
+                "chain_ids": visible_safe_app.chain_ids,
+                "provider": None,
+            }
+        ]
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, json_response)
+
+    def test_not_visible_safe_app_is_not_shown(self):
+        SafeAppFactory.create(visible=False)
+        json_response = []
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, json_response)

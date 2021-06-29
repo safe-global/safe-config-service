@@ -22,7 +22,7 @@ class ChainIdFilter(admin.SimpleListFilter):
 
 @admin.register(SafeApp)
 class SafeAppAdmin(admin.ModelAdmin):
-    list_display = ("name", "url", "chain_ids")
+    list_display = ("name", "url", "chain_ids", "visible")
     list_filter = (ChainIdFilter,)
     search_fields = ("name", "url")
     ordering = ("name",)
