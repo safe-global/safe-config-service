@@ -17,6 +17,7 @@ class SafeAppFactory(DjangoModelFactory):
         model = SafeApp
 
     app_id = factory.Faker("pyint")
+    visible = True
     url = factory.Faker("url")
     name = factory.Faker("company")
     icon_url = factory.Faker("image_url")
