@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 
-HEX_ARGB_REGEX = re.compile("^#(?:[0-9a-fA-F]{3,4}){1,2}$")
+HEX_ARGB_REGEX = re.compile("^#[0-9a-fA-F]{6}$")
 
 color_validator = RegexValidator(HEX_ARGB_REGEX, "Invalid hex color", "invalid")
 
@@ -22,10 +22,16 @@ class Chain(models.Model):
     currency_decimals = models.IntegerField(default=18)
     transaction_service_url = models.URLField(null=True)
     theme_text_color = models.CharField(
-        validators=[color_validator], max_length=9, default="#fff"
+        validators=[color_validator],
+        max_length=9,
+        default="#ffffff",
+        help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
     theme_background_color = models.CharField(
-        validators=[color_validator], max_length=9, default="#000"
+        validators=[color_validator],
+        max_length=9,
+        default="#000000",
+        help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
     gas_price_oracle_url = models.URLField(blank=True, null=True)
     gas_price_oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
