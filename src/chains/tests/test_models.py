@@ -57,7 +57,18 @@ class ChainColorValidationTestCase(TransactionTestCase):
     faker = Faker()
 
     def test_invalid_text_colors(self):
-        param_list = ["aaa", "bbb", "#fffffffff", "zzz", "010", "", "a word", "#hhh"]
+        param_list = [
+            "aaa",
+            "bbb",
+            "#fffffffff",
+            "zzz",
+            "010",
+            "",
+            "a word",
+            "#hhh",
+            "#fff",
+            "#ffffffff",
+        ]
         for invalid_color in param_list:
             with self.subTest(msg=f"Invalid color {invalid_color} should throw"):
                 with self.assertRaises(
@@ -71,7 +82,7 @@ class ChainColorValidationTestCase(TransactionTestCase):
                     chain.full_clean()
 
     def test_valid_text_colors(self):
-        param_list = ["#000", "#fff", "#00000000", "#ffffffff"] + [
+        param_list = ["#000000", "#ffffff"] + [
             self.faker.hex_color() for _ in range(20)
         ]
         for valid_color in param_list:
