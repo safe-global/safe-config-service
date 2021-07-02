@@ -19,7 +19,7 @@ class SafeApp(models.Model):
     name = models.CharField(max_length=200)
     icon_url = models.URLField()
     description = models.CharField(max_length=200)
-    chain_ids = ArrayField(models.IntegerField())
+    chain_ids = ArrayField(models.PositiveBigIntegerField())
     provider = models.ForeignKey(
         Provider, null=True, blank=True, on_delete=models.SET_NULL
     )
