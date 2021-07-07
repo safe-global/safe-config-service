@@ -18,6 +18,7 @@ class CurrencySerializer(serializers.Serializer):
     name = serializers.CharField(source="currency_name")
     symbol = serializers.CharField(source="currency_symbol")
     decimals = serializers.IntegerField(source="currency_decimals")
+    logo_url = serializers.URLField(source="currency_logo_url")
 
 
 class ChainSerializer(serializers.ModelSerializer):
