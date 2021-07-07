@@ -3,6 +3,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from web3 import Web3
 
 HEX_ARGB_REGEX = re.compile("^#[0-9a-fA-F]{6}$")
 
@@ -36,6 +37,9 @@ class Chain(models.Model):
     )
     gas_price_oracle_url = models.URLField(blank=True, null=True)
     gas_price_oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
+    ens_registry_address = models.CharField(
+        max_length=42, null=True, blank=True
+    )  # max_length=42 includes the 40 hex digits plus "0x" (2)
 
     def clean(self):
         if self.gas_price_oracle_parameter and self.gas_price_oracle_url is None:
@@ -43,6 +47,13 @@ class Chain(models.Model):
                 {
                     "gas_price_oracle_parameter": "An oracle parameter was set with no Oracle url"
                 }
+            )
+
+        if self.ens_registry_address and not Web3.isChecksumAddress(
+            self.ens_registry_address
+        ):
+            raise ValidationError(
+                {"ens_registry_address": "Invalid Ethereum address (invalid checksum)"}
             )
 
     def __str__(self):

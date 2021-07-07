@@ -1,4 +1,5 @@
 import factory
+import web3
 from factory.django import DjangoModelFactory
 
 from ..models import Chain
@@ -23,4 +24,7 @@ class ChainFactory(DjangoModelFactory):
     gas_price_oracle_url = factory.Faker("url")
     gas_price_oracle_parameter = factory.Faker(
         "random_element", elements=("safeLow", "average", "fast")
+    )
+    ens_registry_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
     )

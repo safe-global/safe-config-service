@@ -42,6 +42,7 @@ class ChainSerializer(serializers.ModelSerializer):
             "transaction_service",
             "theme",
             "gas_price_oracle",
+            "ens_registry_address",
         ]
 
     @staticmethod
