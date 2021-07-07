@@ -32,6 +32,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "name": chain.currency_name,
                         "symbol": chain.currency_symbol,
                         "decimals": chain.currency_decimals,
+                        "logoUrl": chain.currency_logo_url,
                     },
                     "transactionService": chain.transaction_service_url,
                     "theme": {
@@ -120,6 +121,7 @@ class ChainDetailViewTests(APITestCase):
                 "name": chain.currency_name,
                 "symbol": chain.currency_symbol,
                 "decimals": chain.currency_decimals,
+                "logoUrl": chain.currency_logo_url,
             },
             "transactionService": chain.transaction_service_url,
             "theme": {
@@ -157,6 +159,7 @@ class ChainDetailViewTests(APITestCase):
                 "name": chain.currency_name,
                 "symbol": chain.currency_symbol,
                 "decimals": chain.currency_decimals,
+                "logo_url": chain.currency_logo_url,
             },
             "transaction_service": chain.transaction_service_url,
             "theme": {
@@ -186,6 +189,7 @@ class ChainDetailViewTests(APITestCase):
                 "name": chain.currency_name,
                 "symbol": chain.currency_symbol,
                 "decimals": chain.currency_decimals,
+                "logo_url": chain.currency_logo_url,
             },
             "transaction_service": chain.transaction_service_url,
             "theme": {

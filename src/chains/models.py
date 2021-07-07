@@ -20,6 +20,7 @@ class Chain(models.Model):
     currency_name = models.CharField(null=True, max_length=255)
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
+    currency_logo_url = models.URLField()
     transaction_service_url = models.URLField(null=True)
     theme_text_color = models.CharField(
         validators=[color_validator],
