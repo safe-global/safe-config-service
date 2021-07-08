@@ -107,8 +107,8 @@ class ChainEnsRegistryAddressValidationTestCase(TransactionTestCase):
             with self.subTest(msg=f"Invalid address {invalid_address} should throw"):
                 with self.assertRaises(
                     (
-                        ValidationError,
-                        DataError,
+                        # normalize_address from gnosis-py throws a generic Exception if the address is not valid
+                        Exception,
                     )
                 ):
                     chain = ChainFactory.create(ens_registry_address=invalid_address)

@@ -1,4 +1,5 @@
 from drf_yasg.utils import swagger_serializer_method
+from gnosis.eth.django.serializers import EthereumAddressField
 from rest_framework import serializers
 
 from .models import Chain
@@ -30,6 +31,7 @@ class ChainSerializer(serializers.ModelSerializer):
     )
     theme = serializers.SerializerMethodField()
     gas_price_oracle = serializers.SerializerMethodField()
+    ens_registry_address = EthereumAddressField()
 
     class Meta:
         model = Chain
