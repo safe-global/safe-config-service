@@ -38,6 +38,11 @@ class Chain(models.Model):
     gas_price_oracle_url = models.URLField(blank=True, null=True)
     gas_price_oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
     ens_registry_address = EthereumAddressField(null=True, blank=True)
+    gas_price_oracle_gwei_factor = models.PositiveBigIntegerField(
+        default=1,
+        verbose_name="Gwei multiplier factor",
+        help_text="Factor required to reach the Gwei unit",
+    )
 
     def clean(self):
         if self.gas_price_oracle_parameter and self.gas_price_oracle_url is None:

@@ -42,6 +42,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "gasPriceOracle": {
                         "url": chain.gas_price_oracle_url,
                         "gasParameter": chain.gas_price_oracle_parameter,
+                        "gweiFactor": str(chain.gas_price_oracle_gwei_factor),
                     },
                     "ensRegistryAddress": chain.ens_registry_address,
                 }
@@ -132,6 +133,7 @@ class ChainDetailViewTests(APITestCase):
             "gasPriceOracle": {
                 "url": chain.gas_price_oracle_url,
                 "gasParameter": chain.gas_price_oracle_parameter,
+                "gweiFactor": str(chain.gas_price_oracle_gwei_factor),
             },
             "ensRegistryAddress": chain.ens_registry_address,
         }
@@ -171,6 +173,7 @@ class ChainDetailViewTests(APITestCase):
             "gas_price_oracle": {
                 "url": chain.gas_price_oracle_url,
                 "gas_parameter": chain.gas_price_oracle_parameter,
+                "gwei_factor": str(chain.gas_price_oracle_gwei_factor),
             },
             "ens_registry_address": chain.ens_registry_address,
         }
