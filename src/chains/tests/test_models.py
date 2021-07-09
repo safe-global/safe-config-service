@@ -1,3 +1,4 @@
+import web3
 from django.core.exceptions import ValidationError
 from django.db import DataError
 from django.test import TestCase, TransactionTestCase
@@ -88,4 +89,39 @@ class ChainColorValidationTestCase(TransactionTestCase):
         for valid_color in param_list:
             with self.subTest(msg=f"Valid color {valid_color} should not throw"):
                 chain = ChainFactory.create(theme_text_color=valid_color)
+                chain.full_clean()
+
+
+class ChainEnsRegistryAddressValidationTestCase(TransactionTestCase):
+    def test_invalid_addresses(self):
+        param_list = [
+            "0x",
+            "0x0",
+            "0xgz",
+            "0x0",
+            "0x000000000000000000000000000000000000000",
+            "0x00000000000000000000000000000000000000000",
+        ]
+
+        for invalid_address in param_list:
+            with self.subTest(msg=f"Invalid address {invalid_address} should throw"):
+                with self.assertRaises(
+                    (
+                        # normalize_address from gnosis-py throws a generic Exception if the address is not valid
+                        Exception,
+                    )
+                ):
+                    chain = ChainFactory.create(ens_registry_address=invalid_address)
+                    # run validators
+                    chain.full_clean()
+
+    def test_valid_addresses(self):
+        param_list = [
+            "0x0000000000000000000000000000000000000000",
+            "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF",
+        ] + [web3.Account.create().address for _ in range(20)]
+
+        for valid_address in param_list:
+            with self.subTest(msg=f"Valid address {valid_address} should not throw"):
+                chain = ChainFactory.create(ens_registry_address=valid_address)
                 chain.full_clean()

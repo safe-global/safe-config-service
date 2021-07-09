@@ -43,6 +43,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "url": chain.gas_price_oracle_url,
                         "gasParameter": chain.gas_price_oracle_parameter,
                     },
+                    "ensRegistryAddress": chain.ens_registry_address,
                 }
             ],
         }
@@ -132,6 +133,7 @@ class ChainDetailViewTests(APITestCase):
                 "url": chain.gas_price_oracle_url,
                 "gasParameter": chain.gas_price_oracle_parameter,
             },
+            "ensRegistryAddress": chain.ens_registry_address,
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -170,6 +172,7 @@ class ChainDetailViewTests(APITestCase):
                 "url": chain.gas_price_oracle_url,
                 "gas_parameter": chain.gas_price_oracle_parameter,
             },
+            "ens_registry_address": chain.ens_registry_address,
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -197,6 +200,7 @@ class ChainDetailViewTests(APITestCase):
                 "background_color": chain.theme_background_color,
             },
             "gas_price_oracle": None,
+            "ens_registry_address": chain.ens_registry_address,
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -207,26 +211,35 @@ class ChainDetailViewTests(APITestCase):
 
 class ChainsListViewRelevanceTests(APITestCase):
     def test_relevance_sorting(self):
-        safe_app_1 = ChainFactory.create(name="aaa", relevance=10)
-        safe_app_2 = ChainFactory.create(name="bbb", relevance=1)
+        chain_1 = ChainFactory.create(name="aaa", relevance=10)
+        chain_2 = ChainFactory.create(name="bbb", relevance=1)
         url = reverse("v1:chains:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
         chain_ids = [result["chain_id"] for result in response.data["results"]]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(chain_ids, [str(safe_app_2.id), str(safe_app_1.id)])
+        self.assertEqual(chain_ids, [str(chain_2.id), str(chain_1.id)])
 
     def test_same_relevance_sorting(self):
-        safe_app_1 = ChainFactory.create(name="ccc", relevance=10)
-        safe_app_2 = ChainFactory.create(name="bbb", relevance=10)
-        safe_app_3 = ChainFactory.create(name="aaa", relevance=10)
+        chain_1 = ChainFactory.create(name="ccc", relevance=10)
+        chain_2 = ChainFactory.create(name="bbb", relevance=10)
+        chain_3 = ChainFactory.create(name="aaa", relevance=10)
         url = reverse("v1:chains:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
         chain_ids = [result["chain_id"] for result in response.data["results"]]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            chain_ids, [str(safe_app_3.id), str(safe_app_2.id), str(safe_app_1.id)]
-        )
+        self.assertEqual(chain_ids, [str(chain_3.id), str(chain_2.id), str(chain_1.id)])
+
+
+class ChainsEnsRegistryTests(APITestCase):
+    def test_null_ens_registry_address(self):
+        ChainFactory.create(id=1, ens_registry_address=None)
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["ens_registry_address"], None)

@@ -3,6 +3,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from gnosis.eth.django.models import EthereumAddressField
 
 HEX_ARGB_REGEX = re.compile("^#[0-9a-fA-F]{6}$")
 
@@ -36,6 +37,7 @@ class Chain(models.Model):
     )
     gas_price_oracle_url = models.URLField(blank=True, null=True)
     gas_price_oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
+    ens_registry_address = EthereumAddressField(null=True, blank=True)
 
     def clean(self):
         if self.gas_price_oracle_parameter and self.gas_price_oracle_url is None:
