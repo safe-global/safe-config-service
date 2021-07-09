@@ -16,8 +16,11 @@ ENV PATH="${PATH}:${PYTHONUSERBASE}/bin"
 
 RUN set -ex \
     && apk add --no-cache --virtual .build-deps \
+    autoconf \
+    automake \
     build-base \
     libffi-dev \
+    libtool \
     postgresql-dev \
     tini
 
