@@ -9,7 +9,7 @@ class ChainFactory(DjangoModelFactory):
     class Meta:
         model = Chain
 
-    id = factory.Faker("pyint")
+    id = factory.Sequence(lambda id: id)
     relevance = factory.Faker("pyint")
     name = factory.Faker("company")
     rpc_url = factory.Faker("url")
