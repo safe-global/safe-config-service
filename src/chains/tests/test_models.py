@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import web3
 from django.core.exceptions import ValidationError
 from django.db import DataError
@@ -125,3 +127,33 @@ class ChainEnsRegistryAddressValidationTestCase(TransactionTestCase):
             with self.subTest(msg=f"Valid address {valid_address} should not throw"):
                 chain = ChainFactory.create(ens_registry_address=valid_address)
                 chain.full_clean()
+
+
+class ChainGweiFactorTestCase(TestCase):
+    @staticmethod
+    def test_ether_to_gwei_conversion_rate_valid():
+        eth_gwei = Decimal("0.000000001")  # 0.000000001 ETH == 1 GWei
+        chain = ChainFactory.create(gas_price_oracle_gwei_factor=eth_gwei)
+
+        chain.full_clean()
+
+    @staticmethod
+    def test_wei_to_gwei_conversion_rate_valid():
+        eth_gwei = Decimal("1000000000")  # 1000000000 Wei == 1 GWei
+        chain = ChainFactory.create(gas_price_oracle_gwei_factor=eth_gwei)
+
+        chain.full_clean()
+
+    def test_1e_minus10_conversion_rate_invalid(self):
+        factor = Decimal("0.00000000001")
+        chain = ChainFactory.create(gas_price_oracle_gwei_factor=factor)
+
+        with self.assertRaises(ValidationError):
+            chain.full_clean()
+
+    def test_1e10_conversion_rate_invalid(self):
+        factor = Decimal("10000000000")
+
+        with self.assertRaises(DataError):
+            chain = ChainFactory.create(gas_price_oracle_gwei_factor=factor)
+            chain.full_clean()
