@@ -1,4 +1,4 @@
-FROM python:3.9-alpine as production
+FROM python:3.9.6-alpine as production
 
 # python
 ENV PYTHONUNBUFFERED=1 \
