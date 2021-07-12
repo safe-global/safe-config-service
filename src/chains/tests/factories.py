@@ -28,3 +28,6 @@ class ChainFactory(DjangoModelFactory):
     ens_registry_address = factory.LazyAttribute(
         lambda o: web3.Account.create().address
     )
+    gas_price_oracle_gwei_factor = factory.Faker(
+        "pydecimal", positive=True, min_value=1, max_value=1_000_000_000, right_digits=9
+    )

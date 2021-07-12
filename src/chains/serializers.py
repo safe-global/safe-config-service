@@ -8,6 +8,9 @@ from .models import Chain
 class GasPriceOracleSerializer(serializers.Serializer):
     url = serializers.URLField(source="gas_price_oracle_url")
     gas_parameter = serializers.CharField(source="gas_price_oracle_parameter")
+    gwei_factor = serializers.DecimalField(
+        source="gas_price_oracle_gwei_factor", max_digits=19, decimal_places=9
+    )
 
 
 class ThemeSerializer(serializers.Serializer):
