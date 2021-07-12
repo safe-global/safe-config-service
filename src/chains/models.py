@@ -9,6 +9,13 @@ HEX_ARGB_REGEX = re.compile("^#[0-9a-fA-F]{6}$")
 
 color_validator = RegexValidator(HEX_ARGB_REGEX, "Invalid hex color", "invalid")
 
+# https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+SEM_VER_REGEX = re.compile(
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"  # noqa E501
+)
+
+sem_ver_validator = RegexValidator(SEM_VER_REGEX, "Invalid version (semver)", "invalid")
+
 
 class Chain(models.Model):
     id = models.PositiveBigIntegerField(verbose_name="Chain Id", primary_key=True)
@@ -44,6 +51,9 @@ class Chain(models.Model):
         decimal_places=9,
         verbose_name="Gwei multiplier factor",
         help_text="Factor required to reach the Gwei unit",
+    )
+    min_master_copy_version = models.CharField(
+        max_length=255, validators=[sem_ver_validator]
     )
 
     def clean(self):
