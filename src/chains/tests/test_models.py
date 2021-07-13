@@ -18,6 +18,29 @@ class ChainTestCase(TestCase):
         )
 
 
+class ChainGasPriceFixedTestCase(TestCase):
+    @staticmethod
+    def test_null_oracle_with_non_null_fixed_gas_price():
+        chain = ChainFactory.create(gas_price_oracle_url=None, gas_price_fixed=10000)
+
+        chain.full_clean()
+
+    def test_null_oracle_gas_oracle_with_null_fixed_gas_price(self):
+        chain = ChainFactory.create(gas_price_oracle_url=None, gas_price_fixed=None)
+
+        with self.assertRaises(ValidationError):
+            chain.full_clean()
+
+    @staticmethod
+    def test_big_number():
+        chain = ChainFactory.create(
+            gas_price_oracle_url=None,
+            gas_price_fixed="115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        )
+
+        chain.full_clean()
+
+
 class ChainGasPriceOracleTestCase(TestCase):
     faker = Faker()
 
@@ -31,7 +54,9 @@ class ChainGasPriceOracleTestCase(TestCase):
 
     def test_null_oracle_gas_parameter_with_url(self):
         chain = ChainFactory.create(
-            gas_price_oracle_url=self.faker.url(), gas_price_oracle_parameter=None
+            gas_price_oracle_url=self.faker.url(),
+            gas_price_oracle_parameter=None,
+            gas_price_fixed=None,
         )
 
         # No validation exception should be thrown
@@ -41,15 +66,7 @@ class ChainGasPriceOracleTestCase(TestCase):
         chain = ChainFactory.create(
             gas_price_oracle_url=self.faker.url(),
             gas_price_oracle_parameter="fake parameter",
-        )
-
-        # No validation exception should be thrown
-        chain.full_clean()
-
-    @staticmethod
-    def test_null_oracle_gas_parameter_with_null_url():
-        chain = ChainFactory.create(
-            gas_price_oracle_url=None, gas_price_oracle_parameter=None
+            gas_price_fixed=None,
         )
 
         # No validation exception should be thrown
