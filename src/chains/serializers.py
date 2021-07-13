@@ -48,7 +48,7 @@ class ChainSerializer(serializers.ModelSerializer):
             "theme",
             "gas_price_oracle",
             "ens_registry_address",
-            "min_master_copy_version",
+            "recommended_master_copy_version",
         ]
 
     @staticmethod

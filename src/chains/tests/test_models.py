@@ -173,7 +173,9 @@ class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
         for invalid_version in param_list:
             with self.subTest(msg=f"Invalid version {invalid_version} should throw"):
                 with self.assertRaises(ValidationError):
-                    chain = ChainFactory.create(min_master_copy_version=invalid_version)
+                    chain = ChainFactory.create(
+                        recommended_master_copy_version=invalid_version
+                    )
                     # run validators
                     chain.full_clean()
 
@@ -189,6 +191,8 @@ class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
 
         for valid_version in param_list:
             with self.subTest(msg=f"Valid version {valid_version} should not throw"):
-                chain = ChainFactory.create(min_master_copy_version=valid_version)
+                chain = ChainFactory.create(
+                    recommended_master_copy_version=valid_version
+                )
                 # run validators
                 chain.full_clean()

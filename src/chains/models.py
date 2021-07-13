@@ -52,7 +52,7 @@ class Chain(models.Model):
         verbose_name="Gwei multiplier factor",
         help_text="Factor required to reach the Gwei unit",
     )
-    min_master_copy_version = models.CharField(
+    recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
 
