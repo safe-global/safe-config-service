@@ -157,3 +157,38 @@ class ChainGweiFactorTestCase(TestCase):
         with self.assertRaises(DataError):
             chain = ChainFactory.create(gas_price_oracle_gwei_factor=factor)
             chain.full_clean()
+
+
+class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
+    def test_invalid_versions(self):
+        param_list = [
+            "1",
+            "1.2",
+            "1.2.3-0123",
+            "1.1.01",
+            "1.01.1",
+            "01.1.1",
+        ]
+
+        for invalid_version in param_list:
+            with self.subTest(msg=f"Invalid version {invalid_version} should throw"):
+                with self.assertRaises(ValidationError):
+                    chain = ChainFactory.create(min_master_copy_version=invalid_version)
+                    # run validators
+                    chain.full_clean()
+
+    def test_valid_versions(self):
+        param_list = [
+            "0.0.4",
+            "10.20.30",
+            "1.2.3",
+            "1.1.2-prerelease+meta",
+            "1.0.0-alpha.1",
+            "99999999999999999999999.999999999999999999.99999999999999999",
+        ]
+
+        for valid_version in param_list:
+            with self.subTest(msg=f"Valid version {valid_version} should not throw"):
+                chain = ChainFactory.create(min_master_copy_version=valid_version)
+                # run validators
+                chain.full_clean()
