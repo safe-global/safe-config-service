@@ -47,7 +47,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         ),
                     },
                     "ensRegistryAddress": chain.ens_registry_address,
-                    "minMasterCopyVersion": chain.min_master_copy_version,
+                    "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
                 }
             ],
         }
@@ -139,7 +139,7 @@ class ChainDetailViewTests(APITestCase):
                 "gweiFactor": "{0:.9f}".format(chain.gas_price_oracle_gwei_factor),
             },
             "ensRegistryAddress": chain.ens_registry_address,
-            "minMasterCopyVersion": chain.min_master_copy_version,
+            "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -180,7 +180,7 @@ class ChainDetailViewTests(APITestCase):
                 "gwei_factor": "{0:.9f}".format(chain.gas_price_oracle_gwei_factor),
             },
             "ens_registry_address": chain.ens_registry_address,
-            "min_master_copy_version": chain.min_master_copy_version,
+            "recommended_master_copy_version": chain.recommended_master_copy_version,
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -209,7 +209,7 @@ class ChainDetailViewTests(APITestCase):
             },
             "gas_price_oracle": None,
             "ens_registry_address": chain.ens_registry_address,
-            "min_master_copy_version": chain.min_master_copy_version,
+            "recommended_master_copy_version": chain.recommended_master_copy_version,
         }
 
         response = self.client.get(path=url, data=None, format="json")
