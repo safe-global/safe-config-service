@@ -3,7 +3,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from gnosis.eth.django.models import EthereumAddressField
+from gnosis.eth.django.models import EthereumAddressField, Uint256Field
 
 HEX_ARGB_REGEX = re.compile("^#[0-9a-fA-F]{6}$")
 
@@ -42,9 +42,9 @@ class Chain(models.Model):
         default="#000000",
         help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
+    ens_registry_address = EthereumAddressField(null=True, blank=True)
     gas_price_oracle_url = models.URLField(blank=True, null=True)
     gas_price_oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
-    ens_registry_address = EthereumAddressField(null=True, blank=True)
     gas_price_oracle_gwei_factor = models.DecimalField(
         default=1,
         max_digits=19,
@@ -52,11 +52,23 @@ class Chain(models.Model):
         verbose_name="Gwei multiplier factor",
         help_text="Factor required to reach the Gwei unit",
     )
+    gas_price_fixed_wei = Uint256Field(
+        verbose_name="Fixed gas price (wei)", blank=True, null=True
+    )
     recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
 
     def clean(self):
+        if (self.gas_price_fixed_wei is not None) == (
+            self.gas_price_oracle_url is not None
+        ):
+            raise ValidationError(
+                {
+                    "gas_price_oracle_url": "An oracle url or fixed gas price should be provided (but not both)",
+                    "gas_price_fixed": "An oracle url or fixed gas price should be provided (but not both)",
+                }
+            )
         if self.gas_price_oracle_parameter and self.gas_price_oracle_url is None:
             raise ValidationError(
                 {

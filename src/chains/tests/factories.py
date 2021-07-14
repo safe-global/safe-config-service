@@ -21,14 +21,13 @@ class ChainFactory(DjangoModelFactory):
     transaction_service_url = factory.Faker("url")
     theme_text_color = factory.Faker("hex_color")
     theme_background_color = factory.Faker("hex_color")
-    gas_price_oracle_url = factory.Faker("url")
-    gas_price_oracle_parameter = factory.Faker(
-        "random_element", elements=("safeLow", "average", "fast")
-    )
+    gas_price_oracle_url = None
+    gas_price_oracle_parameter = None
     ens_registry_address = factory.LazyAttribute(
         lambda o: web3.Account.create().address
     )
     gas_price_oracle_gwei_factor = factory.Faker(
         "pydecimal", positive=True, min_value=1, max_value=1_000_000_000, right_digits=9
     )
+    gas_price_fixed_wei = factory.Faker("pyint")
     recommended_master_copy_version = "1.3.0"
