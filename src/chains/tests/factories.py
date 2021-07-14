@@ -29,5 +29,5 @@ class ChainFactory(DjangoModelFactory):
     gas_price_oracle_gwei_factor = factory.Faker(
         "pydecimal", positive=True, min_value=1, max_value=1_000_000_000, right_digits=9
     )
-    gas_price_fixed = factory.Faker("pyint")
+    gas_price_fixed_wei = factory.Faker("pyint")
     recommended_master_copy_version = "1.3.0"

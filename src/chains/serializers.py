@@ -17,7 +17,7 @@ class GasPriceOracleSerializer(serializers.Serializer):
 
 class GasPriceFixedSerializer(serializers.Serializer):
     type = serializers.ReadOnlyField(default="fixed")
-    value = serializers.CharField(source="gas_price_fixed")
+    wei_value = serializers.CharField(source="gas_price_fixed_wei")
 
 
 class ThemeSerializer(serializers.Serializer):
@@ -70,11 +70,11 @@ class ChainSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_gas_price(obj):
-        if obj.gas_price_oracle_url and obj.gas_price_fixed is None:
+        if obj.gas_price_oracle_url and obj.gas_price_fixed_wei is None:
             return GasPriceOracleSerializer(obj).data
-        elif obj.gas_price_fixed and obj.gas_price_oracle_url is None:
+        elif obj.gas_price_fixed_wei and obj.gas_price_oracle_url is None:
             return GasPriceFixedSerializer(obj).data
         else:
             raise APIException(
-                f"Both or Neither the Price Oracle or Gas Price were provided for chain {obj.id}"
+                f"The gas price oracle or a fixed gas price was not provided for chain {obj.id}"
             )

@@ -52,13 +52,15 @@ class Chain(models.Model):
         verbose_name="Gwei multiplier factor",
         help_text="Factor required to reach the Gwei unit",
     )
-    gas_price_fixed = Uint256Field(blank=True, null=True)
+    gas_price_fixed_wei = Uint256Field(
+        verbose_name="Fixed gas price (wei)", blank=True, null=True
+    )
     recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
 
     def clean(self):
-        if (self.gas_price_fixed is not None) == (
+        if (self.gas_price_fixed_wei is not None) == (
             self.gas_price_oracle_url is not None
         ):
             raise ValidationError(
