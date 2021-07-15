@@ -8,7 +8,7 @@ from .models import Chain
 
 class GasPriceOracleSerializer(serializers.Serializer):
     type = serializers.ReadOnlyField(default="oracle")
-    url = serializers.URLField(source="gas_price_oracle_url")
+    uri = serializers.URLField(source="gas_price_oracle_url")
     gas_parameter = serializers.CharField(source="gas_price_oracle_parameter")
     gwei_factor = serializers.DecimalField(
         source="gas_price_oracle_gwei_factor", max_digits=19, decimal_places=9
@@ -29,12 +29,14 @@ class CurrencySerializer(serializers.Serializer):
     name = serializers.CharField(source="currency_name")
     symbol = serializers.CharField(source="currency_symbol")
     decimals = serializers.IntegerField(source="currency_decimals")
-    logo_url = serializers.URLField(source="currency_logo_url")
+    logo_uri = serializers.URLField(source="currency_logo_url")
 
 
 class ChainSerializer(serializers.ModelSerializer):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
+    rpc_uri = serializers.URLField(source="rpc_url")
+    block_explorer_uri = serializers.URLField(source="block_explorer_url")
     native_currency = serializers.SerializerMethodField()
     transaction_service = serializers.URLField(
         source="transaction_service_url", default=None
@@ -48,8 +50,8 @@ class ChainSerializer(serializers.ModelSerializer):
         fields = [
             "chain_id",
             "chain_name",
-            "rpc_url",
-            "block_explorer_url",
+            "rpc_uri",
+            "block_explorer_uri",
             "native_currency",
             "transaction_service",
             "theme",
