@@ -66,7 +66,7 @@ class Chain(models.Model):
             raise ValidationError(
                 {
                     "gas_price_oracle_url": "An oracle url or fixed gas price should be provided (but not both)",
-                    "gas_price_fixed": "An oracle url or fixed gas price should be provided (but not both)",
+                    "gas_price_fixed_wei": "An oracle url or fixed gas price should be provided (but not both)",
                 }
             )
         if self.gas_price_oracle_parameter and self.gas_price_oracle_url is None:
