@@ -69,11 +69,12 @@ class Chain(models.Model):
                     "gas_price_fixed_wei": "An oracle url or fixed gas price should be provided (but not both)",
                 }
             )
-        if self.gas_price_oracle_parameter and self.gas_price_oracle_url is None:
+        if (
+            self.gas_price_oracle_url is not None
+            and self.gas_price_oracle_parameter is None
+        ):
             raise ValidationError(
-                {
-                    "gas_price_oracle_parameter": "An oracle parameter was set with no Oracle url"
-                }
+                {"gas_price_oracle_parameter": "The oracle parameter should be set"}
             )
 
     def __str__(self):

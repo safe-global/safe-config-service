@@ -48,7 +48,9 @@ class ChainGasPriceOracleTestCase(TestCase):
 
     def test_oracle_gas_parameter_with_null_url(self):
         chain = ChainFactory.create(
-            gas_price_oracle_url=None, gas_price_oracle_parameter="fake parameter"
+            gas_price_oracle_url=None,
+            gas_price_oracle_parameter="fake parameter",
+            gas_price_fixed_wei=None,
         )
 
         with self.assertRaises(ValidationError):
@@ -61,8 +63,8 @@ class ChainGasPriceOracleTestCase(TestCase):
             gas_price_fixed_wei=None,
         )
 
-        # No validation exception should be thrown
-        chain.full_clean()
+        with self.assertRaises(ValidationError):
+            chain.full_clean()
 
     def test_oracle_gas_parameter_with_url(self):
         chain = ChainFactory.create(
