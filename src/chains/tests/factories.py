@@ -12,16 +12,16 @@ class ChainFactory(DjangoModelFactory):
     id = factory.Sequence(lambda id: id)
     relevance = factory.Faker("pyint")
     name = factory.Faker("company")
-    rpc_url = factory.Faker("url")
-    block_explorer_url = factory.Faker("url")
+    rpc_uri = factory.Faker("url")
+    block_explorer_uri = factory.Faker("url")
     currency_name = factory.Faker("cryptocurrency_name")
     currency_symbol = factory.Faker("cryptocurrency_code")
     currency_decimals = factory.Faker("pyint")
-    currency_logo_url = factory.Faker("url")
-    transaction_service_url = factory.Faker("url")
+    currency_logo_uri = factory.Faker("url")
+    transaction_service_uri = factory.Faker("url")
     theme_text_color = factory.Faker("hex_color")
     theme_background_color = factory.Faker("hex_color")
-    gas_price_oracle_url = None
+    gas_price_oracle_uri = None
     gas_price_oracle_parameter = None
     ens_registry_address = factory.LazyAttribute(
         lambda o: web3.Account.create().address

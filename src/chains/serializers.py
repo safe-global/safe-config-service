@@ -8,7 +8,7 @@ from .models import Chain
 
 class GasPriceOracleSerializer(serializers.Serializer):
     type = serializers.ReadOnlyField(default="oracle")
-    uri = serializers.URLField(source="gas_price_oracle_url")
+    uri = serializers.URLField(source="gas_price_oracle_uri")
     gas_parameter = serializers.CharField(source="gas_price_oracle_parameter")
     gwei_factor = serializers.DecimalField(
         source="gas_price_oracle_gwei_factor", max_digits=19, decimal_places=9
@@ -29,17 +29,15 @@ class CurrencySerializer(serializers.Serializer):
     name = serializers.CharField(source="currency_name")
     symbol = serializers.CharField(source="currency_symbol")
     decimals = serializers.IntegerField(source="currency_decimals")
-    logo_uri = serializers.URLField(source="currency_logo_url")
+    logo_uri = serializers.URLField(source="currency_logo_uri")
 
 
 class ChainSerializer(serializers.ModelSerializer):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
-    rpc_uri = serializers.URLField(source="rpc_url")
-    block_explorer_uri = serializers.URLField(source="block_explorer_url")
     native_currency = serializers.SerializerMethodField()
     transaction_service = serializers.URLField(
-        source="transaction_service_url", default=None
+        source="transaction_service_uri", default=None
     )
     theme = serializers.SerializerMethodField()
     gas_price = serializers.SerializerMethodField()
@@ -72,9 +70,9 @@ class ChainSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_gas_price(obj):
-        if obj.gas_price_oracle_url and obj.gas_price_fixed_wei is None:
+        if obj.gas_price_oracle_uri and obj.gas_price_fixed_wei is None:
             return GasPriceOracleSerializer(obj).data
-        elif obj.gas_price_fixed_wei and obj.gas_price_oracle_url is None:
+        elif obj.gas_price_fixed_wei and obj.gas_price_oracle_uri is None:
             return GasPriceFixedSerializer(obj).data
         else:
             raise APIException(
