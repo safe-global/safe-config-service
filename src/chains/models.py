@@ -24,7 +24,7 @@ class Chain(models.Model):
     )  # A lower number will indicate more relevance
     name = models.CharField(verbose_name="Chain name", max_length=255)
     rpc_uri = models.URLField()
-    block_explorer_uri = models.URLField(null=True, blank=True)
+    block_explorer_uri = models.URLField()
     currency_name = models.CharField(max_length=255)
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
