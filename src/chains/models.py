@@ -23,13 +23,13 @@ class Chain(models.Model):
         default=100
     )  # A lower number will indicate more relevance
     name = models.CharField(verbose_name="Chain name", max_length=255)
-    rpc_url = models.URLField()
-    block_explorer_url = models.URLField(null=True)
+    rpc_uri = models.URLField()
+    block_explorer_uri = models.URLField(null=True)
     currency_name = models.CharField(null=True, max_length=255)
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
-    currency_logo_url = models.URLField()
-    transaction_service_url = models.URLField(null=True)
+    currency_logo_uri = models.URLField()
+    transaction_service_uri = models.URLField(null=True)
     theme_text_color = models.CharField(
         validators=[color_validator],
         max_length=9,
@@ -43,7 +43,7 @@ class Chain(models.Model):
         help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
     ens_registry_address = EthereumAddressField(null=True, blank=True)
-    gas_price_oracle_url = models.URLField(blank=True, null=True)
+    gas_price_oracle_uri = models.URLField(blank=True, null=True)
     gas_price_oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
     gas_price_oracle_gwei_factor = models.DecimalField(
         default=1,
@@ -61,16 +61,16 @@ class Chain(models.Model):
 
     def clean(self):
         if (self.gas_price_fixed_wei is not None) == (
-            self.gas_price_oracle_url is not None
+            self.gas_price_oracle_uri is not None
         ):
             raise ValidationError(
                 {
-                    "gas_price_oracle_url": "An oracle url or fixed gas price should be provided (but not both)",
-                    "gas_price_fixed_wei": "An oracle url or fixed gas price should be provided (but not both)",
+                    "gas_price_oracle_uri": "An oracle uri or fixed gas price should be provided (but not both)",
+                    "gas_price_fixed_wei": "An oracle uri or fixed gas price should be provided (but not both)",
                 }
             )
         if (
-            self.gas_price_oracle_url is not None
+            self.gas_price_oracle_uri is not None
             and self.gas_price_oracle_parameter is None
         ):
             raise ValidationError(

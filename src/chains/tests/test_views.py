@@ -27,15 +27,15 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                 {
                     "chainId": str(chain.id),
                     "chainName": chain.name,
-                    "rpcUrl": chain.rpc_url,
-                    "blockExplorerUrl": chain.block_explorer_url,
+                    "rpcUri": chain.rpc_uri,
+                    "blockExplorerUri": chain.block_explorer_uri,
                     "nativeCurrency": {
                         "name": chain.currency_name,
                         "symbol": chain.currency_symbol,
                         "decimals": chain.currency_decimals,
-                        "logoUrl": chain.currency_logo_url,
+                        "logoUri": chain.currency_logo_uri,
                     },
-                    "transactionService": chain.transaction_service_url,
+                    "transactionService": chain.transaction_service_uri,
                     "theme": {
                         "textColor": chain.theme_text_color,
                         "backgroundColor": chain.theme_background_color,
@@ -118,15 +118,15 @@ class ChainDetailViewTests(APITestCase):
         json_response = {
             "chainId": str(chain.id),
             "chainName": chain.name,
-            "rpcUrl": chain.rpc_url,
-            "blockExplorerUrl": chain.block_explorer_url,
+            "rpcUri": chain.rpc_uri,
+            "blockExplorerUri": chain.block_explorer_uri,
             "nativeCurrency": {
                 "name": chain.currency_name,
                 "symbol": chain.currency_symbol,
                 "decimals": chain.currency_decimals,
-                "logoUrl": chain.currency_logo_url,
+                "logoUri": chain.currency_logo_uri,
             },
-            "transactionService": chain.transaction_service_url,
+            "transactionService": chain.transaction_service_uri,
             "theme": {
                 "textColor": chain.theme_text_color,
                 "backgroundColor": chain.theme_background_color,
@@ -158,15 +158,15 @@ class ChainDetailViewTests(APITestCase):
         json_response = {
             "chain_id": str(chain.id),
             "chain_name": chain.name,
-            "rpc_url": chain.rpc_url,
-            "block_explorer_url": chain.block_explorer_url,
+            "rpc_uri": chain.rpc_uri,
+            "block_explorer_uri": chain.block_explorer_uri,
             "native_currency": {
                 "name": chain.currency_name,
                 "symbol": chain.currency_symbol,
                 "decimals": chain.currency_decimals,
-                "logo_url": chain.currency_logo_url,
+                "logo_uri": chain.currency_logo_uri,
             },
-            "transaction_service": chain.transaction_service_url,
+            "transaction_service": chain.transaction_service_uri,
             "theme": {
                 "text_color": chain.theme_text_color,
                 "background_color": chain.theme_background_color,
@@ -226,12 +226,12 @@ class ChainGasPriceTests(APITestCase):
 
     def test_oracle_json_payload_format(self):
         chain = ChainFactory.create(
-            id=1, gas_price_oracle_url=self.faker.url(), gas_price_fixed_wei=None
+            id=1, gas_price_oracle_uri=self.faker.url(), gas_price_fixed_wei=None
         )
         url = reverse("v1:chains:detail", args=[1])
         expected_oracle_json_payload = {
             "type": "oracle",
-            "url": chain.gas_price_oracle_url,
+            "uri": chain.gas_price_oracle_uri,
             "gasParameter": chain.gas_price_oracle_parameter,
             "gweiFactor": "{0:.9f}".format(chain.gas_price_oracle_gwei_factor),
         }
@@ -257,7 +257,7 @@ class ChainGasPriceTests(APITestCase):
     def test_oracle_with_fixed(self):
         chain = ChainFactory.create(
             id=1,
-            gas_price_oracle_url=self.faker.url(),
+            gas_price_oracle_uri=self.faker.url(),
             gas_price_fixed_wei=self.faker.pyint(),
         )
         url = reverse("v1:chains:detail", args=[1])

@@ -8,7 +8,7 @@ class ChainAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "rpc_url",
+        "rpc_uri",
         "relevance",
     )
     search_fields = ("name", "id")
