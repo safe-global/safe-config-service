@@ -29,7 +29,7 @@ class Chain(models.Model):
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
     currency_logo_uri = models.URLField()
-    transaction_service_uri = models.URLField(null=True)
+    transaction_service_uri = models.URLField()
     theme_text_color = models.CharField(
         validators=[color_validator],
         max_length=9,
