@@ -25,7 +25,7 @@ class Chain(models.Model):
     name = models.CharField(verbose_name="Chain name", max_length=255)
     rpc_uri = models.URLField()
     block_explorer_uri = models.URLField(null=True)
-    currency_name = models.CharField(null=True, max_length=255)
+    currency_name = models.CharField(max_length=255)
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
     currency_logo_uri = models.URLField()
