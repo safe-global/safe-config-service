@@ -3,7 +3,7 @@ django-cors-headers==3.7.0
 djangorestframework==3.12.4
 djangorestframework-camel-case==1.2.0
 drf-yasg[validation]==1.20.0
-gnosis-py==3.1.11
+gnosis-py==3.1.13
 gunicorn==20.1.0
 psycopg2-binary==2.9.1
 web3==5.18 # This should be removed once gnosis-py is updated with the newer version of web3.py
