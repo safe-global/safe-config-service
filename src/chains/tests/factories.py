@@ -13,6 +13,7 @@ class ChainFactory(DjangoModelFactory):
     relevance = factory.Faker("pyint")
     name = factory.Faker("company")
     rpc_uri = factory.Faker("url")
+    safe_apps_rpc_uri = factory.Faker("url")
     block_explorer_uri = factory.Faker("url")
     currency_name = factory.Faker("cryptocurrency_name")
     currency_symbol = factory.Faker("cryptocurrency_code")

@@ -49,6 +49,7 @@ class ChainSerializer(serializers.ModelSerializer):
             "chain_id",
             "chain_name",
             "rpc_uri",
+            "safe_apps_rpc_uri",
             "block_explorer_uri",
             "native_currency",
             "transaction_service",
