@@ -31,10 +31,10 @@ function manage {
 
   # We need to collectstatic before we run our tests.
   if [ "${1-''}" == "test" ]; then
-    cmd python src/manage.py collectstatic --no-input
+    cmd python manage.py collectstatic --no-input
   fi
 
-  cmd python src/manage.py "${@}"
+  cmd python manage.py "${@}"
 }
 
 function help {

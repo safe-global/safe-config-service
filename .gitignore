@@ -60,7 +60,6 @@ coverage.xml
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-staticfiles
 
 # Flask stuff:
 instance/
@@ -133,4 +132,3 @@ dmypy.json
 .idea/
 data/
 docker-compose.override.yml
-.vscode/
