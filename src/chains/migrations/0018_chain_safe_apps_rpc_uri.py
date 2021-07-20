@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chains', '0017_alter_chain_block_explorer_uri'),
+        ("chains", "0017_alter_chain_block_explorer_uri"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='chain',
-            name='safe_apps_rpc_uri',
+            model_name="chain",
+            name="safe_apps_rpc_uri",
             field=models.URLField(default=None),
             preserve_default=False,
         ),
