@@ -27,7 +27,10 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                 {
                     "chainId": str(chain.id),
                     "chainName": chain.name,
-                    "rpcUri": chain.rpc_uri,
+                    "rpcUri": {
+                        "authentication": chain.rpc_authentication,
+                        "value": chain.rpc_uri,
+                    },
                     "blockExplorerUri": chain.block_explorer_uri,
                     "nativeCurrency": {
                         "name": chain.currency_name,
@@ -118,7 +121,10 @@ class ChainDetailViewTests(APITestCase):
         json_response = {
             "chainId": str(chain.id),
             "chainName": chain.name,
-            "rpcUri": chain.rpc_uri,
+            "rpcUri": {
+                "authentication": chain.rpc_authentication,
+                "value": chain.rpc_uri,
+            },
             "blockExplorerUri": chain.block_explorer_uri,
             "nativeCurrency": {
                 "name": chain.currency_name,
@@ -158,7 +164,10 @@ class ChainDetailViewTests(APITestCase):
         json_response = {
             "chain_id": str(chain.id),
             "chain_name": chain.name,
-            "rpc_uri": chain.rpc_uri,
+            "rpc_uri": {
+                "authentication": chain.rpc_authentication,
+                "value": chain.rpc_uri,
+            },
             "block_explorer_uri": chain.block_explorer_uri,
             "native_currency": {
                 "name": chain.currency_name,

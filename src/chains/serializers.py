@@ -32,9 +32,15 @@ class CurrencySerializer(serializers.Serializer):
     logo_uri = serializers.URLField(source="currency_logo_uri")
 
 
+class RpcUriSerializer(serializers.Serializer):
+    authentication = serializers.CharField(source="rpc_authentication")
+    value = serializers.URLField(source="rpc_uri")
+
+
 class ChainSerializer(serializers.ModelSerializer):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
+    rpc_uri = serializers.SerializerMethodField()
     native_currency = serializers.SerializerMethodField()
     transaction_service = serializers.URLField(
         source="transaction_service_uri", default=None
@@ -67,6 +73,11 @@ class ChainSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=ThemeSerializer)
     def get_theme(obj):
         return ThemeSerializer(obj).data
+
+    @staticmethod
+    @swagger_serializer_method(serializer_or_field=RpcUriSerializer)
+    def get_rpc_uri(obj):
+        return RpcUriSerializer(obj).data
 
     @staticmethod
     def get_gas_price(obj):
