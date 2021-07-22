@@ -1,3 +1,5 @@
+import random
+
 import factory
 import web3
 from factory.django import DjangoModelFactory
@@ -12,6 +14,9 @@ class ChainFactory(DjangoModelFactory):
     id = factory.Sequence(lambda id: id)
     relevance = factory.Faker("pyint")
     name = factory.Faker("company")
+    rpc_authentication = factory.lazy_attribute(
+        lambda o: random.choice(list(Chain.RpcAuthentication))
+    )
     rpc_uri = factory.Faker("url")
     safe_apps_rpc_uri = factory.Faker("url")
     block_explorer_uri = factory.Faker("url")

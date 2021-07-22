@@ -18,11 +18,18 @@ sem_ver_validator = RegexValidator(SEM_VER_REGEX, "Invalid version (semver)", "i
 
 
 class Chain(models.Model):
+    class RpcAuthentication(models.TextChoices):
+        API_KEY_PATH = "API_KEY_PATH"
+        NO_AUTHENTICATION = "NO_AUTHENTICATION"
+
     id = models.PositiveBigIntegerField(verbose_name="Chain Id", primary_key=True)
     relevance = models.SmallIntegerField(
         default=100
     )  # A lower number will indicate more relevance
     name = models.CharField(verbose_name="Chain name", max_length=255)
+    rpc_authentication = models.CharField(
+        max_length=255, choices=RpcAuthentication.choices
+    )
     rpc_uri = models.URLField()
     safe_apps_rpc_uri = models.URLField()
     block_explorer_uri = models.URLField()
