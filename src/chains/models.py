@@ -31,6 +31,11 @@ class Chain(models.Model):
         max_length=255, choices=RpcAuthentication.choices
     )
     rpc_uri = models.URLField()
+    safe_apps_rpc_authentication = models.CharField(
+        max_length=255,
+        choices=RpcAuthentication.choices,
+        default=RpcAuthentication.NO_AUTHENTICATION,
+    )
     safe_apps_rpc_uri = models.URLField()
     block_explorer_uri = models.URLField()
     currency_name = models.CharField(max_length=255)
