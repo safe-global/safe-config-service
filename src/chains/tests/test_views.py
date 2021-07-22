@@ -201,7 +201,7 @@ class ChainDetailViewTests(APITestCase):
         }
 
         response = self.client.get(path=url, data=None, format="json")
-        print(response.data)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, json_response)
 
