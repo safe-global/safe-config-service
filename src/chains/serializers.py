@@ -32,14 +32,19 @@ class CurrencySerializer(serializers.Serializer):
     logo_uri = serializers.URLField(source="currency_logo_uri")
 
 
-class SafeAppsRpcUriSerializer(serializers.Serializer):
-    authentication = serializers.CharField(source="safe_apps_rpc_authentication")
-    value = serializers.URLField(source="safe_apps_rpc_uri")
-
-
 class RpcUriSerializer(serializers.Serializer):
-    authentication = serializers.CharField(source="rpc_authentication")
-    value = serializers.URLField(source="rpc_uri")
+    def __init__(self, *args, **kwargs):
+        authentication_source = kwargs.pop(
+            "authentication_source", "rpc_authentication"
+        )
+        uri_source = kwargs.pop("uri_source", "rpc_uri")
+        self.fields.update(
+            {
+                "authentication": serializers.CharField(source=authentication_source),
+                "value": serializers.URLField(source=uri_source),
+            }
+        )
+        super(RpcUriSerializer, self).__init__(*args, **kwargs)
 
 
 class ChainSerializer(serializers.ModelSerializer):
@@ -84,7 +89,11 @@ class ChainSerializer(serializers.ModelSerializer):
     @staticmethod
     @swagger_serializer_method(serializer_or_field=RpcUriSerializer)
     def get_safe_apps_rpc_uri(obj):
-        return SafeAppsRpcUriSerializer(obj).data
+        return RpcUriSerializer(
+            obj,
+            authentication_source="safe_apps_rpc_authentication",
+            uri_source="safe_apps_rpc_uri",
+        ).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=RpcUriSerializer)
