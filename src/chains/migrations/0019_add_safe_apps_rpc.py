@@ -6,18 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chains', '0018_chain_rpc_authentication'),
+        ("chains", "0018_chain_rpc_authentication"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='chain',
-            name='safe_apps_rpc_authentication',
-            field=models.CharField(choices=[('API_KEY_PATH', 'Api Key Path'), ('NO_AUTHENTICATION', 'No Authentication')], default='NO_AUTHENTICATION', max_length=255),
+            model_name="chain",
+            name="safe_apps_rpc_authentication",
+            field=models.CharField(
+                choices=[
+                    ("API_KEY_PATH", "Api Key Path"),
+                    ("NO_AUTHENTICATION", "No Authentication"),
+                ],
+                default="NO_AUTHENTICATION",
+                max_length=255,
+            ),
         ),
         migrations.AddField(
-            model_name='chain',
-            name='safe_apps_rpc_uri',
+            model_name="chain",
+            name="safe_apps_rpc_uri",
             field=models.URLField(default=None),
             preserve_default=False,
         ),
