@@ -20,5 +20,25 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name="chain",
+            name="safe_apps_rpc_authentication",
+            field=models.CharField(
+                choices=[
+                    ("API_KEY_PATH", "Api Key Path"),
+                    ("NO_AUTHENTICATION", "No Authentication"),
+                ],
+                default="API_KEY_PATH",
+                max_length=255,
+            ),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name="chain",
+            name="safe_apps_rpc_uri",
+            field=models.URLField(
+                default="",
+            ),
+        ),
         migrations.RunPython(copy_rpc_fields),
     ]
