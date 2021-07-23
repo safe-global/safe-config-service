@@ -35,14 +35,14 @@ class CurrencySerializer(serializers.Serializer):
 
 class BaseRpcUriSerializer(serializers.Serializer):
     authentication = serializers.SerializerMethodField()
-    uri = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
 
     @abstractmethod
     def get_authentication(self, obj):
         pass
 
     @abstractmethod
-    def get_uri(self, obj):
+    def get_value(self, obj):
         pass
 
 
@@ -50,7 +50,7 @@ class RpcUriSerializer(BaseRpcUriSerializer):
     def get_authentication(self, obj):
         return obj.rpc_authentication
 
-    def get_uri(self, obj):
+    def get_value(self, obj):
         return obj.rpc_uri
 
 
@@ -58,7 +58,7 @@ class SafeAppsRpcUriSerializer(BaseRpcUriSerializer):
     def get_authentication(self, obj):
         return obj.safe_apps_rpc_authentication
 
-    def get_uri(self, obj):
+    def get_value(self, obj):
         return obj.safe_apps_rpc_uri
 
 
@@ -104,13 +104,11 @@ class ChainSerializer(serializers.ModelSerializer):
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)
     def get_safe_apps_rpc_uri(obj):
-        print(SafeAppsRpcUriSerializer(obj).data)
         return SafeAppsRpcUriSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)
     def get_rpc_uri(obj):
-        print(RpcUriSerializer(obj).data)
         return RpcUriSerializer(obj).data
 
     @staticmethod
