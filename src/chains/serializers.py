@@ -2,6 +2,7 @@ from drf_yasg.utils import swagger_serializer_method
 from gnosis.eth.django.serializers import EthereumAddressField
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
+from abc import abstractmethod
 
 from .models import Chain
 
@@ -32,19 +33,33 @@ class CurrencySerializer(serializers.Serializer):
     logo_uri = serializers.URLField(source="currency_logo_uri")
 
 
-class RpcUriSerializer(serializers.Serializer):
-    def __init__(self, *args, **kwargs):
-        authentication_source = kwargs.pop(
-            "authentication_source", "rpc_authentication"
-        )
-        uri_source = kwargs.pop("uri_source", "rpc_uri")
-        self.fields.update(
-            {
-                "authentication": serializers.CharField(source=authentication_source),
-                "value": serializers.URLField(source=uri_source),
-            }
-        )
-        super(RpcUriSerializer, self).__init__(*args, **kwargs)
+class BaseRpcUriSerializer(serializers.Serializer):
+    authentication = serializers.SerializerMethodField()
+    uri = serializers.SerializerMethodField()
+
+    @abstractmethod
+    def get_authentication(self, obj):
+        pass
+
+    @abstractmethod
+    def get_uri(self, obj):
+        pass
+
+
+class RpcUriSerializer(BaseRpcUriSerializer):
+    def get_authentication(self, obj):
+        return obj.rpc_authentication
+
+    def get_uri(self, obj):
+        return obj.rpc_uri
+
+
+class SafeAppsRpcUriSerializer(BaseRpcUriSerializer):
+    def get_authentication(self, obj):
+        return obj.safe_apps_rpc_authentication
+
+    def get_uri(self, obj):
+        return obj.safe_apps_rpc_uri
 
 
 class ChainSerializer(serializers.ModelSerializer):
@@ -87,17 +102,15 @@ class ChainSerializer(serializers.ModelSerializer):
         return ThemeSerializer(obj).data
 
     @staticmethod
-    @swagger_serializer_method(serializer_or_field=RpcUriSerializer)
+    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)
     def get_safe_apps_rpc_uri(obj):
-        return RpcUriSerializer(
-            obj,
-            authentication_source="safe_apps_rpc_authentication",
-            uri_source="safe_apps_rpc_uri",
-        ).data
+        print(SafeAppsRpcUriSerializer(obj).data)
+        return SafeAppsRpcUriSerializer(obj).data
 
     @staticmethod
-    @swagger_serializer_method(serializer_or_field=RpcUriSerializer)
+    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)
     def get_rpc_uri(obj):
+        print(RpcUriSerializer(obj).data)
         return RpcUriSerializer(obj).data
 
     @staticmethod

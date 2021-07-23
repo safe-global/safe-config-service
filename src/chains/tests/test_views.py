@@ -167,6 +167,7 @@ class ChainDetailViewTests(APITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_match(self):
+        self.maxDiff = None
         chain = ChainFactory.create(id=1)
         url = reverse("v1:chains:detail", args=[1])
         json_response = {
@@ -201,7 +202,8 @@ class ChainDetailViewTests(APITestCase):
         }
 
         response = self.client.get(path=url, data=None, format="json")
-
+        print(json_response)
+        print(response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, json_response)
 
