@@ -39,11 +39,11 @@ class BaseRpcUriSerializer(serializers.Serializer):
     value = serializers.SerializerMethodField()
 
     @abstractmethod
-    def get_authentication(self, obj):
+    def get_authentication(self, obj):  # pragma: no cover
         pass
 
     @abstractmethod
-    def get_value(self, obj):
+    def get_value(self, obj):  # pragma: no cover
         pass
 
 
