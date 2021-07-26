@@ -13,6 +13,10 @@ def copy_rpc_fields(apps, schema_editor):
     )
 
 
+def reverse_rpc_fields(apps, schema_editor):
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -28,7 +32,7 @@ class Migration(migrations.Migration):
                     ("API_KEY_PATH", "Api Key Path"),
                     ("NO_AUTHENTICATION", "No Authentication"),
                 ],
-                default="API_KEY_PATH",
+                default="NO_AUTHENTICATION",
                 max_length=255,
             ),
             preserve_default=False,
@@ -40,5 +44,5 @@ class Migration(migrations.Migration):
                 default="",
             ),
         ),
-        migrations.RunPython(copy_rpc_fields),
+        migrations.RunPython(copy_rpc_fields, reverse_rpc_fields),
     ]
