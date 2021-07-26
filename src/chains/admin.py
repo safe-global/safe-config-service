@@ -9,6 +9,7 @@ class ChainAdmin(admin.ModelAdmin):
         "id",
         "name",
         "rpc_uri",
+        "safe_apps_rpc_uri",
         "relevance",
     )
     search_fields = ("name", "id")

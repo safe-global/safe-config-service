@@ -31,6 +31,10 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "authentication": chain.rpc_authentication,
                         "value": chain.rpc_uri,
                     },
+                    "safeAppsRpcUri": {
+                        "authentication": chain.safe_apps_rpc_authentication,
+                        "value": chain.safe_apps_rpc_uri,
+                    },
                     "blockExplorerUri": chain.block_explorer_uri,
                     "nativeCurrency": {
                         "name": chain.currency_name,
@@ -125,6 +129,10 @@ class ChainDetailViewTests(APITestCase):
                 "authentication": chain.rpc_authentication,
                 "value": chain.rpc_uri,
             },
+            "safeAppsRpcUri": {
+                "authentication": chain.safe_apps_rpc_authentication,
+                "value": chain.safe_apps_rpc_uri,
+            },
             "blockExplorerUri": chain.block_explorer_uri,
             "nativeCurrency": {
                 "name": chain.currency_name,
@@ -167,6 +175,10 @@ class ChainDetailViewTests(APITestCase):
             "rpc_uri": {
                 "authentication": chain.rpc_authentication,
                 "value": chain.rpc_uri,
+            },
+            "safe_apps_rpc_uri": {
+                "authentication": chain.safe_apps_rpc_authentication,
+                "value": chain.safe_apps_rpc_uri,
             },
             "block_explorer_uri": chain.block_explorer_uri,
             "native_currency": {

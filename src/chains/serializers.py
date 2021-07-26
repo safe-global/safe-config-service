@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 from drf_yasg.utils import swagger_serializer_method
 from gnosis.eth.django.serializers import EthereumAddressField
 from rest_framework import serializers
@@ -32,15 +34,40 @@ class CurrencySerializer(serializers.Serializer):
     logo_uri = serializers.URLField(source="currency_logo_uri")
 
 
-class RpcUriSerializer(serializers.Serializer):
-    authentication = serializers.CharField(source="rpc_authentication")
-    value = serializers.URLField(source="rpc_uri")
+class BaseRpcUriSerializer(serializers.Serializer):
+    authentication = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+
+    @abstractmethod
+    def get_authentication(self, obj):  # pragma: no cover
+        pass
+
+    @abstractmethod
+    def get_value(self, obj):  # pragma: no cover
+        pass
+
+
+class RpcUriSerializer(BaseRpcUriSerializer):
+    def get_authentication(self, obj):
+        return obj.rpc_authentication
+
+    def get_value(self, obj):
+        return obj.rpc_uri
+
+
+class SafeAppsRpcUriSerializer(BaseRpcUriSerializer):
+    def get_authentication(self, obj):
+        return obj.safe_apps_rpc_authentication
+
+    def get_value(self, obj):
+        return obj.safe_apps_rpc_uri
 
 
 class ChainSerializer(serializers.ModelSerializer):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
     rpc_uri = serializers.SerializerMethodField()
+    safe_apps_rpc_uri = serializers.SerializerMethodField()
     native_currency = serializers.SerializerMethodField()
     transaction_service = serializers.URLField(
         source="transaction_service_uri", default=None
@@ -55,6 +82,7 @@ class ChainSerializer(serializers.ModelSerializer):
             "chain_id",
             "chain_name",
             "rpc_uri",
+            "safe_apps_rpc_uri",
             "block_explorer_uri",
             "native_currency",
             "transaction_service",
@@ -75,7 +103,12 @@ class ChainSerializer(serializers.ModelSerializer):
         return ThemeSerializer(obj).data
 
     @staticmethod
-    @swagger_serializer_method(serializer_or_field=RpcUriSerializer)
+    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)
+    def get_safe_apps_rpc_uri(obj):
+        return SafeAppsRpcUriSerializer(obj).data
+
+    @staticmethod
+    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)
     def get_rpc_uri(obj):
         return RpcUriSerializer(obj).data
 

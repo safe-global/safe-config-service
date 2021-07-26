@@ -18,6 +18,10 @@ class ChainFactory(DjangoModelFactory):
         lambda o: random.choice(list(Chain.RpcAuthentication))
     )
     rpc_uri = factory.Faker("url")
+    safe_apps_rpc_authentication = factory.lazy_attribute(
+        lambda o: random.choice(list(Chain.RpcAuthentication))
+    )
+    safe_apps_rpc_uri = factory.Faker("url")
     block_explorer_uri = factory.Faker("url")
     currency_name = factory.Faker("cryptocurrency_name")
     currency_symbol = factory.Faker("cryptocurrency_code")
