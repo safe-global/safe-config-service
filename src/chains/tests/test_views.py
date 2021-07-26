@@ -36,6 +36,10 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "value": chain.safe_apps_rpc_uri,
                     },
                     "blockExplorerUri": chain.block_explorer_uri,
+                    "blockExplorerUriTemplate": {
+                        "address": chain.block_explorer_uri_address_template,
+                        "txHash": chain.block_explorer_uri_tx_hash_template,
+                    },
                     "nativeCurrency": {
                         "name": chain.currency_name,
                         "symbol": chain.currency_symbol,
@@ -134,6 +138,10 @@ class ChainDetailViewTests(APITestCase):
                 "value": chain.safe_apps_rpc_uri,
             },
             "blockExplorerUri": chain.block_explorer_uri,
+            "blockExplorerUriTemplate": {
+                "address": chain.block_explorer_uri_address_template,
+                "txHash": chain.block_explorer_uri_tx_hash_template,
+            },
             "nativeCurrency": {
                 "name": chain.currency_name,
                 "symbol": chain.currency_symbol,
@@ -181,6 +189,10 @@ class ChainDetailViewTests(APITestCase):
                 "value": chain.safe_apps_rpc_uri,
             },
             "block_explorer_uri": chain.block_explorer_uri,
+            "block_explorer_uri_template": {
+                "address": chain.block_explorer_uri_address_template,
+                "tx_hash": chain.block_explorer_uri_tx_hash_template,
+            },
             "native_currency": {
                 "name": chain.currency_name,
                 "symbol": chain.currency_symbol,
