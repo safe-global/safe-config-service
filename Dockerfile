@@ -26,8 +26,7 @@ RUN set -ex \
 
 WORKDIR /app
 COPY . .
-RUN pip3 install --no-warn-script-location --user -r requirements.txt \
-    && chmod +x docker-entrypoint.sh
+RUN pip3 install --no-warn-script-location --user -r requirements.txt
 
 ENTRYPOINT ["/sbin/tini", "--", "./docker-entrypoint.sh"]
 
