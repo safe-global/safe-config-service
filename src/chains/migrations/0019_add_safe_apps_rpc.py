@@ -14,7 +14,6 @@ def copy_rpc_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0018_chain_rpc_authentication"),
     ]
@@ -40,5 +39,5 @@ class Migration(migrations.Migration):
                 default="",
             ),
         ),
-        migrations.RunPython(copy_rpc_fields, lambda **args: None),
+        migrations.RunPython(copy_rpc_fields, lambda apps, schema_editor: None),
     ]
