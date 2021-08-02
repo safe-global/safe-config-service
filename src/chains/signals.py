@@ -36,9 +36,7 @@ def on_chain_update(sender, **kwargs):
 
     url = urljoin(cgw_url, f"/v1/flush/{cgw_flush_token}")
     try:
-        post = setup_session().post(
-            url, json={"invalidate": "Chains"}
-        )  # TODO: if this throws it might leak the token to the logger
+        post = setup_session().post(url, json={"invalidate": "Chains"})
         post.raise_for_status()
     except Exception as error:
         logger.error(error)
