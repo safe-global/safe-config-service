@@ -190,3 +190,6 @@ SWAGGER_SETTINGS = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_URLS_REGEX = r"^/api/.*$"
+
+CGW_URL = os.environ.get("CGW_URL")
+CGW_FLUSH_TOKEN = os.environ.get("CGW_FLUSH_TOKEN")
