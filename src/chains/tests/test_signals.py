@@ -1,26 +1,7 @@
-from unittest.mock import patch
-
 import responses
 from django.test import TestCase, override_settings
 
 from chains.tests.factories import ChainFactory
-
-
-class ChainHookTestCase(TestCase):
-    @patch("requests.sessions.Session.post")
-    def test_on_chain_update_with_no_cgw_set(self, mock_post):
-        ChainFactory.create()
-
-        assert not mock_post.called
-
-    @patch("requests.sessions.Session.post")
-    @override_settings(
-        CGW_URL="http://127.0.0.1",
-    )
-    def test_on_chain_update_with_no_flush_token_set(self, mock_post):
-        ChainFactory.create()
-
-        assert not mock_post.called
 
 
 @override_settings(
@@ -90,3 +71,23 @@ class ChainNetworkHookTestCase(TestCase):
 
         # 2 calls: one for creation and one for updating
         assert len(responses.calls) == 2
+
+    @override_settings(
+        CGW_URL=None,
+        CGW_FLUSH_TOKEN=None,
+    )
+    @responses.activate
+    def test_on_chain_update_with_no_cgw_set(self):
+        ChainFactory.create()
+
+        assert len(responses.calls) == 0
+
+    @override_settings(
+        CGW_URL="http://127.0.0.1",
+        CGW_FLUSH_TOKEN=None,
+    )
+    @responses.activate
+    def test_on_chain_update_with_no_flush_token_set(self):
+        ChainFactory.create()
+
+        assert len(responses.calls) == 0
