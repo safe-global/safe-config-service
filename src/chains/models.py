@@ -37,9 +37,6 @@ class Chain(models.Model):
         default=RpcAuthentication.NO_AUTHENTICATION,
     )
     safe_apps_rpc_uri = models.URLField(default="")
-    block_explorer_uri = (
-        models.URLField()
-    )  # TODO: Remove in a later migration (once the clients no longer need it)
     block_explorer_uri_address_template = models.URLField()
     block_explorer_uri_tx_hash_template = models.URLField()
     currency_name = models.CharField(max_length=255)

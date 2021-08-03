@@ -35,7 +35,6 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "authentication": chain.safe_apps_rpc_authentication,
                         "value": chain.safe_apps_rpc_uri,
                     },
-                    "blockExplorerUri": chain.block_explorer_uri,
                     "blockExplorerUriTemplate": {
                         "address": chain.block_explorer_uri_address_template,
                         "txHash": chain.block_explorer_uri_tx_hash_template,
@@ -137,7 +136,6 @@ class ChainDetailViewTests(APITestCase):
                 "authentication": chain.safe_apps_rpc_authentication,
                 "value": chain.safe_apps_rpc_uri,
             },
-            "blockExplorerUri": chain.block_explorer_uri,
             "blockExplorerUriTemplate": {
                 "address": chain.block_explorer_uri_address_template,
                 "txHash": chain.block_explorer_uri_tx_hash_template,
@@ -188,7 +186,6 @@ class ChainDetailViewTests(APITestCase):
                 "authentication": chain.safe_apps_rpc_authentication,
                 "value": chain.safe_apps_rpc_uri,
             },
-            "block_explorer_uri": chain.block_explorer_uri,
             "block_explorer_uri_template": {
                 "address": chain.block_explorer_uri_address_template,
                 "tx_hash": chain.block_explorer_uri_tx_hash_template,

@@ -90,7 +90,6 @@ class ChainSerializer(serializers.ModelSerializer):
             "rpc_uri",
             "safe_apps_rpc_uri",
             "block_explorer_uri_template",
-            "block_explorer_uri",
             "native_currency",
             "transaction_service",
             "theme",
