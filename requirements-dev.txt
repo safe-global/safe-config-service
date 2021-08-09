@@ -5,6 +5,6 @@ coveralls==3.2.0
 factory-boy==3.2.0
 flake8==3.9.2
 isort==5.9.3
-pre-commit==2.13.0
+pre-commit==2.14.0
 pytest-django==4.4.0
 responses==0.13.4
