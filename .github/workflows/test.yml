@@ -107,52 +107,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github
 
-  docker-publish-staging:
-    # Publish staging image only on push events to main
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [flake8, isort, black, django-check]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2.3.4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1.5.1
-      - name: Cache Docker layers
-        uses: actions/cache@v2.1.6
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-      - name: Login to DockerHub
-        uses: docker/login-action@v1.10.0
-        with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2.7.0
-        with:
-          context: .
-          push: true
-          # Target production image from multi-stage build (check Dockerfile)
-          target: production
-          tags: gnosispm/safe-config-service:staging
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
-      - # Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-        name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
-
-  docker-publish-release:
-    # Publish production image only on release events
-    if: github.event_name == 'release' && github.event.action == 'released'
+  docker-publish:
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'release' && github.event.action == 'released')
     needs: [ flake8, isort, black, django-check ]
     runs-on: ubuntu-latest
     steps:
@@ -172,6 +130,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set tag (staging)
+        # Set "staging" as Docker tag if the event is a push to main branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "DOCKER_TAG=staging" >> $GITHUB_ENV
+      - name: Set tag (release)
+        # Set the tag versions as Docker tag if it is a release event
+        if: github.event_name == 'release' && github.event.action == 'released'
+        run: echo "DOCKER_TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2.7.0
@@ -180,8 +146,7 @@ jobs:
           push: true
           # Target production image from multi-stage build (check Dockerfile)
           target: production
-          # github.event.release.tag_name only exists on release event types
-          tags: gnosispm/safe-config-service:${{ github.event.release.tag_name }}
+          tags: gnosispm/safe-config-service:${{ env.DOCKER_TAG }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
       - # Temp fix
