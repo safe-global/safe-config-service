@@ -5,21 +5,35 @@ from gnosis.eth.django.serializers import EthereumAddressField
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
 
-from .models import Chain
+from .models import Chain, GasPrice
 
 
 class GasPriceOracleSerializer(serializers.Serializer):
     type = serializers.ReadOnlyField(default="oracle")
-    uri = serializers.URLField(source="gas_price_oracle_uri")
-    gas_parameter = serializers.CharField(source="gas_price_oracle_parameter")
-    gwei_factor = serializers.DecimalField(
-        source="gas_price_oracle_gwei_factor", max_digits=19, decimal_places=9
-    )
+    uri = serializers.URLField(source="oracle_uri")
+    gas_parameter = serializers.CharField(source="oracle_parameter")
+    gwei_factor = serializers.DecimalField(max_digits=19, decimal_places=9)
 
 
 class GasPriceFixedSerializer(serializers.Serializer):
     type = serializers.ReadOnlyField(default="fixed")
-    wei_value = serializers.CharField(source="gas_price_fixed_wei")
+    wei_value = serializers.CharField(source="fixed_wei_value")
+
+
+def serialize_gas_price(instance: GasPrice):
+    if instance.oracle_uri and instance.fixed_wei_value is None:
+        return GasPriceOracleSerializer(instance).data
+    elif instance.fixed_wei_value and instance.oracle_uri is None:
+        return GasPriceFixedSerializer(instance).data
+    else:
+        raise APIException(
+            f"The gas price oracle or a fixed gas price was not provided for chain {instance.chain}"
+        )
+
+
+class GasPriceSerializer(serializers.Serializer):
+    def to_representation(self, instance):
+        return serialize_gas_price(instance)
 
 
 class ThemeSerializer(serializers.Serializer):
@@ -123,13 +137,32 @@ class ChainSerializer(serializers.ModelSerializer):
     def get_block_explorer_uri_template(obj):
         return BlockExplorerUriTemplateSerializer(obj).data
 
-    @staticmethod
-    def get_gas_price(obj):
-        if obj.gas_price_oracle_uri and obj.gas_price_fixed_wei is None:
-            return GasPriceOracleSerializer(obj).data
-        elif obj.gas_price_fixed_wei and obj.gas_price_oracle_uri is None:
-            return GasPriceFixedSerializer(obj).data
-        else:
-            raise APIException(
-                f"The gas price oracle or a fixed gas price was not provided for chain {obj.id}"
-            )
+    @swagger_serializer_method(serializer_or_field=GasPriceSerializer)
+    def get_gas_price(self, obj):
+        gas_prices = obj.gasprice_set.all().order_by("rank")
+        if len(gas_prices) == 0:
+            return None
+        return serialize_gas_price(gas_prices[0])
+
+
+class ChainSerializerV2(ChainSerializer):
+    class Meta:
+        model = Chain
+        fields = [
+            "chain_id",
+            "chain_name",
+            "rpc_uri",
+            "safe_apps_rpc_uri",
+            "block_explorer_uri_template",
+            "native_currency",
+            "transaction_service",
+            "theme",
+            "gas_price",
+            "ens_registry_address",
+            "recommended_master_copy_version",
+        ]
+
+    @swagger_serializer_method(serializer_or_field=GasPriceSerializer)
+    def get_gas_price(self, instance):
+        ranked_gas_prices = instance.gasprice_set.all().order_by("rank")
+        return GasPriceSerializer(ranked_gas_prices, many=True).data

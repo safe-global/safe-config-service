@@ -6,7 +6,7 @@ from django.db import DataError
 from django.test import TestCase, TransactionTestCase
 from faker import Faker
 
-from .factories import ChainFactory
+from .factories import ChainFactory, GasPriceFactory
 
 
 class ChainTestCase(TestCase):
@@ -18,63 +18,77 @@ class ChainTestCase(TestCase):
         )
 
 
+class GasPriceTestCase(TestCase):
+    def test_str_method_output(self):
+        gas_price = GasPriceFactory.create()
+
+        self.assertEqual(
+            str(gas_price),
+            f"Chain = {gas_price.chain.id} | uri={gas_price.oracle_uri} | fixed_wei_value={gas_price.fixed_wei_value}",
+        )
+
+
 class ChainGasPriceFixedTestCase(TestCase):
     @staticmethod
     def test_null_oracle_with_non_null_fixed_gas_price():
-        chain = ChainFactory.create(
-            gas_price_oracle_uri=None, gas_price_fixed_wei=10000
+        gas_price = GasPriceFactory.create(
+            oracle_uri=None,
+            fixed_wei_value=10000,
         )
 
-        chain.full_clean()
+        gas_price.full_clean()
 
     def test_null_oracle_gas_oracle_with_null_fixed_gas_price(self):
-        chain = ChainFactory.create(gas_price_oracle_uri=None, gas_price_fixed_wei=None)
+        gas_price = GasPriceFactory.create(
+            oracle_uri=None,
+            fixed_wei_value=None,
+        )
 
         with self.assertRaises(ValidationError):
-            chain.full_clean()
+            gas_price.full_clean()
 
     @staticmethod
     def test_big_number():
-        chain = ChainFactory.create(
-            gas_price_oracle_uri=None,
-            gas_price_fixed_wei="115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        gas_price = GasPriceFactory.create(
+            oracle_uri=None,
+            fixed_wei_value="115792089237316195423570985008687907853269984665640564039457584007913129639935",
         )
 
-        chain.full_clean()
+        gas_price.full_clean()
 
 
 class ChainGasPriceOracleTestCase(TestCase):
     faker = Faker()
 
     def test_oracle_gas_parameter_with_null_uri(self):
-        chain = ChainFactory.create(
-            gas_price_oracle_uri=None,
-            gas_price_oracle_parameter="fake parameter",
-            gas_price_fixed_wei=None,
+        gas_price = GasPriceFactory.create(
+            oracle_uri=None,
+            oracle_parameter="fake parameter",
+            fixed_wei_value=None,
         )
 
         with self.assertRaises(ValidationError):
-            chain.full_clean()
+            gas_price.full_clean()
 
     def test_null_oracle_gas_parameter_with_uri(self):
-        chain = ChainFactory.create(
-            gas_price_oracle_uri=self.faker.url(),
-            gas_price_oracle_parameter=None,
-            gas_price_fixed_wei=None,
+        gas_price = GasPriceFactory.create(
+            oracle_uri=self.faker.url(),
+            oracle_parameter=None,
+            fixed_wei_value=None,
         )
 
         with self.assertRaises(ValidationError):
-            chain.full_clean()
+            gas_price.full_clean()
 
     def test_oracle_gas_parameter_with_uri(self):
-        chain = ChainFactory.create(
-            gas_price_oracle_uri=self.faker.url(),
-            gas_price_oracle_parameter="fake parameter",
-            gas_price_fixed_wei=None,
+        gas_price = GasPriceFactory.create(
+            oracle_uri=self.faker.url(),
+            oracle_parameter="fake parameter",
+            fixed_wei_value=None,
         )
 
         # No validation exception should be thrown
-        chain.full_clean()
+        gas_price.full_clean()
 
 
 class ChainColorValidationTestCase(TransactionTestCase):
@@ -154,30 +168,30 @@ class ChainGweiFactorTestCase(TestCase):
     @staticmethod
     def test_ether_to_gwei_conversion_rate_valid():
         eth_gwei = Decimal("0.000000001")  # 0.000000001 ETH == 1 GWei
-        chain = ChainFactory.create(gas_price_oracle_gwei_factor=eth_gwei)
+        gas_price = GasPriceFactory.create(gwei_factor=eth_gwei)
 
-        chain.full_clean()
+        gas_price.full_clean()
 
     @staticmethod
     def test_wei_to_gwei_conversion_rate_valid():
         eth_gwei = Decimal("1000000000")  # 1000000000 Wei == 1 GWei
-        chain = ChainFactory.create(gas_price_oracle_gwei_factor=eth_gwei)
+        gas_price = GasPriceFactory.create(gwei_factor=eth_gwei)
 
-        chain.full_clean()
+        gas_price.full_clean()
 
     def test_1e_minus10_conversion_rate_invalid(self):
         factor = Decimal("0.00000000001")
-        chain = ChainFactory.create(gas_price_oracle_gwei_factor=factor)
+        gas_price = GasPriceFactory.create(gwei_factor=factor)
 
         with self.assertRaises(ValidationError):
-            chain.full_clean()
+            gas_price.full_clean()
 
     def test_1e10_conversion_rate_invalid(self):
         factor = Decimal("10000000000")
 
         with self.assertRaises(DataError):
-            chain = ChainFactory.create(gas_price_oracle_gwei_factor=factor)
-            chain.full_clean()
+            gas_price = GasPriceFactory.create(gwei_factor=factor)
+            gas_price.full_clean()
 
 
 class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Chain
+from .models import Chain, GasPrice
 
 
 @admin.register(Chain)
@@ -17,3 +17,15 @@ class ChainAdmin(admin.ModelAdmin):
         "relevance",
         "name",
     )
+
+
+@admin.register(GasPrice)
+class GasPrice(admin.ModelAdmin):
+    list_display = (
+        "chain_id",
+        "oracle_uri",
+        "fixed_wei_value",
+        "rank",
+    )
+    search_fields = ("chain_id", "oracle_uri")
+    ordering = ("rank",)
