@@ -8,9 +8,8 @@ from django.db import migrations, models
 def copy_gas_prices(apps, schema_editor):
     GasPrice = apps.get_model("chains", "GasPrice")
     Chain = apps.get_model("chains", "Chain")
-    db_alias = schema_editor.connection.alias
 
-    GasPrice.objects.using(db_alias).bulk_create(
+    GasPrice.objects.bulk_create(
         GasPrice(
             chain=chain,
             oracle_uri=chain.gas_price_oracle_uri,
@@ -18,7 +17,7 @@ def copy_gas_prices(apps, schema_editor):
             gwei_factor=chain.gas_price_oracle_gwei_factor,
             fixed_wei_value=chain.gas_price_fixed_wei,
         )
-        for chain in Chain.objects.using(db_alias).all()
+        for chain in Chain.objects.all()
     )
 
 
