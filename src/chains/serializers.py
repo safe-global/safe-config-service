@@ -5,7 +5,7 @@ from gnosis.eth.django.serializers import EthereumAddressField
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
 
-from .models import Chain, GasPrice
+from .models import Chain
 
 
 class GasPriceOracleSerializer(serializers.Serializer):
@@ -20,20 +20,16 @@ class GasPriceFixedSerializer(serializers.Serializer):
     wei_value = serializers.CharField(source="fixed_wei_value")
 
 
-def serialize_gas_price(instance: GasPrice):
-    if instance.oracle_uri and instance.fixed_wei_value is None:
-        return GasPriceOracleSerializer(instance).data
-    elif instance.fixed_wei_value and instance.oracle_uri is None:
-        return GasPriceFixedSerializer(instance).data
-    else:
-        raise APIException(
-            f"The gas price oracle or a fixed gas price was not provided for chain {instance.chain}"
-        )
-
-
 class GasPriceSerializer(serializers.Serializer):
     def to_representation(self, instance):
-        return serialize_gas_price(instance)
+        if instance.oracle_uri and instance.fixed_wei_value is None:
+            return GasPriceOracleSerializer(instance).data
+        elif instance.fixed_wei_value and instance.oracle_uri is None:
+            return GasPriceFixedSerializer(instance).data
+        else:
+            raise APIException(
+                f"The gas price oracle or a fixed gas price was not provided for chain {instance.chain}"
+            )
 
 
 class ThemeSerializer(serializers.Serializer):
@@ -136,31 +132,6 @@ class ChainSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=BlockExplorerUriTemplateSerializer)
     def get_block_explorer_uri_template(obj):
         return BlockExplorerUriTemplateSerializer(obj).data
-
-    @swagger_serializer_method(serializer_or_field=GasPriceSerializer)
-    def get_gas_price(self, obj):
-        gas_prices = obj.gasprice_set.all().order_by("rank")
-        if len(gas_prices) == 0:
-            return None
-        return serialize_gas_price(gas_prices[0])
-
-
-class ChainSerializerV2(ChainSerializer):
-    class Meta:
-        model = Chain
-        fields = [
-            "chain_id",
-            "chain_name",
-            "rpc_uri",
-            "safe_apps_rpc_uri",
-            "block_explorer_uri_template",
-            "native_currency",
-            "transaction_service",
-            "theme",
-            "gas_price",
-            "ens_registry_address",
-            "recommended_master_copy_version",
-        ]
 
     @swagger_serializer_method(serializer_or_field=GasPriceSerializer)
     def get_gas_price(self, instance):

@@ -3,7 +3,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import LimitOffsetPagination
 
 from .models import Chain
-from .serializers import ChainSerializer, ChainSerializerV2
+from .serializers import ChainSerializer
 
 
 class ChainsListView(ListAPIView):
@@ -20,14 +20,6 @@ class ChainsListView(ListAPIView):
     ]
 
 
-class ChainsListViewV2(ChainsListView):
-    serializer_class = ChainSerializerV2
-
-
 class ChainsDetailView(RetrieveAPIView):
     serializer_class = ChainSerializer
     queryset = Chain.objects.all()
-
-
-class ChainsDetailViewV2(ChainsDetailView):
-    serializer_class = ChainSerializerV2
