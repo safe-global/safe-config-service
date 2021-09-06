@@ -57,39 +57,45 @@ class Chain(models.Model):
         help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
     ens_registry_address = EthereumAddressField(null=True, blank=True)
-    gas_price_oracle_uri = models.URLField(blank=True, null=True)
-    gas_price_oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
-    gas_price_oracle_gwei_factor = models.DecimalField(
+
+    recommended_master_copy_version = models.CharField(
+        max_length=255, validators=[sem_ver_validator]
+    )
+
+    def __str__(self):
+        return f"{self.name} | chain_id={self.id}"
+
+
+class GasPrice(models.Model):
+    chain = models.ForeignKey(Chain, on_delete=models.CASCADE)
+    oracle_uri = models.URLField(blank=True, null=True)
+    oracle_parameter = models.CharField(blank=True, null=True, max_length=255)
+    gwei_factor = models.DecimalField(
         default=1,
         max_digits=19,
         decimal_places=9,
         verbose_name="Gwei multiplier factor",
         help_text="Factor required to reach the Gwei unit",
     )
-    gas_price_fixed_wei = Uint256Field(
+    fixed_wei_value = Uint256Field(
         verbose_name="Fixed gas price (wei)", blank=True, null=True
     )
-    recommended_master_copy_version = models.CharField(
-        max_length=255, validators=[sem_ver_validator]
-    )
-
-    def clean(self):
-        if (self.gas_price_fixed_wei is not None) == (
-            self.gas_price_oracle_uri is not None
-        ):
-            raise ValidationError(
-                {
-                    "gas_price_oracle_uri": "An oracle uri or fixed gas price should be provided (but not both)",
-                    "gas_price_fixed_wei": "An oracle uri or fixed gas price should be provided (but not both)",
-                }
-            )
-        if (
-            self.gas_price_oracle_uri is not None
-            and self.gas_price_oracle_parameter is None
-        ):
-            raise ValidationError(
-                {"gas_price_oracle_parameter": "The oracle parameter should be set"}
-            )
+    rank = models.SmallIntegerField(
+        default=100
+    )  # A lower number will indicate higher ranking
 
     def __str__(self):
-        return f"{self.name} | chain_id={self.id}"
+        return f"Chain = {self.chain.id} | uri={self.oracle_uri} | fixed_wei_value={self.fixed_wei_value}"
+
+    def clean(self):
+        if (self.fixed_wei_value is not None) == (self.oracle_uri is not None):
+            raise ValidationError(
+                {
+                    "oracle_uri": "An oracle uri or fixed gas price should be provided (but not both)",
+                    "fixed_wei_value": "An oracle uri or fixed gas price should be provided (but not both)",
+                }
+            )
+        if self.oracle_uri is not None and self.oracle_parameter is None:
+            raise ValidationError(
+                {"oracle_parameter": "The oracle parameter should be set"}
+            )

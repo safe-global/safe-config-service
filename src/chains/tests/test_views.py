@@ -2,7 +2,7 @@ from django.urls import reverse
 from faker import Faker
 from rest_framework.test import APITestCase
 
-from .factories import ChainFactory
+from .factories import ChainFactory, GasPriceFactory
 
 
 class EmptyChainsListViewTests(APITestCase):
@@ -19,13 +19,14 @@ class EmptyChainsListViewTests(APITestCase):
 class ChainJsonPayloadFormatViewTests(APITestCase):
     def test_json_payload_format(self):
         chain = ChainFactory.create()
+        gas_price = GasPriceFactory.create(chain=chain)
         json_response = {
             "count": 1,
             "next": None,
             "previous": None,
             "results": [
                 {
-                    "chainId": str(chain.id),
+                    "chainId": str(gas_price.chain.id),
                     "chainName": chain.name,
                     "rpcUri": {
                         "authentication": chain.rpc_authentication,
@@ -50,10 +51,12 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "textColor": chain.theme_text_color,
                         "backgroundColor": chain.theme_background_color,
                     },
-                    "gasPrice": {
-                        "type": "fixed",
-                        "weiValue": str(chain.gas_price_fixed_wei),
-                    },
+                    "gasPrice": [
+                        {
+                            "type": "fixed",
+                            "weiValue": str(gas_price.fixed_wei_value),
+                        }
+                    ],
                     "ensRegistryAddress": chain.ens_registry_address,
                     "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
                 }
@@ -124,6 +127,7 @@ class ChainPaginationViewTests(APITestCase):
 class ChainDetailViewTests(APITestCase):
     def test_json_payload_format(self):
         chain = ChainFactory.create(id=1)
+        gas_price = GasPriceFactory.create(chain=chain)
         url = reverse("v1:chains:detail", args=[1])
         json_response = {
             "chainId": str(chain.id),
@@ -151,10 +155,12 @@ class ChainDetailViewTests(APITestCase):
                 "textColor": chain.theme_text_color,
                 "backgroundColor": chain.theme_background_color,
             },
-            "gasPrice": {
-                "type": "fixed",
-                "weiValue": str(chain.gas_price_fixed_wei),
-            },
+            "gasPrice": [
+                {
+                    "type": "fixed",
+                    "weiValue": str(gas_price.fixed_wei_value),
+                }
+            ],
             "ensRegistryAddress": chain.ens_registry_address,
             "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
         }
@@ -174,6 +180,7 @@ class ChainDetailViewTests(APITestCase):
 
     def test_match(self):
         chain = ChainFactory.create(id=1)
+        gas_price = GasPriceFactory.create(chain=chain)
         url = reverse("v1:chains:detail", args=[1])
         json_response = {
             "chain_id": str(chain.id),
@@ -201,10 +208,12 @@ class ChainDetailViewTests(APITestCase):
                 "text_color": chain.theme_text_color,
                 "background_color": chain.theme_background_color,
             },
-            "gas_price": {
-                "type": "fixed",
-                "wei_value": str(chain.gas_price_fixed_wei),
-            },
+            "gas_price": [
+                {
+                    "type": "fixed",
+                    "wei_value": str(gas_price.fixed_wei_value),
+                }
+            ],
             "ens_registry_address": chain.ens_registry_address,
             "recommended_master_copy_version": chain.recommended_master_copy_version,
         }
@@ -254,17 +263,72 @@ class ChainsEnsRegistryTests(APITestCase):
 class ChainGasPriceTests(APITestCase):
     faker = Faker()
 
+    def test_rank_sort(self):
+        chain = ChainFactory.create(id=1)
+        # fixed price rank 100
+        gas_price_100 = GasPriceFactory.create(
+            chain=chain,
+            rank=100,
+        )
+        # oracle price rank 50
+        gas_price_50 = GasPriceFactory.create(
+            chain=chain,
+            oracle_uri=self.faker.url(),
+            oracle_parameter="fast",
+            fixed_wei_value=None,
+            rank=50,
+        )
+        # fixed price rank 1
+        gas_price_1 = GasPriceFactory.create(
+            chain=chain,
+            rank=1,
+        )
+        expected = [
+            {
+                "type": "fixed",
+                "wei_value": str(gas_price_1.fixed_wei_value),
+            },
+            {
+                "type": "oracle",
+                "uri": gas_price_50.oracle_uri,
+                "gas_parameter": gas_price_50.oracle_parameter,
+                "gwei_factor": str(gas_price_50.gwei_factor),
+            },
+            {
+                "type": "fixed",
+                "wei_value": str(gas_price_100.fixed_wei_value),
+            },
+        ]
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["gas_price"], expected)
+
+    def test_empty_gas_prices(self):
+        ChainFactory.create(id=1)
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["gas_price"], [])
+
     def test_oracle_json_payload_format(self):
-        chain = ChainFactory.create(
-            id=1, gas_price_oracle_uri=self.faker.url(), gas_price_fixed_wei=None
+        chain = ChainFactory.create(id=1)
+        gas_price = GasPriceFactory.create(
+            chain=chain, oracle_uri=self.faker.url(), fixed_wei_value=None
         )
         url = reverse("v1:chains:detail", args=[1])
-        expected_oracle_json_payload = {
-            "type": "oracle",
-            "uri": chain.gas_price_oracle_uri,
-            "gasParameter": chain.gas_price_oracle_parameter,
-            "gweiFactor": "{0:.9f}".format(chain.gas_price_oracle_gwei_factor),
-        }
+        expected_oracle_json_payload = [
+            {
+                "type": "oracle",
+                "uri": gas_price.oracle_uri,
+                "gasParameter": gas_price.oracle_parameter,
+                "gweiFactor": "{0:.9f}".format(gas_price.gwei_factor),
+            }
+        ]
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -272,12 +336,17 @@ class ChainGasPriceTests(APITestCase):
         self.assertEqual(response.json()["gasPrice"], expected_oracle_json_payload)
 
     def test_fixed_gas_price_json_payload_format(self):
-        chain = ChainFactory.create(id=1, gas_price_fixed_wei=self.faker.pyint())
+        chain = ChainFactory.create(id=1)
+        gas_price = GasPriceFactory.create(
+            chain=chain, fixed_wei_value=self.faker.pyint()
+        )
         url = reverse("v1:chains:detail", args=[1])
-        expected_oracle_json_payload = {
-            "type": "fixed",
-            "weiValue": str(chain.gas_price_fixed_wei),
-        }
+        expected_oracle_json_payload = [
+            {
+                "type": "fixed",
+                "weiValue": str(gas_price.fixed_wei_value),
+            }
+        ]
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -285,14 +354,15 @@ class ChainGasPriceTests(APITestCase):
         self.assertEqual(response.json()["gasPrice"], expected_oracle_json_payload)
 
     def test_oracle_with_fixed(self):
-        chain = ChainFactory.create(
-            id=1,
-            gas_price_oracle_uri=self.faker.url(),
-            gas_price_fixed_wei=self.faker.pyint(),
+        chain = ChainFactory.create(id=1)
+        GasPriceFactory.create(
+            chain=chain,
+            oracle_uri=self.faker.url(),
+            fixed_wei_value=self.faker.pyint(),
         )
         url = reverse("v1:chains:detail", args=[1])
         expected_error_body = {
-            "detail": f"The gas price oracle or a fixed gas price was not provided for chain {chain.id}"
+            "detail": f"The gas price oracle or a fixed gas price was not provided for chain {chain}"
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -301,15 +371,18 @@ class ChainGasPriceTests(APITestCase):
         self.assertEqual(response.json(), expected_error_body)
 
     def test_fixed_gas_256_bit(self):
-        ChainFactory.create(
-            id=1,
-            gas_price_fixed_wei="115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        chain = ChainFactory.create(id=1)
+        GasPriceFactory.create(
+            chain=chain,
+            fixed_wei_value="115792089237316195423570985008687907853269984665640564039457584007913129639935",
         )
         url = reverse("v1:chains:detail", args=[1])
-        expected_oracle_json_payload = {
-            "type": "fixed",
-            "weiValue": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
-        }
+        expected_oracle_json_payload = [
+            {
+                "type": "fixed",
+                "weiValue": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            }
+        ]
 
         response = self.client.get(path=url, data=None, format="json")
 

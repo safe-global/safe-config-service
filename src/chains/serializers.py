@@ -10,16 +10,26 @@ from .models import Chain
 
 class GasPriceOracleSerializer(serializers.Serializer):
     type = serializers.ReadOnlyField(default="oracle")
-    uri = serializers.URLField(source="gas_price_oracle_uri")
-    gas_parameter = serializers.CharField(source="gas_price_oracle_parameter")
-    gwei_factor = serializers.DecimalField(
-        source="gas_price_oracle_gwei_factor", max_digits=19, decimal_places=9
-    )
+    uri = serializers.URLField(source="oracle_uri")
+    gas_parameter = serializers.CharField(source="oracle_parameter")
+    gwei_factor = serializers.DecimalField(max_digits=19, decimal_places=9)
 
 
 class GasPriceFixedSerializer(serializers.Serializer):
     type = serializers.ReadOnlyField(default="fixed")
-    wei_value = serializers.CharField(source="gas_price_fixed_wei")
+    wei_value = serializers.CharField(source="fixed_wei_value")
+
+
+class GasPriceSerializer(serializers.Serializer):
+    def to_representation(self, instance):
+        if instance.oracle_uri and instance.fixed_wei_value is None:
+            return GasPriceOracleSerializer(instance).data
+        elif instance.fixed_wei_value and instance.oracle_uri is None:
+            return GasPriceFixedSerializer(instance).data
+        else:
+            raise APIException(
+                f"The gas price oracle or a fixed gas price was not provided for chain {instance.chain}"
+            )
 
 
 class ThemeSerializer(serializers.Serializer):
@@ -123,13 +133,7 @@ class ChainSerializer(serializers.ModelSerializer):
     def get_block_explorer_uri_template(obj):
         return BlockExplorerUriTemplateSerializer(obj).data
 
-    @staticmethod
-    def get_gas_price(obj):
-        if obj.gas_price_oracle_uri and obj.gas_price_fixed_wei is None:
-            return GasPriceOracleSerializer(obj).data
-        elif obj.gas_price_fixed_wei and obj.gas_price_oracle_uri is None:
-            return GasPriceFixedSerializer(obj).data
-        else:
-            raise APIException(
-                f"The gas price oracle or a fixed gas price was not provided for chain {obj.id}"
-            )
+    @swagger_serializer_method(serializer_or_field=GasPriceSerializer)
+    def get_gas_price(self, instance):
+        ranked_gas_prices = instance.gasprice_set.all().order_by("rank")
+        return GasPriceSerializer(ranked_gas_prices, many=True).data
