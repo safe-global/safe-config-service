@@ -14,6 +14,7 @@ from distutils.util import strtobool
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -193,3 +194,17 @@ CORS_URLS_REGEX = r"^/api/.*$"
 
 CGW_URL = os.environ.get("CGW_URL")
 CGW_FLUSH_TOKEN = os.environ.get("CGW_FLUSH_TOKEN")
+
+# By default, Django stores files locally, using the MEDIA_ROOT and MEDIA_URL settings.
+# (using the default the default FileSystemStorage)
+# https://docs.djangoproject.com/en/dev/ref/settings/#media-root
+MEDIA_ROOT = f"{BASE_DIR}/media/"
+# https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+MEDIA_URL = "/media/"
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+DEFAULT_FILE_STORAGE = os.getenv(
+    "DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage"
+)

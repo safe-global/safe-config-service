@@ -1,3 +1,4 @@
+import os
 import re
 
 from django.core.exceptions import ValidationError
@@ -15,6 +16,11 @@ SEM_VER_REGEX = re.compile(
 )
 
 sem_ver_validator = RegexValidator(SEM_VER_REGEX, "Invalid version (semver)", "invalid")
+
+
+def native_currency_path(instance: "Chain", filename):
+    _, file_extension = os.path.splitext(filename)  # file_extension includes the dot
+    return f"safe-config/chains/{instance.id}_currency_logo{file_extension}"
 
 
 class Chain(models.Model):
@@ -42,7 +48,7 @@ class Chain(models.Model):
     currency_name = models.CharField(max_length=255)
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
-    currency_logo_uri = models.URLField()
+    currency_logo_uri = models.ImageField(upload_to=native_currency_path)
     transaction_service_uri = models.URLField()
     theme_text_color = models.CharField(
         validators=[color_validator],

@@ -134,3 +134,4 @@ dmypy.json
 data/
 docker-compose.override.yml
 .vscode/
+src/media/
