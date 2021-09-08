@@ -207,6 +207,9 @@ AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
 # By default files with the same name will overwrite each other. Set this to False to have extra characters appended.
 AWS_S3_FILE_OVERWRITE = True
+# Setting AWS_QUERYSTRING_AUTH to False to remove query parameter authentication from generated URLs.
+# This can be useful if your S3 buckets are public.
+AWS_QUERYSTRING_AUTH = False
 DEFAULT_FILE_STORAGE = os.getenv(
     "DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage"
 )
