@@ -205,6 +205,7 @@ MEDIA_URL = "/media/"
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN")
 # By default files with the same name will overwrite each other. Set this to False to have extra characters appended.
 AWS_S3_FILE_OVERWRITE = True
 # Setting AWS_QUERYSTRING_AUTH to False to remove query parameter authentication from generated URLs.
