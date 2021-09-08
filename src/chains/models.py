@@ -20,7 +20,7 @@ sem_ver_validator = RegexValidator(SEM_VER_REGEX, "Invalid version (semver)", "i
 
 def native_currency_path(instance: "Chain", filename):
     _, file_extension = os.path.splitext(filename)  # file_extension includes the dot
-    return f"safe-config/chains/{instance.id}_currency_logo{file_extension}"
+    return f"chains/{instance.id}/currency_logo{file_extension}"
 
 
 class Chain(models.Model):

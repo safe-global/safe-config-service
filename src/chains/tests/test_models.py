@@ -231,3 +231,12 @@ class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
                 )
                 # run validators
                 chain.full_clean()
+
+
+class ChainCurrencyLogoTestCase(TestCase):
+    def test_currency_logo_upload_path(self):
+        chain = ChainFactory.create(id=12)
+
+        self.assertEqual(
+            chain.currency_logo_uri.url, "/media/chains/12/currency_logo.jpg"
+        )
