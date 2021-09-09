@@ -22,7 +22,18 @@ RUN set -ex \
     libffi-dev \
     libtool \
     postgresql-dev \
-    tini
+    tini \
+    # Pillow dependencies
+    freetype-dev \
+    fribidi-dev \
+    harfbuzz-dev \
+    jpeg-dev \
+    lcms2-dev \
+    openjpeg-dev \
+    tcl-dev \
+    tiff-dev \
+    tk-dev \
+    zlib-dev
 
 WORKDIR /app
 COPY . .
