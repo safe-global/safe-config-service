@@ -41,7 +41,7 @@ class CurrencySerializer(serializers.Serializer):
     name = serializers.CharField(source="currency_name")
     symbol = serializers.CharField(source="currency_symbol")
     decimals = serializers.IntegerField(source="currency_decimals")
-    logo_uri = serializers.URLField(source="currency_logo_uri")
+    logo_uri = serializers.ImageField(use_url=True, source="currency_logo_uri")
 
 
 class BaseRpcUriSerializer(serializers.Serializer):
