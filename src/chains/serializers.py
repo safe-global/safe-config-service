@@ -97,6 +97,7 @@ class ChainSerializer(serializers.ModelSerializer):
         fields = [
             "chain_id",
             "chain_name",
+            "l2",
             "rpc_uri",
             "safe_apps_rpc_uri",
             "block_explorer_uri_template",
