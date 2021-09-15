@@ -14,6 +14,7 @@ class ChainFactory(DjangoModelFactory):
     id = factory.Sequence(lambda id: id)
     relevance = factory.Faker("pyint")
     name = factory.Faker("company")
+    l2 = factory.Faker("pybool")
     rpc_authentication = factory.lazy_attribute(
         lambda o: random.choice(list(Chain.RpcAuthentication))
     )
