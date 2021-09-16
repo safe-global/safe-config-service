@@ -28,6 +28,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                 {
                     "chainId": str(gas_price.chain.id),
                     "chainName": chain.name,
+                    "description": chain.description,
                     "l2": chain.l2,
                     "rpcUri": {
                         "authentication": chain.rpc_authentication,
@@ -133,6 +134,7 @@ class ChainDetailViewTests(APITestCase):
         json_response = {
             "chainId": str(chain.id),
             "chainName": chain.name,
+            "description": chain.description,
             "l2": chain.l2,
             "rpcUri": {
                 "authentication": chain.rpc_authentication,
@@ -187,6 +189,7 @@ class ChainDetailViewTests(APITestCase):
         json_response = {
             "chain_id": str(chain.id),
             "chain_name": chain.name,
+            "description": chain.description,
             "l2": chain.l2,
             "rpc_uri": {
                 "authentication": chain.rpc_authentication,
