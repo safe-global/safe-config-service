@@ -22,4 +22,4 @@ class AppsConfig(AppConfig):
 
         # This application depends on S3 configuration (if set)
         # so we validate if its django.conf.settings contains the required parameters
-        _validate_storage_setup()
+        # _validate_storage_setup()
