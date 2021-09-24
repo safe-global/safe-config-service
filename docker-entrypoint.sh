@@ -2,11 +2,6 @@
 
 set -euo pipefail
 
-echo "==> $(date +%H:%M:%S) ==> Collecting static files..."
-python src/manage.py collectstatic --noinput
-rm -rf ${DOCKER_NGINX_VOLUME_ROOT}/*
-cp -r staticfiles/ ${DOCKER_NGINX_VOLUME_ROOT}/
-
 echo "==> $(date +%H:%M:%S) ==> Migrating Django models..."
 python src/manage.py migrate --noinput
 
