@@ -49,6 +49,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "logoUri": chain.currency_logo_uri.url,
                     },
                     "transactionService": chain.transaction_service_uri,
+                    "vpcTransactionService": chain.vpc_transaction_service_uri,
                     "theme": {
                         "textColor": chain.theme_text_color,
                         "backgroundColor": chain.theme_background_color,
@@ -155,6 +156,7 @@ class ChainDetailViewTests(APITestCase):
                 "logoUri": chain.currency_logo_uri.url,
             },
             "transactionService": chain.transaction_service_uri,
+            "vpcTransactionService": chain.vpc_transaction_service_uri,
             "theme": {
                 "textColor": chain.theme_text_color,
                 "backgroundColor": chain.theme_background_color,
@@ -210,6 +212,7 @@ class ChainDetailViewTests(APITestCase):
                 "logo_uri": chain.currency_logo_uri.url,
             },
             "transaction_service": chain.transaction_service_uri,
+            "vpc_transaction_service": chain.vpc_transaction_service_uri,
             "theme": {
                 "text_color": chain.theme_text_color,
                 "background_color": chain.theme_background_color,

@@ -54,6 +54,7 @@ class Chain(models.Model):
         upload_to=native_currency_path, max_length=255
     )
     transaction_service_uri = models.URLField()
+    vpc_transaction_service_uri = models.URLField()
     theme_text_color = models.CharField(
         validators=[color_validator],
         max_length=9,

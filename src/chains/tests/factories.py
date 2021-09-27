@@ -31,6 +31,7 @@ class ChainFactory(DjangoModelFactory):
     currency_decimals = factory.Faker("pyint")
     currency_logo_uri = factory.django.ImageField()
     transaction_service_uri = factory.Faker("url")
+    vpc_transaction_service_uri = factory.Faker("url")
     theme_text_color = factory.Faker("hex_color")
     theme_background_color = factory.Faker("hex_color")
     ens_registry_address = factory.LazyAttribute(
