@@ -15,6 +15,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="chain",
             name="currency_logo_uri",
-            field=models.ImageField(upload_to=chains.models.native_currency_path),
+            field=models.ImageField(
+                max_length=255, upload_to=chains.models.native_currency_path
+            ),
         ),
     ]
