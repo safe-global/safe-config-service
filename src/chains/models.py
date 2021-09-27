@@ -50,7 +50,9 @@ class Chain(models.Model):
     currency_name = models.CharField(max_length=255)
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
-    currency_logo_uri = models.ImageField(upload_to=native_currency_path)
+    currency_logo_uri = models.ImageField(
+        upload_to=native_currency_path, max_length=255
+    )
     transaction_service_uri = models.URLField()
     theme_text_color = models.CharField(
         validators=[color_validator],
