@@ -52,6 +52,7 @@ class Chain(models.Model):
     currency_decimals = models.IntegerField(default=18)
     currency_logo_uri = models.ImageField(upload_to=native_currency_path)
     transaction_service_uri = models.URLField()
+    vpc_transaction_service_uri = models.URLField()
     theme_text_color = models.CharField(
         validators=[color_validator],
         max_length=9,

@@ -88,6 +88,7 @@ class ChainSerializer(serializers.ModelSerializer):
     transaction_service = serializers.URLField(
         source="transaction_service_uri", default=None
     )
+    vpc_transaction_service = serializers.URLField(source="vpc_transaction_service_uri")
     theme = serializers.SerializerMethodField()
     gas_price = serializers.SerializerMethodField()
     ens_registry_address = EthereumAddressField()
@@ -104,6 +105,7 @@ class ChainSerializer(serializers.ModelSerializer):
             "block_explorer_uri_template",
             "native_currency",
             "transaction_service",
+            "vpc_transaction_service",
             "theme",
             "gas_price",
             "ens_registry_address",
