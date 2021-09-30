@@ -33,6 +33,7 @@ class Chain(models.Model):
         default=100
     )  # A lower number will indicate more relevance
     name = models.CharField(verbose_name="Chain name", max_length=255)
+    short_name = models.CharField(verbose_name="EIP-3770 short name", max_length=255)
     description = models.CharField(max_length=255, blank=True)
     l2 = models.BooleanField()
     rpc_authentication = models.CharField(

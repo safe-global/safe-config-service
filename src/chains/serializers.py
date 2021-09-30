@@ -81,6 +81,7 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer):
 class ChainSerializer(serializers.ModelSerializer):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
+    short_name = serializers.CharField()
     rpc_uri = serializers.SerializerMethodField()
     safe_apps_rpc_uri = serializers.SerializerMethodField()
     block_explorer_uri_template = serializers.SerializerMethodField()
@@ -98,6 +99,7 @@ class ChainSerializer(serializers.ModelSerializer):
         fields = [
             "chain_id",
             "chain_name",
+            "short_name",
             "description",
             "l2",
             "rpc_uri",
