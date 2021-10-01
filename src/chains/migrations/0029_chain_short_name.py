@@ -21,7 +21,10 @@ class Migration(migrations.Migration):
             model_name="chain",
             name="short_name",
             field=models.CharField(
-                null=True, max_length=255, verbose_name="EIP-3770 short name"
+                unique=True,
+                null=True,
+                max_length=255,
+                verbose_name="EIP-3770 short name",
             ),
             preserve_default=False,
         ),
@@ -32,7 +35,10 @@ class Migration(migrations.Migration):
             model_name="chain",
             name="short_name",
             field=models.CharField(
-                null=False, max_length=255, verbose_name="EIP-3770 short name"
+                unique=True,
+                null=False,
+                max_length=255,
+                verbose_name="EIP-3770 short name",
             ),
             preserve_default=False,
         ),
