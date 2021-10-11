@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.urls import reverse
 from faker import Faker
 from rest_framework.test import APITestCase
@@ -304,7 +306,9 @@ class ChainGasPriceTests(APITestCase):
                 "type": "oracle",
                 "uri": gas_price_50.oracle_uri,
                 "gas_parameter": gas_price_50.oracle_parameter,
-                "gwei_factor": str(gas_price_50.gwei_factor),
+                "gwei_factor": str(
+                    gas_price_50.gwei_factor.quantize(Decimal("1.000000000"))
+                ),
             },
             {
                 "type": "fixed",
