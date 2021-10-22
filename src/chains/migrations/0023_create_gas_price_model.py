@@ -2,10 +2,12 @@
 
 import django.db.models.deletion
 import gnosis.eth.django.models
+from django.apps.registry import Apps
 from django.db import migrations, models
+from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 
 
-def copy_gas_prices(apps, schema_editor):
+def copy_gas_prices(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
     GasPrice = apps.get_model("chains", "GasPrice")
     Chain = apps.get_model("chains", "Chain")
 
@@ -56,7 +58,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "fixed_wei_value",
-                    gnosis.eth.django.models.Uint256Field(
+                    gnosis.eth.django.models.Uint256Field(  # type: ignore[no-untyped-call]
                         blank=True, null=True, verbose_name="Fixed gas price (wei)"
                     ),
                 ),

@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         (
             "chains",
@@ -17,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="chain",
             name="gas_price_fixed_wei",
-            field=gnosis.eth.django.models.Uint256Field(
+            field=gnosis.eth.django.models.Uint256Field(  # type: ignore[no-untyped-call]
                 blank=True, null=True, verbose_name="Fixed gas price (wei)"
             ),
         ),

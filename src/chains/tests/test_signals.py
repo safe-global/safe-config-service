@@ -10,12 +10,12 @@ from chains.tests.factories import ChainFactory
 )
 class ChainNetworkHookTestCase(TestCase):
     @responses.activate
-    def test_on_chain_update_hook_200(self):
+    def test_on_chain_update_hook_200(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/flush/example-token",
             status=200,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
         )
 
         ChainFactory.create()
@@ -27,12 +27,12 @@ class ChainNetworkHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_chain_update_hook_400(self):
+    def test_on_chain_update_hook_400(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/flush/example-token",
             status=400,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
         )
 
         ChainFactory.create()
@@ -40,12 +40,12 @@ class ChainNetworkHookTestCase(TestCase):
         assert len(responses.calls) == 1
 
     @responses.activate
-    def test_on_chain_update_hook_500(self):
+    def test_on_chain_update_hook_500(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/flush/example-token",
             status=500,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
         )
 
         ChainFactory.create()
@@ -53,7 +53,7 @@ class ChainNetworkHookTestCase(TestCase):
         assert len(responses.calls) == 1
 
     @responses.activate
-    def test_on_chain_delete_hook_call(self):
+    def test_on_chain_delete_hook_call(self) -> None:
         chain = ChainFactory.create()
 
         chain.delete()
@@ -62,7 +62,7 @@ class ChainNetworkHookTestCase(TestCase):
         assert len(responses.calls) == 2
 
     @responses.activate
-    def test_on_chain_update_hook_call(self):
+    def test_on_chain_update_hook_call(self) -> None:
         chain = ChainFactory.create()
 
         # Not updating using queryset because hooks are not triggered that way
@@ -77,7 +77,7 @@ class ChainNetworkHookTestCase(TestCase):
         CGW_FLUSH_TOKEN=None,
     )
     @responses.activate
-    def test_on_chain_update_with_no_cgw_set(self):
+    def test_on_chain_update_with_no_cgw_set(self) -> None:
         ChainFactory.create()
 
         assert len(responses.calls) == 0
@@ -87,7 +87,7 @@ class ChainNetworkHookTestCase(TestCase):
         CGW_FLUSH_TOKEN=None,
     )
     @responses.activate
-    def test_on_chain_update_with_no_flush_token_set(self):
+    def test_on_chain_update_with_no_flush_token_set(self) -> None:
         ChainFactory.create()
 
         assert len(responses.calls) == 0

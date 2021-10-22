@@ -1,3 +1,5 @@
+from django.db.migrations.state import StateApps
+
 from .utils import TestMigrations
 
 
@@ -5,7 +7,7 @@ class Migration0029TestCase(TestMigrations):
     migrate_from = "0028_chain_vpc_transaction_service_uri"
     migrate_to = "0029_chain_short_name"
 
-    def setUpBeforeMigration(self, apps):
+    def setUpBeforeMigration(self, apps: StateApps) -> None:
         Chain = apps.get_model("chains", "Chain")
         Chain.objects.create(
             id=1,
@@ -126,8 +128,8 @@ class Migration0029TestCase(TestMigrations):
             recommended_master_copy_version="1.3.0",
         )
 
-    def test_short_name_set(self):
-        Chain = self.apps.get_model("chains", "Chain")
+    def test_short_name_set(self) -> None:
+        Chain = self.apps_registry.get_model("chains", "Chain")
 
         mainnet = Chain.objects.get(id=1)
         binance = Chain.objects.get(id=56)

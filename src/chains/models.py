@@ -18,7 +18,7 @@ SEM_VER_REGEX = re.compile(
 sem_ver_validator = RegexValidator(SEM_VER_REGEX, "Invalid version (semver)", "invalid")
 
 
-def native_currency_path(instance: "Chain", filename):
+def native_currency_path(instance: "Chain", filename: str) -> str:
     _, file_extension = os.path.splitext(filename)  # file_extension includes the dot
     return f"chains/{instance.id}/currency_logo{file_extension}"
 
@@ -70,13 +70,13 @@ class Chain(models.Model):
         default="#000000",
         help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
-    ens_registry_address = EthereumAddressField(null=True, blank=True)
+    ens_registry_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
 
     recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} | chain_id={self.id}"
 
 
@@ -93,15 +93,15 @@ class GasPrice(models.Model):
     )
     fixed_wei_value = Uint256Field(
         verbose_name="Fixed gas price (wei)", blank=True, null=True
-    )
+    )  # type: ignore[no-untyped-call]
     rank = models.SmallIntegerField(
         default=100
     )  # A lower number will indicate higher ranking
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Chain = {self.chain.id} | uri={self.oracle_uri} | fixed_wei_value={self.fixed_wei_value}"
 
-    def clean(self):
+    def clean(self) -> None:
         if (self.fixed_wei_value is not None) == (self.oracle_uri is not None):
             raise ValidationError(
                 {

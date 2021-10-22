@@ -10,7 +10,7 @@ from .factories import ChainFactory, GasPriceFactory
 
 
 class ChainTestCase(TestCase):
-    def test_str_method_outputs_name_chain_id(self):
+    def test_str_method_outputs_name_chain_id(self) -> None:
         chain = ChainFactory.create()
         self.assertEqual(
             str(chain),
@@ -19,7 +19,7 @@ class ChainTestCase(TestCase):
 
 
 class GasPriceTestCase(TestCase):
-    def test_str_method_output(self):
+    def test_str_method_output(self) -> None:
         gas_price = GasPriceFactory.create()
 
         self.assertEqual(
@@ -30,7 +30,7 @@ class GasPriceTestCase(TestCase):
 
 class ChainGasPriceFixedTestCase(TestCase):
     @staticmethod
-    def test_null_oracle_with_non_null_fixed_gas_price():
+    def test_null_oracle_with_non_null_fixed_gas_price() -> None:
         gas_price = GasPriceFactory.create(
             oracle_uri=None,
             fixed_wei_value=10000,
@@ -38,7 +38,7 @@ class ChainGasPriceFixedTestCase(TestCase):
 
         gas_price.full_clean()
 
-    def test_null_oracle_gas_oracle_with_null_fixed_gas_price(self):
+    def test_null_oracle_gas_oracle_with_null_fixed_gas_price(self) -> None:
         gas_price = GasPriceFactory.create(
             oracle_uri=None,
             fixed_wei_value=None,
@@ -48,7 +48,7 @@ class ChainGasPriceFixedTestCase(TestCase):
             gas_price.full_clean()
 
     @staticmethod
-    def test_big_number():
+    def test_big_number() -> None:
         gas_price = GasPriceFactory.create(
             oracle_uri=None,
             fixed_wei_value="115792089237316195423570985008687907853269984665640564039457584007913129639935",
@@ -60,7 +60,7 @@ class ChainGasPriceFixedTestCase(TestCase):
 class ChainGasPriceOracleTestCase(TestCase):
     faker = Faker()
 
-    def test_oracle_gas_parameter_with_null_uri(self):
+    def test_oracle_gas_parameter_with_null_uri(self) -> None:
         gas_price = GasPriceFactory.create(
             oracle_uri=None,
             oracle_parameter="fake parameter",
@@ -70,7 +70,7 @@ class ChainGasPriceOracleTestCase(TestCase):
         with self.assertRaises(ValidationError):
             gas_price.full_clean()
 
-    def test_null_oracle_gas_parameter_with_uri(self):
+    def test_null_oracle_gas_parameter_with_uri(self) -> None:
         gas_price = GasPriceFactory.create(
             oracle_uri=self.faker.url(),
             oracle_parameter=None,
@@ -80,7 +80,7 @@ class ChainGasPriceOracleTestCase(TestCase):
         with self.assertRaises(ValidationError):
             gas_price.full_clean()
 
-    def test_oracle_gas_parameter_with_uri(self):
+    def test_oracle_gas_parameter_with_uri(self) -> None:
         gas_price = GasPriceFactory.create(
             oracle_uri=self.faker.url(),
             oracle_parameter="fake parameter",
@@ -94,7 +94,7 @@ class ChainGasPriceOracleTestCase(TestCase):
 class ChainColorValidationTestCase(TransactionTestCase):
     faker = Faker()
 
-    def test_invalid_text_colors(self):
+    def test_invalid_text_colors(self) -> None:
         param_list = [
             "aaa",
             "bbb",
@@ -109,17 +109,12 @@ class ChainColorValidationTestCase(TransactionTestCase):
         ]
         for invalid_color in param_list:
             with self.subTest(msg=f"Invalid color {invalid_color} should throw"):
-                with self.assertRaises(
-                    (
-                        ValidationError,
-                        DataError,
-                    )
-                ):
+                with self.assertRaises(tuple([ValidationError, DataError])):
                     chain = ChainFactory.create(theme_text_color=invalid_color)
                     # run validators
                     chain.full_clean()
 
-    def test_valid_text_colors(self):
+    def test_valid_text_colors(self) -> None:
         param_list = ["#000000", "#ffffff"] + [
             self.faker.hex_color() for _ in range(20)
         ]
@@ -130,7 +125,7 @@ class ChainColorValidationTestCase(TransactionTestCase):
 
 
 class ChainEnsRegistryAddressValidationTestCase(TransactionTestCase):
-    def test_invalid_addresses(self):
+    def test_invalid_addresses(self) -> None:
         param_list = [
             "0x",
             "0x0",
@@ -152,7 +147,7 @@ class ChainEnsRegistryAddressValidationTestCase(TransactionTestCase):
                     # run validators
                     chain.full_clean()
 
-    def test_valid_addresses(self):
+    def test_valid_addresses(self) -> None:
         param_list = [
             "0x0000000000000000000000000000000000000000",
             "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF",
@@ -166,27 +161,27 @@ class ChainEnsRegistryAddressValidationTestCase(TransactionTestCase):
 
 class ChainGweiFactorTestCase(TestCase):
     @staticmethod
-    def test_ether_to_gwei_conversion_rate_valid():
+    def test_ether_to_gwei_conversion_rate_valid() -> None:
         eth_gwei = Decimal("0.000000001")  # 0.000000001 ETH == 1 GWei
         gas_price = GasPriceFactory.create(gwei_factor=eth_gwei)
 
         gas_price.full_clean()
 
     @staticmethod
-    def test_wei_to_gwei_conversion_rate_valid():
+    def test_wei_to_gwei_conversion_rate_valid() -> None:
         eth_gwei = Decimal("1000000000")  # 1000000000 Wei == 1 GWei
         gas_price = GasPriceFactory.create(gwei_factor=eth_gwei)
 
         gas_price.full_clean()
 
-    def test_1e_minus10_conversion_rate_invalid(self):
+    def test_1e_minus10_conversion_rate_invalid(self) -> None:
         factor = Decimal("0.00000000001")
         gas_price = GasPriceFactory.create(gwei_factor=factor)
 
         with self.assertRaises(ValidationError):
             gas_price.full_clean()
 
-    def test_1e10_conversion_rate_invalid(self):
+    def test_1e10_conversion_rate_invalid(self) -> None:
         factor = Decimal("10000000000")
 
         with self.assertRaises(DataError):
@@ -195,7 +190,7 @@ class ChainGweiFactorTestCase(TestCase):
 
 
 class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
-    def test_invalid_versions(self):
+    def test_invalid_versions(self) -> None:
         param_list = [
             "1",
             "1.2",
@@ -214,7 +209,7 @@ class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
                     # run validators
                     chain.full_clean()
 
-    def test_valid_versions(self):
+    def test_valid_versions(self) -> None:
         param_list = [
             "0.0.4",
             "10.20.30",
@@ -234,7 +229,7 @@ class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
 
 
 class ChainCurrencyLogoTestCase(TestCase):
-    def test_currency_logo_upload_path(self):
+    def test_currency_logo_upload_path(self) -> None:
         chain = ChainFactory.create(id=12)
 
         self.assertEqual(
