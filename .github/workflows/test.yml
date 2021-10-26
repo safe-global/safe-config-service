@@ -97,7 +97,7 @@ jobs:
         run: |
           pip install -r requirements-dev.txt
       - name: Run mypy
-        run: mypy --strict src/chains
+        run: mypy --strict src/chains src/safe_apps
       - name: Check pending migrations
         run: python src/manage.py makemigrations --check --dry-run
       - name: Run migrations

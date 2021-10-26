@@ -4,7 +4,7 @@ from factory.django import DjangoModelFactory
 from ..models import Provider, SafeApp
 
 
-class ProviderFactory(DjangoModelFactory):
+class ProviderFactory(DjangoModelFactory):  # type: ignore[misc]
     class Meta:
         model = Provider
 
@@ -12,7 +12,7 @@ class ProviderFactory(DjangoModelFactory):
     url = factory.Faker("url")
 
 
-class SafeAppFactory(DjangoModelFactory):
+class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
     class Meta:
         model = SafeApp
 

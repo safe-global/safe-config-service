@@ -1,8 +1,13 @@
+from typing import Any
+
+from django.db.models import QuerySet
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import ListAPIView
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from .models import SafeApp
 from .serializers import SafeAppsResponseSerializer
@@ -20,15 +25,15 @@ class SafeAppsListView(ListAPIView):
     )
 
     @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
-    @swagger_auto_schema(manual_parameters=[_swagger_network_id_param])
-    def get(self, request, *args, **kwargs):
+    @swagger_auto_schema(manual_parameters=[_swagger_network_id_param])  # type: ignore[misc]
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Returns a collection of Safe Apps (across different chains).
         Each Safe App can optionally include the information about the `Provider`
         """
-        return super().get(self, request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[SafeApp]:
         queryset = SafeApp.objects.filter(visible=True)
 
         network_id = self.request.query_params.get("chainId")
