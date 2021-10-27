@@ -4,24 +4,25 @@ from drf_yasg.utils import swagger_serializer_method
 from gnosis.eth.django.serializers import EthereumAddressField
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
+from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Chain
+from .models import Chain, GasPrice
 
 
-class GasPriceOracleSerializer(serializers.Serializer):
+class GasPriceOracleSerializer(serializers.Serializer[GasPrice]):
     type = serializers.ReadOnlyField(default="oracle")
     uri = serializers.URLField(source="oracle_uri")
     gas_parameter = serializers.CharField(source="oracle_parameter")
     gwei_factor = serializers.DecimalField(max_digits=19, decimal_places=9)
 
 
-class GasPriceFixedSerializer(serializers.Serializer):
+class GasPriceFixedSerializer(serializers.Serializer[GasPrice]):
     type = serializers.ReadOnlyField(default="fixed")
     wei_value = serializers.CharField(source="fixed_wei_value")
 
 
-class GasPriceSerializer(serializers.Serializer):
-    def to_representation(self, instance):
+class GasPriceSerializer(serializers.Serializer[GasPrice]):
+    def to_representation(self, instance: GasPrice) -> ReturnDict:
         if instance.oracle_uri and instance.fixed_wei_value is None:
             return GasPriceOracleSerializer(instance).data
         elif instance.fixed_wei_value and instance.oracle_uri is None:
@@ -32,53 +33,53 @@ class GasPriceSerializer(serializers.Serializer):
             )
 
 
-class ThemeSerializer(serializers.Serializer):
+class ThemeSerializer(serializers.Serializer[Chain]):
     text_color = serializers.CharField(source="theme_text_color")
     background_color = serializers.CharField(source="theme_background_color")
 
 
-class CurrencySerializer(serializers.Serializer):
+class CurrencySerializer(serializers.Serializer[Chain]):
     name = serializers.CharField(source="currency_name")
     symbol = serializers.CharField(source="currency_symbol")
     decimals = serializers.IntegerField(source="currency_decimals")
     logo_uri = serializers.ImageField(use_url=True, source="currency_logo_uri")
 
 
-class BaseRpcUriSerializer(serializers.Serializer):
+class BaseRpcUriSerializer(serializers.Serializer[Chain]):
     authentication = serializers.SerializerMethodField()
-    value = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField(method_name="get_rpc_value")
 
     @abstractmethod
-    def get_authentication(self, obj):  # pragma: no cover
+    def get_authentication(self, obj: Chain) -> str:  # pragma: no cover
         pass
 
     @abstractmethod
-    def get_value(self, obj):  # pragma: no cover
+    def get_rpc_value(self, obj: Chain) -> str:  # pragma: no cover
         pass
 
 
 class RpcUriSerializer(BaseRpcUriSerializer):
-    def get_authentication(self, obj):
+    def get_authentication(self, obj: Chain) -> str:
         return obj.rpc_authentication
 
-    def get_value(self, obj):
+    def get_rpc_value(self, obj: Chain) -> str:
         return obj.rpc_uri
 
 
 class SafeAppsRpcUriSerializer(BaseRpcUriSerializer):
-    def get_authentication(self, obj):
+    def get_authentication(self, obj: Chain) -> str:
         return obj.safe_apps_rpc_authentication
 
-    def get_value(self, obj):
+    def get_rpc_value(self, obj: Chain) -> str:
         return obj.safe_apps_rpc_uri
 
 
-class BlockExplorerUriTemplateSerializer(serializers.Serializer):
+class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
     address = serializers.URLField(source="block_explorer_uri_address_template")
     tx_hash = serializers.URLField(source="block_explorer_uri_tx_hash_template")
 
 
-class ChainSerializer(serializers.ModelSerializer):
+class ChainSerializer(serializers.ModelSerializer[Chain]):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
     short_name = serializers.CharField()
@@ -115,31 +116,31 @@ class ChainSerializer(serializers.ModelSerializer):
         ]
 
     @staticmethod
-    @swagger_serializer_method(serializer_or_field=CurrencySerializer)
-    def get_native_currency(obj):
+    @swagger_serializer_method(serializer_or_field=CurrencySerializer)  # type: ignore[misc]
+    def get_native_currency(obj: Chain) -> ReturnDict:
         return CurrencySerializer(obj).data
 
     @staticmethod
-    @swagger_serializer_method(serializer_or_field=ThemeSerializer)
-    def get_theme(obj):
+    @swagger_serializer_method(serializer_or_field=ThemeSerializer)  # type: ignore[misc]
+    def get_theme(obj: Chain) -> ReturnDict:
         return ThemeSerializer(obj).data
 
     @staticmethod
-    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)
-    def get_safe_apps_rpc_uri(obj):
+    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
+    def get_safe_apps_rpc_uri(obj: Chain) -> ReturnDict:
         return SafeAppsRpcUriSerializer(obj).data
 
     @staticmethod
-    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)
-    def get_rpc_uri(obj):
+    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
+    def get_rpc_uri(obj: Chain) -> ReturnDict:
         return RpcUriSerializer(obj).data
 
     @staticmethod
-    @swagger_serializer_method(serializer_or_field=BlockExplorerUriTemplateSerializer)
-    def get_block_explorer_uri_template(obj):
+    @swagger_serializer_method(serializer_or_field=BlockExplorerUriTemplateSerializer)  # type: ignore[misc]
+    def get_block_explorer_uri_template(obj: Chain) -> ReturnDict:
         return BlockExplorerUriTemplateSerializer(obj).data
 
-    @swagger_serializer_method(serializer_or_field=GasPriceSerializer)
-    def get_gas_price(self, instance):
+    @swagger_serializer_method(serializer_or_field=GasPriceSerializer)  # type: ignore[misc]
+    def get_gas_price(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
         ranked_gas_prices = instance.gasprice_set.all().order_by("rank")
         return GasPriceSerializer(ranked_gas_prices, many=True).data

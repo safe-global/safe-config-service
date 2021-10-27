@@ -7,7 +7,7 @@ from factory.django import DjangoModelFactory
 from ..models import Chain, GasPrice
 
 
-class ChainFactory(DjangoModelFactory):
+class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     class Meta:
         model = Chain
 
@@ -41,7 +41,7 @@ class ChainFactory(DjangoModelFactory):
     recommended_master_copy_version = "1.3.0"
 
 
-class GasPriceFactory(DjangoModelFactory):
+class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]
     class Meta:
         model = GasPrice
 

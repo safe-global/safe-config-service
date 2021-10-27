@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0007_chain_currency_logo_url"),
     ]
@@ -14,6 +13,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="chain",
             name="ens_registry_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
     ]

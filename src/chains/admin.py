@@ -4,7 +4,7 @@ from .models import Chain, GasPrice
 
 
 @admin.register(Chain)
-class ChainAdmin(admin.ModelAdmin):
+class ChainAdmin(admin.ModelAdmin[Chain]):
     list_display = (
         "id",
         "name",
@@ -20,7 +20,7 @@ class ChainAdmin(admin.ModelAdmin):
 
 
 @admin.register(GasPrice)
-class GasPrice(admin.ModelAdmin):
+class GasPriceAdmin(admin.ModelAdmin[GasPrice]):
     list_display = (
         "chain_id",
         "oracle_uri",

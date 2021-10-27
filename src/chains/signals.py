@@ -1,5 +1,6 @@
 import logging
 from functools import cache
+from typing import Any
 from urllib.parse import urljoin
 
 import requests
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 @cache
-def setup_session():
+def setup_session() -> requests.Session:
     session = requests.Session()
     adapter = requests.adapters.HTTPAdapter(max_retries=3)
     session.mount("http://", adapter)
@@ -23,7 +24,7 @@ def setup_session():
 
 @receiver(post_save, sender=Chain)
 @receiver(post_delete, sender=Chain)
-def on_chain_update(sender, **kwargs):
+def on_chain_update(sender: Chain, **kwargs: Any) -> None:
     logger.info("Chain update. Triggering CGW webhook")
     cgw_url = settings.CGW_URL
     if cgw_url is None:
