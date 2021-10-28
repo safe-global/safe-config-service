@@ -9,13 +9,21 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import logging
 import os
 from distutils.util import strtobool
 from pathlib import Path
 
-import django_stubs_ext
+logger = logging.getLogger(__name__)
 
-django_stubs_ext.monkeypatch()
+try:
+    import django_stubs_ext
+
+    django_stubs_ext.monkeypatch()
+except ModuleNotFoundError:
+    logging.warning(
+        "django_stubs_ext not found. If you are running mypy this dependency needs to be installed"
+    )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
