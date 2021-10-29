@@ -1,4 +1,4 @@
-FROM python:3.9-slim as production
+FROM python:3.9-slim
 
 # python
 ENV PYTHONUNBUFFERED=1
@@ -22,9 +22,3 @@ RUN set ex \
     && chmod +x /usr/bin/tini
 
 ENTRYPOINT ["/usr/bin/tini", "--", "./docker-entrypoint.sh"]
-
-# ------- development image -------
-FROM production as development
-
-ENV PATH="${PATH}:${PYTHONUSERBASE}/bin"
-RUN pip3 install --no-warn-script-location --user -r requirements-dev.txt
