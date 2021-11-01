@@ -6,7 +6,7 @@ from django.db import DataError
 from django.test import TestCase, TransactionTestCase
 from faker import Faker
 
-from .factories import ChainFactory, GasPriceFactory
+from .factories import ChainFactory, GasPriceFactory, WalletFactory
 
 
 class ChainTestCase(TestCase):
@@ -235,3 +235,10 @@ class ChainCurrencyLogoTestCase(TestCase):
         self.assertEqual(
             chain.currency_logo_uri.url, "/media/chains/12/currency_logo.jpg"
         )
+
+
+class WalletTestCase(TestCase):
+    def test_str_method_outputs_name(self) -> None:
+        wallet = WalletFactory.create()
+
+        self.assertEqual(str(wallet), f"Wallet: {wallet.name}")

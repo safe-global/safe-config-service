@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Chain, GasPrice
+from .models import Chain, GasPrice, Wallet
 
 
 class GasPriceOracleSerializer(serializers.Serializer[GasPrice]):
@@ -79,6 +79,12 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
     tx_hash = serializers.URLField(source="block_explorer_uri_tx_hash_template")
 
 
+class WalletSerializer(serializers.Serializer[Wallet]):
+    @staticmethod
+    def to_representation(instance: Wallet) -> str:
+        return instance.name
+
+
 class ChainSerializer(serializers.ModelSerializer[Chain]):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
@@ -94,6 +100,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     theme = serializers.SerializerMethodField()
     gas_price = serializers.SerializerMethodField()
     ens_registry_address = EthereumAddressField()
+    disabled_wallets = serializers.SerializerMethodField()
 
     class Meta:
         model = Chain
@@ -113,6 +120,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "gas_price",
             "ens_registry_address",
             "recommended_master_copy_version",
+            "disabled_wallets",
         ]
 
     @staticmethod
@@ -144,3 +152,8 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     def get_gas_price(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
         ranked_gas_prices = instance.gasprice_set.all().order_by("rank")
         return GasPriceSerializer(ranked_gas_prices, many=True).data
+
+    @swagger_serializer_method(serializer_or_field=WalletSerializer)  # type: ignore[misc]
+    def get_disabled_wallets(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
+        disabled_wallets = instance.get_disabled_wallets().order_by("name")
+        return WalletSerializer(disabled_wallets, many=True).data

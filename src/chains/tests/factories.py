@@ -4,7 +4,7 @@ import factory
 import web3
 from factory.django import DjangoModelFactory
 
-from ..models import Chain, GasPrice
+from ..models import Chain, GasPrice, Wallet
 
 
 class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -53,3 +53,21 @@ class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]
     )
     fixed_wei_value = factory.Faker("pyint")
     rank = factory.Faker("pyint")
+
+
+class WalletFactory(DjangoModelFactory):  # type: ignore[misc]
+    class Meta:
+        model = Wallet
+
+    name = factory.Faker("company")
+
+    @factory.post_generation
+    def chains(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of chains were passed in, use them
+            for chain in extracted:
+                self.chains.add(chain)
