@@ -51,6 +51,7 @@ class Chain(models.Model):
     safe_apps_rpc_uri = models.URLField(default="")
     block_explorer_uri_address_template = models.URLField()
     block_explorer_uri_tx_hash_template = models.URLField()
+    block_explorer_uri_api_template = models.URLField()
     currency_name = models.CharField(max_length=255)
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
