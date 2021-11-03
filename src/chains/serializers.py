@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Chain, GasPrice, Wallet
+from .models import Chain, Feature, GasPrice, Wallet
 
 
 class GasPriceOracleSerializer(serializers.Serializer[GasPrice]):
@@ -80,6 +80,12 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
     api = serializers.URLField(source="block_explorer_uri_api_template")
 
 
+class FeatureSerializer(serializers.Serializer[Feature]):
+    @staticmethod
+    def to_representation(instance: Feature) -> str:
+        return instance.name
+
+
 class WalletSerializer(serializers.Serializer[Wallet]):
     @staticmethod
     def to_representation(instance: Wallet) -> str:
@@ -102,6 +108,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     gas_price = serializers.SerializerMethodField()
     ens_registry_address = EthereumAddressField()
     disabled_wallets = serializers.SerializerMethodField()
+    features = serializers.SerializerMethodField()
 
     class Meta:
         model = Chain
@@ -122,6 +129,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "ens_registry_address",
             "recommended_master_copy_version",
             "disabled_wallets",
+            "features",
         ]
 
     @staticmethod
@@ -158,3 +166,8 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     def get_disabled_wallets(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
         disabled_wallets = instance.get_disabled_wallets().order_by("name")
         return WalletSerializer(disabled_wallets, many=True).data
+
+    @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[misc]
+    def get_features(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
+        enabled_features = instance.feature_set.all().order_by("name")
+        return FeatureSerializer(enabled_features, many=True).data

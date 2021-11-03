@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Chain, GasPrice, Wallet
+from .models import Chain, Feature, GasPrice, Wallet
 
 
 @admin.register(Chain)
@@ -33,4 +33,9 @@ class GasPriceAdmin(admin.ModelAdmin[GasPrice]):
 
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin[Wallet]):
+    list_display = ("name",)
+
+
+@admin.register(Feature)
+class FeatureAdmin(admin.ModelAdmin[Feature]):
     list_display = ("name",)
