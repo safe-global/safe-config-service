@@ -4,6 +4,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models import QuerySet
 from gnosis.eth.django.models import EthereumAddressField, Uint256Field
 
 HEX_ARGB_REGEX = re.compile("^#[0-9a-fA-F]{6}$")
@@ -76,6 +77,12 @@ class Chain(models.Model):
         max_length=255, validators=[sem_ver_validator]
     )
 
+    def get_disabled_wallets(self) -> QuerySet["Wallet"]:
+        all_wallets = Wallet.objects.all()
+        enabled_wallets = self.wallet_set.all()
+
+        return all_wallets.difference(enabled_wallets)
+
     def __str__(self) -> str:
         return f"{self.name} | chain_id={self.id}"
 
@@ -113,3 +120,14 @@ class GasPrice(models.Model):
             raise ValidationError(
                 {"oracle_parameter": "The oracle parameter should be set"}
             )
+
+
+class Wallet(models.Model):
+    # A wallet can be part of multiple Chains and a Chain can have multiple Wallets
+    chains = models.ManyToManyField(
+        Chain, blank=True, help_text="Chains where this wallet is enabled."
+    )
+    name = models.CharField(primary_key=True, max_length=255)
+
+    def __str__(self) -> str:
+        return f"Wallet: {self.name}"

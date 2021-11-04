@@ -5,7 +5,7 @@ from django.urls import reverse
 from faker import Faker
 from rest_framework.test import APITestCase
 
-from .factories import ChainFactory, GasPriceFactory
+from .factories import ChainFactory, GasPriceFactory, WalletFactory
 
 
 class EmptyChainsListViewTests(APITestCase):
@@ -71,6 +71,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     ],
                     "ensRegistryAddress": chain.ens_registry_address,
                     "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
+                    "disabledWallets": [],
                 }
             ],
         }
@@ -179,6 +180,7 @@ class ChainDetailViewTests(APITestCase):
             ],
             "ensRegistryAddress": chain.ens_registry_address,
             "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
+            "disabledWallets": [],
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -236,6 +238,7 @@ class ChainDetailViewTests(APITestCase):
             ],
             "ensRegistryAddress": chain.ens_registry_address,
             "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
+            "disabledWallets": [],
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -410,3 +413,40 @@ class ChainGasPriceTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["gasPrice"], expected_oracle_json_payload)
+
+
+class WalletTests(APITestCase):
+    def test_wallet_with_no_chains_show_as_disabled(self) -> None:
+        ChainFactory.create(id=1)
+        wallet = WalletFactory.create(chains=())
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["disabledWallets"], [wallet.name])
+
+    def test_multiple_disabled_wallets_name_sorting(self) -> None:
+        ChainFactory.create(id=1)
+        wallet_1 = WalletFactory.create(name="zWallet", chains=())
+        wallet_2 = WalletFactory.create(name="gWallet", chains=())
+        wallet_3 = WalletFactory.create(name="aWallet", chains=())
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["disabledWallets"],
+            [wallet_3.name, wallet_2.name, wallet_1.name],
+        )
+
+    def test_wallet_with_chains_does_not_show(self) -> None:
+        chain = ChainFactory.create(id=1)
+        WalletFactory.create(chains=(chain,))
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["disabledWallets"], [])

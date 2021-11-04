@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Chain, GasPrice
+from .models import Chain, GasPrice, Wallet
 
 
 @admin.register(Chain)
@@ -29,3 +29,8 @@ class GasPriceAdmin(admin.ModelAdmin[GasPrice]):
     )
     search_fields = ("chain_id", "oracle_uri")
     ordering = ("rank",)
+
+
+@admin.register(Wallet)
+class WalletAdmin(admin.ModelAdmin[Wallet]):
+    list_display = ("name",)
