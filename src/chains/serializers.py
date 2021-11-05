@@ -89,7 +89,7 @@ class FeatureSerializer(serializers.Serializer[Feature]):
 class WalletSerializer(serializers.Serializer[Wallet]):
     @staticmethod
     def to_representation(instance: Wallet) -> str:
-        return instance.name
+        return instance.key
 
 
 class ChainSerializer(serializers.ModelSerializer[Chain]):
@@ -164,7 +164,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
 
     @swagger_serializer_method(serializer_or_field=WalletSerializer)  # type: ignore[misc]
     def get_disabled_wallets(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
-        disabled_wallets = instance.get_disabled_wallets().order_by("name")
+        disabled_wallets = instance.get_disabled_wallets().order_by("key")
         return WalletSerializer(disabled_wallets, many=True).data
 
     @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[misc]

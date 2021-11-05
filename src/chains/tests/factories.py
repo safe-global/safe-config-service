@@ -60,7 +60,7 @@ class WalletFactory(DjangoModelFactory):  # type: ignore[misc]
     class Meta:
         model = Wallet
 
-    name = factory.Faker("company")
+    key = factory.Faker("company")
 
     @factory.post_generation
     def chains(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped

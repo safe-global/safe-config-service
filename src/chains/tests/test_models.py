@@ -241,7 +241,7 @@ class WalletTestCase(TestCase):
     def test_str_method_outputs_name(self) -> None:
         wallet = WalletFactory.create()
 
-        self.assertEqual(str(wallet), f"Wallet: {wallet.name}")
+        self.assertEqual(str(wallet), f"Wallet: {wallet.key}")
 
 
 class FeatureTestCase(TestCase):
