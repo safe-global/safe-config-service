@@ -31,3 +31,9 @@ class ChainsListView(ListAPIView):
 class ChainsDetailView(RetrieveAPIView):
     serializer_class = ChainSerializer
     queryset = Chain.objects.all()
+
+
+class ChainsDetailViewByShortName(RetrieveAPIView):
+    lookup_field = "short_name"
+    serializer_class = ChainSerializer
+    queryset = Chain.objects.all()
