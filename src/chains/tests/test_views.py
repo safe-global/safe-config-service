@@ -467,7 +467,7 @@ class FeatureTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(feature.name not in response.json()["features"])
+        self.assertTrue(feature.key not in response.json()["features"])
 
     def test_feature_enabled_for_chain(self) -> None:
         chain = ChainFactory.create(id=1)
@@ -477,13 +477,13 @@ class FeatureTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(feature.name in response.json()["features"])
+        self.assertTrue(feature.key in response.json()["features"])
 
     def test__multiple_features_sorting(self) -> None:
         chain = ChainFactory.create(id=1)
-        feature_1 = FeatureFactory.create(name="zFeature", chains=(chain,))
-        feature_2 = FeatureFactory.create(name="gFeature", chains=(chain,))
-        feature_3 = FeatureFactory.create(name="aFeature", chains=(chain,))
+        feature_1 = FeatureFactory.create(key="zFeature", chains=(chain,))
+        feature_2 = FeatureFactory.create(key="gFeature", chains=(chain,))
+        feature_3 = FeatureFactory.create(key="aFeature", chains=(chain,))
         url = reverse("v1:chains:detail", args=[1])
 
         response = self.client.get(path=url, data=None, format="json")
@@ -491,5 +491,5 @@ class FeatureTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json()["features"],
-            [feature_3.name, feature_2.name, feature_1.name],
+            [feature_3.key, feature_2.key, feature_1.key],
         )

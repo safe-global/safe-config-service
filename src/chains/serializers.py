@@ -83,7 +83,7 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
 class FeatureSerializer(serializers.Serializer[Feature]):
     @staticmethod
     def to_representation(instance: Feature) -> str:
-        return instance.name
+        return instance.key
 
 
 class WalletSerializer(serializers.Serializer[Wallet]):
@@ -169,5 +169,5 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
 
     @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[misc]
     def get_features(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
-        enabled_features = instance.feature_set.all().order_by("name")
+        enabled_features = instance.feature_set.all().order_by("key")
         return FeatureSerializer(enabled_features, many=True).data

@@ -139,7 +139,11 @@ class Feature(models.Model):
     chains = models.ManyToManyField(
         Chain, blank=True, help_text="Chains where this feature is enabled."
     )
-    name = models.CharField(primary_key=True, max_length=255)
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The unique name/key that identifies this feature",
+    )
 
     def __str__(self) -> str:
-        return f"Chain Feature: {self.name}"
+        return f"Chain Feature: {self.key}"
