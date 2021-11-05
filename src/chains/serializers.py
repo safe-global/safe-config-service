@@ -77,6 +77,7 @@ class SafeAppsRpcUriSerializer(BaseRpcUriSerializer):
 class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
     address = serializers.URLField(source="block_explorer_uri_address_template")
     tx_hash = serializers.URLField(source="block_explorer_uri_tx_hash_template")
+    api = serializers.URLField(source="block_explorer_uri_api_template")
 
 
 class WalletSerializer(serializers.Serializer[Wallet]):

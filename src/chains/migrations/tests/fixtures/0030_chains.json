@@ -1,0 +1,119 @@
+[
+  {
+    "model": "chains.chain",
+    "pk": 1,
+    "fields": {
+      "relevance": 100,
+      "name": "Mainnet",
+      "short_name": "eth",
+      "description": "",
+      "l2": false,
+      "rpc_authentication": "API_KEY_PATH",
+      "rpc_uri": "https://mainnet.infura.io/v3/",
+      "safe_apps_rpc_authentication": "API_KEY_PATH",
+      "safe_apps_rpc_uri": "https://mainnet.infura.io/v3/",
+      "block_explorer_uri_address_template": "https://etherscan.io/address/{{address}}",
+      "block_explorer_uri_tx_hash_template": "https://etherscan.io/tx/{{txHash}}",
+      "currency_name": "Ether",
+      "currency_symbol": "ETH",
+      "currency_decimals": 18,
+      "currency_logo_uri": "chains/1/currency_logo.png",
+      "transaction_service_uri": "https://safe-transaction.mainnet.staging.gnosisdev.com",
+      "vpc_transaction_service_uri": "http://staging-mainnet-safe-transaction-web.safe.svc.cluster.local",
+      "theme_text_color": "#001428",
+      "theme_background_color": "#E8E7E6",
+      "ens_registry_address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
+      "recommended_master_copy_version": "1.1.1"
+    }
+  },
+  {
+    "model": "chains.chain",
+    "pk": 4,
+    "fields": {
+      "relevance": 201,
+      "name": "Rinkeby",
+      "short_name": "rin",
+      "description": "",
+      "l2": false,
+      "rpc_authentication": "API_KEY_PATH",
+      "rpc_uri": "https://rinkeby.infura.io/v3/",
+      "safe_apps_rpc_authentication": "API_KEY_PATH",
+      "safe_apps_rpc_uri": "https://rinkeby.infura.io/v3/",
+      "block_explorer_uri_address_template": "https://rinkeby.etherscan.io/address/{{address}}",
+      "block_explorer_uri_tx_hash_template": "https://rinkeby.etherscan.io/tx/{{txHash}}",
+      "currency_name": "Ether",
+      "currency_symbol": "ETH",
+      "currency_decimals": 18,
+      "currency_logo_uri": "chains/4/currency_logo.png",
+      "transaction_service_uri": "https://safe-transaction.rinkeby.staging.gnosisdev.com",
+      "vpc_transaction_service_uri": "http://staging-rinkeby-safe-transaction-web.safe.svc.cluster.local",
+      "theme_text_color": "#ffffff",
+      "theme_background_color": "#E8673C",
+      "ens_registry_address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
+      "recommended_master_copy_version": "1.3.0"
+    }
+  },
+  {
+    "model": "chains.chain",
+    "pk": 137,
+    "fields": {
+      "relevance": 100,
+      "name": "Polygon",
+      "short_name": "matic",
+      "description": "Test",
+      "l2": true,
+      "rpc_authentication": "API_KEY_PATH",
+      "rpc_uri": "https://polygon-mainnet.infura.io/v3/",
+      "safe_apps_rpc_authentication": "API_KEY_PATH",
+      "safe_apps_rpc_uri": "https://polygon-mainnet.infura.io/v3/",
+      "block_explorer_uri_address_template": "https://polygonscan.com/address/{{address}}",
+      "block_explorer_uri_tx_hash_template": "https://polygonscan.com/tx/{{txHash}}",
+      "currency_name": "Matic",
+      "currency_symbol": "MATIC",
+      "currency_decimals": 18,
+      "currency_logo_uri": "chains/137/currency_logo.png",
+      "transaction_service_uri": "https://safe-transaction-polygon.staging.gnosisdev.com",
+      "vpc_transaction_service_uri": "http://staging-polygon-safe-transaction-web.safe.svc.cluster.local",
+      "theme_text_color": "#ffffff",
+      "theme_background_color": "#8B50ED",
+      "ens_registry_address": null,
+      "recommended_master_copy_version": "1.3.0"
+    }
+  },
+  {
+    "model": "chains.gasprice",
+    "pk": 1,
+    "fields": {
+      "chain": 1,
+      "oracle_uri": "https://ethgasstation.info/json/ethgasAPI.json",
+      "oracle_parameter": "fast",
+      "gwei_factor": "100000000.000000000",
+      "fixed_wei_value": null,
+      "rank": 100
+    }
+  },
+  {
+    "model": "chains.gasprice",
+    "pk": 2,
+    "fields": {
+      "chain": 137,
+      "oracle_uri": "https://gasstation-mainnet.matic.network",
+      "oracle_parameter": "standard",
+      "gwei_factor": "1000000000.000000000",
+      "fixed_wei_value": null,
+      "rank": 100
+    }
+  },
+  {
+    "model": "chains.gasprice",
+    "pk": 3,
+    "fields": {
+      "chain": 4,
+      "oracle_uri": "https://ethgasstation.info/json/ethgasAPI.json",
+      "oracle_parameter": "fast",
+      "gwei_factor": "100000000.000000000",
+      "fixed_wei_value": null,
+      "rank": 100
+    }
+  }
+]

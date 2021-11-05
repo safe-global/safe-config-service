@@ -50,6 +50,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "blockExplorerUriTemplate": {
                         "address": chain.block_explorer_uri_address_template,
                         "txHash": chain.block_explorer_uri_tx_hash_template,
+                        "api": chain.block_explorer_uri_api_template,
                     },
                     "nativeCurrency": {
                         "name": chain.currency_name,
@@ -159,6 +160,7 @@ class ChainDetailViewTests(APITestCase):
             "blockExplorerUriTemplate": {
                 "address": chain.block_explorer_uri_address_template,
                 "txHash": chain.block_explorer_uri_tx_hash_template,
+                "api": chain.block_explorer_uri_api_template,
             },
             "nativeCurrency": {
                 "name": chain.currency_name,
@@ -217,6 +219,7 @@ class ChainDetailViewTests(APITestCase):
             "blockExplorerUriTemplate": {
                 "address": chain.block_explorer_uri_address_template,
                 "txHash": chain.block_explorer_uri_tx_hash_template,
+                "api": chain.block_explorer_uri_api_template,
             },
             "nativeCurrency": {
                 "name": chain.currency_name,
