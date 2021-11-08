@@ -6,16 +6,11 @@ from django.db.migrations import RunPython
 
 
 def copy_wallets(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
-    Chain = apps.get_model("chains", "Chain")
     Wallet_Old = apps.get_model("chains", "Wallet")
     Wallet_New = apps.get_model("chains", "WalletNew")
 
-    # Clears the links between Chain and Wallet
-    for chain in Chain.objects.all():
-        chain.wallet_set.clear()
-
     for wallet in Wallet_Old.objects.all():
-        Wallet_New.objects.create(name=wallet.name)
+        Wallet_New.objects.create(key=wallet.name)
 
 
 class Migration(migrations.Migration):
