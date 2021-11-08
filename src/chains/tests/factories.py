@@ -87,5 +87,4 @@ class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]
 
         if extracted:
             for chain in extracted:
-                print(chain)
                 self.chains.add(chain)
