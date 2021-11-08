@@ -132,3 +132,18 @@ class Wallet(models.Model):
 
     def __str__(self) -> str:
         return f"Wallet: {self.name}"
+
+
+class Feature(models.Model):
+    # A feature can be enabled for multiple Chains and a Chain can have multiple features enabled
+    chains = models.ManyToManyField(
+        Chain, blank=True, help_text="Chains where this feature is enabled."
+    )
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The unique name/key that identifies this feature",
+    )
+
+    def __str__(self) -> str:
+        return f"Chain Feature: {self.key}"

@@ -6,7 +6,7 @@ from django.db import DataError
 from django.test import TestCase, TransactionTestCase
 from faker import Faker
 
-from .factories import ChainFactory, GasPriceFactory, WalletFactory
+from .factories import ChainFactory, FeatureFactory, GasPriceFactory, WalletFactory
 
 
 class ChainTestCase(TestCase):
@@ -242,3 +242,10 @@ class WalletTestCase(TestCase):
         wallet = WalletFactory.create()
 
         self.assertEqual(str(wallet), f"Wallet: {wallet.name}")
+
+
+class FeatureTestCase(TestCase):
+    def test_str_method_outputs_name(self) -> None:
+        feature = FeatureFactory.create()
+
+        self.assertEqual(str(feature), f"Chain Feature: {feature.key}")
