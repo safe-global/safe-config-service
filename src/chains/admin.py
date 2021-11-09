@@ -1,6 +1,19 @@
 from django.contrib import admin
+from django.db.models import Model
 
 from .models import Chain, Feature, GasPrice, Wallet
+
+
+class FeatureInline(admin.TabularInline[Model]):
+    model = Feature.chains.through
+    extra = 0
+    verbose_name_plural = "Features enabled for this chain"
+
+
+class WalletInline(admin.TabularInline[Model]):
+    model = Wallet.chains.through
+    extra = 0
+    verbose_name_plural = "Wallets enabled for this chain"
 
 
 @admin.register(Chain)
@@ -17,6 +30,7 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
         "relevance",
         "name",
     )
+    inlines = [FeatureInline, WalletInline]
 
 
 @admin.register(GasPrice)
