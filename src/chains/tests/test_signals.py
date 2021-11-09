@@ -152,7 +152,7 @@ class WalletHookTestCase(TestCase):
             match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
         )
 
-        Wallet(name="Test Wallet").save()
+        Wallet(key="Test Wallet").save()
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
@@ -162,7 +162,7 @@ class WalletHookTestCase(TestCase):
 
     @responses.activate
     def test_on_wallet_delete_hook_call(self) -> None:
-        wallet = Wallet(name="Test Wallet")
+        wallet = Wallet(key="Test Wallet")
 
         wallet.save()  # create
         wallet.delete()  # delete
@@ -172,10 +172,10 @@ class WalletHookTestCase(TestCase):
 
     @responses.activate
     def test_on_wallet_update_hook_call(self) -> None:
-        wallet = Wallet(name="Test Wallet")
+        wallet = Wallet(key="Test Wallet")
 
         wallet.save()  # create
-        wallet.name = "Test Wallet v2"
+        wallet.key = "Test Wallet v2"
         wallet.save()  # update
 
         # 2 calls: one for creation and one for updating
