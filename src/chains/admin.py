@@ -33,7 +33,7 @@ class GasPriceAdmin(admin.ModelAdmin[GasPrice]):
 
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin[Wallet]):
-    list_display = ("name",)
+    list_display = ("key",)
 
 
 @admin.register(Feature)

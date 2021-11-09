@@ -128,10 +128,14 @@ class Wallet(models.Model):
     chains = models.ManyToManyField(
         Chain, blank=True, help_text="Chains where this wallet is enabled."
     )
-    name = models.CharField(primary_key=True, max_length=255)
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The unique name/key that identifies this wallet",
+    )
 
     def __str__(self) -> str:
-        return f"Wallet: {self.name}"
+        return f"Wallet: {self.key}"
 
 
 class Feature(models.Model):

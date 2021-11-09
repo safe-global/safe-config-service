@@ -430,13 +430,13 @@ class WalletTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["disabledWallets"], [wallet.name])
+        self.assertEqual(response.json()["disabledWallets"], [wallet.key])
 
     def test_multiple_disabled_wallets_name_sorting(self) -> None:
         ChainFactory.create(id=1)
-        wallet_1 = WalletFactory.create(name="zWallet", chains=())
-        wallet_2 = WalletFactory.create(name="gWallet", chains=())
-        wallet_3 = WalletFactory.create(name="aWallet", chains=())
+        wallet_1 = WalletFactory.create(key="zWallet", chains=())
+        wallet_2 = WalletFactory.create(key="gWallet", chains=())
+        wallet_3 = WalletFactory.create(key="aWallet", chains=())
         url = reverse("v1:chains:detail", args=[1])
 
         response = self.client.get(path=url, data=None, format="json")
@@ -444,7 +444,7 @@ class WalletTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json()["disabledWallets"],
-            [wallet_3.name, wallet_2.name, wallet_1.name],
+            [wallet_3.key, wallet_2.key, wallet_1.key],
         )
 
     def test_wallet_with_chains_does_not_show(self) -> None:
