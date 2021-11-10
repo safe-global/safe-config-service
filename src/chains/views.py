@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import LimitOffsetPagination
@@ -24,8 +25,16 @@ class ChainsDetailView(RetrieveAPIView):
     serializer_class = ChainSerializer
     queryset = Chain.objects.all()
 
+    @swagger_auto_schema(operation_id="Get chain by id")
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, *args, **kwargs)
+
 
 class ChainsDetailViewByShortName(RetrieveAPIView):
     lookup_field = "short_name"
     serializer_class = ChainSerializer
     queryset = Chain.objects.all()
+
+    @swagger_auto_schema(operation_id="Get chain by shortName")
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, *args, **kwargs)
