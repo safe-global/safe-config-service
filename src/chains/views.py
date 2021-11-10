@@ -1,4 +1,3 @@
-from django.db.models import query
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import LimitOffsetPagination
