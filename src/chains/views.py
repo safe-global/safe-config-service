@@ -42,7 +42,8 @@ class ChainsDetailViewByShortName(RetrieveAPIView):
     queryset = Chain.objects.all()
 
     @swagger_auto_schema(
-        operation_id="Get chain by shortName"
+        operation_id="Get chain by shortName",
+        operation_description="Warning: `shortNames` may contain characters that need to be URL encoded (i.e.: whitespaces)",  # noqa E501
     )  # type: ignore[misc] # Untyped decorator makes function "get" untyped
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         return super().get(request, *args, **kwargs)
