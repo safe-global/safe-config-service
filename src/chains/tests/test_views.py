@@ -252,6 +252,20 @@ class ChainDetailViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
 
+    def test_by_short_name(self) -> None:
+        ChainFactory.create(id=1, short_name="eth")
+        url_by_id = reverse("v1:chains:detail", args=[1])
+        url_by_short_name = reverse("v1:chains:detail_by_short_name", args=["eth"])
+
+        response_by_id = self.client.get(path=url_by_id, data=None, format="json")
+        response_by_short_name = self.client.get(
+            path=url_by_short_name, data=None, format="json"
+        )
+
+        self.assertEqual(response_by_id.status_code, 200)
+        self.assertEqual(response_by_short_name.status_code, 200)
+        self.assertEqual(response_by_id.json(), response_by_short_name.json())
+
 
 class ChainsListViewRelevanceTests(APITestCase):
     def test_relevance_sorting(self) -> None:
