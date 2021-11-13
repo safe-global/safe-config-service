@@ -44,10 +44,12 @@ QUERY_PARAM_TEMPLATE = (
 API_TEMPLATE_MAPPING = {
     1: f"https://api.etherscan.io/api{QUERY_PARAM_TEMPLATE}",
     4: f"https://api-rinkeby.etherscan.io/api{QUERY_PARAM_TEMPLATE}",
+    28: f"https://blockexplorer.rinkeby.boba.network/api{QUERY_PARAM_TEMPLATE}",
     56: f"https://api.bscscan.com/api{QUERY_PARAM_TEMPLATE}",
     100: f"https://blockscout.com/poa/xdai/api{QUERY_PARAM_TEMPLATE}",
     137: f"https://api.polygonscan.com/api{QUERY_PARAM_TEMPLATE}",
     246: f"https://explorer.energyweb.org/api{QUERY_PARAM_TEMPLATE}",
     42161: f"https://api.arbiscan.io/api{QUERY_PARAM_TEMPLATE}",
     73799: f"https://volta-explorer.energyweb.org/api{QUERY_PARAM_TEMPLATE}",
+    288: f"https://blockexplorer.boba.network/api{QUERY_PARAM_TEMPLATE}",
 }
