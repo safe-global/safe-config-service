@@ -200,58 +200,6 @@ class ChainDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_match(self) -> None:
-        chain = ChainFactory.create(id=1)
-        gas_price = GasPriceFactory.create(chain=chain)
-        url = reverse("v1:chains:detail", args=[1])
-        json_response = {
-            "chainId": str(chain.id),
-            "chainName": chain.name,
-            "shortName": chain.short_name,
-            "description": chain.description,
-            "l2": chain.l2,
-            "rpcUri": {
-                "authentication": chain.rpc_authentication,
-                "value": chain.rpc_uri,
-            },
-            "safeAppsRpcUri": {
-                "authentication": chain.safe_apps_rpc_authentication,
-                "value": chain.safe_apps_rpc_uri,
-            },
-            "blockExplorerUriTemplate": {
-                "address": chain.block_explorer_uri_address_template,
-                "txHash": chain.block_explorer_uri_tx_hash_template,
-                "api": chain.block_explorer_uri_api_template,
-            },
-            "nativeCurrency": {
-                "name": chain.currency_name,
-                "symbol": chain.currency_symbol,
-                "decimals": chain.currency_decimals,
-                "logoUri": chain.currency_logo_uri.url,
-            },
-            "transactionService": chain.transaction_service_uri,
-            "vpcTransactionService": chain.vpc_transaction_service_uri,
-            "theme": {
-                "textColor": chain.theme_text_color,
-                "backgroundColor": chain.theme_background_color,
-            },
-            "gasPrice": [
-                {
-                    "type": "fixed",
-                    "weiValue": str(gas_price.fixed_wei_value),
-                }
-            ],
-            "ensRegistryAddress": chain.ens_registry_address,
-            "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
-            "disabledWallets": [],
-            "features": [],
-        }
-
-        response = self.client.get(path=url, data=None, format="json")
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
-
     def test_by_short_name(self) -> None:
         ChainFactory.create(id=1, short_name="eth")
         url_by_id = reverse("v1:chains:detail", args=[1])
