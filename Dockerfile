@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 # python
 ENV PYTHONUNBUFFERED=1
@@ -11,8 +11,13 @@ COPY . .
 
 RUN set ex \
     && buildDeps=" \
-		gcc \
-		libc-dev \
+        automake \
+        build-essential  \
+        gcc \
+        libc-dev \
+        libssl-dev \
+        libtool  \
+        pkg-config  \
 		" \
     && apt-get update \
     && apt-get install -y --no-install-recommends $buildDeps tini \
