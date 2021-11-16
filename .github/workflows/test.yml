@@ -105,7 +105,7 @@ jobs:
       - name: Django System Check
         run: python src/manage.py check
       - name: Run tests with coverage
-        run: coverage run --source=src/ -m pytest src
+        run: coverage run -m pytest src
       - name: Upload coverage
         continue-on-error: true
         env:
