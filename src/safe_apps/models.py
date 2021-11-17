@@ -6,7 +6,7 @@ class Provider(models.Model):
     url = models.URLField(primary_key=True)
     name = models.CharField(max_length=200)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} | {self.url}"
 
 
@@ -24,5 +24,5 @@ class SafeApp(models.Model):
         Provider, null=True, blank=True, on_delete=models.SET_NULL
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} | {self.url} | chain_ids={self.chain_ids}"

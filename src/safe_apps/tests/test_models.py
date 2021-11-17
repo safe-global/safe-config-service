@@ -4,13 +4,13 @@ from .factories import ProviderFactory, SafeAppFactory
 
 
 class ProviderTestCase(TestCase):
-    def test_str_method_outputs_name_url(self):
+    def test_str_method_outputs_name_url(self) -> None:
         provider = ProviderFactory.create()
         self.assertEqual(str(provider), f"{provider.name} | {provider.url}")
 
 
 class SafeAppTestCase(TestCase):
-    def test_str_method_outputs_name_url_chain_id(self):
+    def test_str_method_outputs_name_url_chain_id(self) -> None:
         safe_app = SafeAppFactory.create()
         self.assertEqual(
             str(safe_app),
@@ -18,7 +18,7 @@ class SafeAppTestCase(TestCase):
         )
 
     @staticmethod
-    def test_empty_provider_validation():
+    def test_empty_provider_validation() -> None:
         safe_app = SafeAppFactory.create(provider=None)
 
         # Run validations including blank checks
