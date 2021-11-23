@@ -16,7 +16,7 @@ class ChainNetworkHookTestCase(TestCase):
             responses.POST,
             "http://127.0.0.1/v1/flush/example-token",
             status=200,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
         )
 
         ChainFactory.create()
@@ -33,7 +33,7 @@ class ChainNetworkHookTestCase(TestCase):
             responses.POST,
             "http://127.0.0.1/v1/flush/example-token",
             status=400,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
         )
 
         ChainFactory.create()
@@ -46,7 +46,7 @@ class ChainNetworkHookTestCase(TestCase):
             responses.POST,
             "http://127.0.0.1/v1/flush/example-token",
             status=500,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
         )
 
         ChainFactory.create()
@@ -105,7 +105,7 @@ class FeatureHookTestCase(TestCase):
             responses.POST,
             "http://127.0.0.1/v1/flush/example-token",
             status=200,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
         )
 
         Feature(key="Test Feature").save()
@@ -149,7 +149,7 @@ class WalletHookTestCase(TestCase):
             responses.POST,
             "http://127.0.0.1/v1/flush/example-token",
             status=200,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],  # type: ignore[no-untyped-call]
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
         )
 
         Wallet(key="Test Wallet").save()
