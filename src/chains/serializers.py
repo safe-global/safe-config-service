@@ -74,6 +74,14 @@ class SafeAppsRpcUriSerializer(BaseRpcUriSerializer):
         return obj.safe_apps_rpc_uri
 
 
+class PublicRpcUriSerializer(BaseRpcUriSerializer):
+    def get_authentication(self, obj: Chain) -> str:
+        return obj.public_rpc_authentication
+
+    def get_rpc_value(self, obj: Chain) -> str:
+        return obj.public_rpc_uri
+
+
 class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
     address = serializers.URLField(source="block_explorer_uri_address_template")
     tx_hash = serializers.URLField(source="block_explorer_uri_tx_hash_template")
@@ -98,6 +106,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     short_name = serializers.CharField()
     rpc_uri = serializers.SerializerMethodField()
     safe_apps_rpc_uri = serializers.SerializerMethodField()
+    public_rpc_uri = serializers.SerializerMethodField()
     block_explorer_uri_template = serializers.SerializerMethodField()
     native_currency = serializers.SerializerMethodField()
     transaction_service = serializers.URLField(
@@ -120,6 +129,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "l2",
             "rpc_uri",
             "safe_apps_rpc_uri",
+            "public_rpc_uri",
             "block_explorer_uri_template",
             "native_currency",
             "transaction_service",
@@ -151,6 +161,11 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
     def get_rpc_uri(obj: Chain) -> ReturnDict:
         return RpcUriSerializer(obj).data
+
+    @staticmethod
+    @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
+    def get_public_rpc_uri(obj: Chain) -> ReturnDict:
+        return PublicRpcUriSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BlockExplorerUriTemplateSerializer)  # type: ignore[misc]
