@@ -49,6 +49,12 @@ class Chain(models.Model):
         default=RpcAuthentication.NO_AUTHENTICATION,
     )
     safe_apps_rpc_uri = models.URLField(default="")
+    public_rpc_authentication = models.CharField(
+        max_length=255,
+        choices=RpcAuthentication.choices,
+        default=RpcAuthentication.NO_AUTHENTICATION,
+    )
+    public_rpc_uri = models.URLField()
     block_explorer_uri_address_template = models.URLField()
     block_explorer_uri_tx_hash_template = models.URLField()
     block_explorer_uri_api_template = models.URLField()

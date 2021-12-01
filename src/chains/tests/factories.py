@@ -25,6 +25,10 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
         lambda o: random.choice(list(Chain.RpcAuthentication))
     )
     safe_apps_rpc_uri = factory.Faker("url")
+    public_rpc_authentication = factory.lazy_attribute(
+        lambda o: random.choice(list(Chain.RpcAuthentication))
+    )
+    public_rpc_uri = factory.Faker("url")
     block_explorer_uri_address_template = factory.Faker("url")
     block_explorer_uri_tx_hash_template = factory.Faker("url")
     block_explorer_uri_api_template = factory.Faker("url")
