@@ -2,7 +2,7 @@ import responses
 from django.test import TestCase, override_settings
 
 from chains.models import Feature, Wallet
-from chains.tests.factories import ChainFactory
+from chains.tests.factories import ChainFactory, GasPriceFactory
 
 
 @override_settings(
@@ -177,6 +177,54 @@ class WalletHookTestCase(TestCase):
         wallet.save()  # create
         wallet.key = "Test Wallet v2"
         wallet.save()  # update
+
+        # 2 calls: one for creation and one for updating
+        assert len(responses.calls) == 2
+
+
+@override_settings(
+    CGW_URL="http://127.0.0.1",
+    CGW_FLUSH_TOKEN="example-token",
+)
+class GasPriceHookTestCase(TestCase):
+    def setUp(self) -> None:
+        self.chain = (
+            ChainFactory.create()
+        )  # chain creation: a GasPrice requires a chain
+
+    @responses.activate
+    def test_on_gas_price_create_hook_call(self) -> None:
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/flush/example-token",
+            status=200,
+            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+        )
+
+        GasPriceFactory.create(chain=self.chain)
+
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
+        assert (
+            responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
+        )
+
+    @responses.activate
+    def test_on_gas_price_delete_hook_call(self) -> None:
+        gas_price = GasPriceFactory.create(chain=self.chain)  # create
+        gas_price.delete()  # delete
+
+        # 2 calls: one for creation and one for deletion
+        assert len(responses.calls) == 2
+
+    @responses.activate
+    def test_on_gas_price_update_hook_call(self) -> None:
+        gas_price = GasPriceFactory.create(
+            chain=self.chain, fixed_wei_value=1000
+        )  # create
+
+        gas_price.fixed_wei_value = 2000
+        gas_price.save()  # update
 
         # 2 calls: one for creation and one for updating
         assert len(responses.calls) == 2

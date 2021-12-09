@@ -8,7 +8,7 @@ from django.conf import settings
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from .models import Chain, Feature, Wallet
+from .models import Chain, Feature, GasPrice, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,13 @@ def _trigger_client_gateway_flush() -> None:
 @receiver(post_delete, sender=Chain)
 def on_chain_update(sender: Chain, **kwargs: Any) -> None:
     logger.info("Chain update. Triggering CGW webhook")
+    _trigger_client_gateway_flush()
+
+
+@receiver(post_save, sender=GasPrice)
+@receiver(post_delete, sender=GasPrice)
+def on_gas_price_update(sender: GasPrice, **kwargs: Any) -> None:
+    logger.info("GasPrice update. Triggering CGW webhook")
     _trigger_client_gateway_flush()
 
 
