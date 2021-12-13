@@ -1,4 +1,5 @@
 import factory
+import random
 from factory.django import DjangoModelFactory
 
 from ..models import Provider, SafeApp
@@ -23,4 +24,5 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
     icon_url = factory.Faker("image_url")
     description = factory.Faker("catch_phrase")
     chain_ids = factory.Faker("pylist", nb_elements=2, value_types=(int,))
+    access_control_type = factory.lazy_attribute(lambda o: random.choice(list(SafeApp.AccessControlPolicy)))
     provider = None

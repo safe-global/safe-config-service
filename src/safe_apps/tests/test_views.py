@@ -19,7 +19,7 @@ class EmptySafeAppsListViewTests(APITestCase):
 class JsonPayloadFormatViewTests(APITestCase):
     def test_json_payload_format(self) -> None:
         safe_app = SafeAppFactory.create()
-
+        print(safe_app)
         json_response = [
             {
                 "id": safe_app.app_id,
@@ -29,6 +29,10 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "description": safe_app.description,
                 "chainIds": safe_app.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app.access_control_type,
+                    "data": safe_app.access_control_sources
+                }
             }
         ]
         url = reverse("v1:safe-apps:list")
