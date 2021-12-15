@@ -4,6 +4,12 @@ from django.db.models import Model
 from .models import Chain, Feature, GasPrice, Wallet
 
 
+class GasPriceInline(admin.TabularInline[Model]):
+    model = GasPrice
+    extra = 0
+    verbose_name_plural = "Gas prices set for this chain"
+
+
 class FeatureInline(admin.TabularInline[Model]):
     model = Feature.chains.through
     extra = 0
@@ -30,7 +36,7 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
         "relevance",
         "name",
     )
-    inlines = [FeatureInline, WalletInline]
+    inlines = [FeatureInline, GasPriceInline, WalletInline]
 
 
 @admin.register(GasPrice)
