@@ -2,7 +2,7 @@ from rest_framework import serializers
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Provider, SafeApp
+from .models import Provider, SafeApp, Client
 
 
 class ProviderSerializer(serializers.ModelSerializer[Provider]):
@@ -10,9 +10,16 @@ class ProviderSerializer(serializers.ModelSerializer[Provider]):
         model = Provider
         fields = ["url", "name"]
 
-class AccessControlPolicySerializer(serializers.Serializer):
-    type = serializers.CharField(source="access_control_type")
-    value = serializers.ListField(child=serializers.URLField(), source="access_control_sources")
+
+class ClientSerializer(serializers.Serializer[Client]):
+    @staticmethod
+    def to_representation(instance: Client) -> str:
+        return instance.url
+
+
+class AccessControlPolicySerializer(serializers.Serializer[SafeApp]):
+    type = serializers.CharField(source="get_access_control_type")
+    data = ClientSerializer(source="get_access_control_sources", many=True)
 
 
 class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):

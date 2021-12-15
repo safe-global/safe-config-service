@@ -3,7 +3,8 @@ from typing import Any, Dict, List
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from .factories import ProviderFactory, SafeAppFactory
+from ..models import SafeApp
+from .factories import ProviderFactory, SafeAppFactory, ClientFactory
 
 
 class EmptySafeAppsListViewTests(APITestCase):
@@ -19,7 +20,9 @@ class EmptySafeAppsListViewTests(APITestCase):
 class JsonPayloadFormatViewTests(APITestCase):
     def test_json_payload_format(self) -> None:
         safe_app = SafeAppFactory.create()
-        print(safe_app)
+        client_1 = ClientFactory(apps=(safe_app,))
+        client_2 = ClientFactory(apps=(safe_app,))
+
         json_response = [
             {
                 "id": safe_app.app_id,
@@ -30,8 +33,8 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "chainIds": safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": safe_app.access_control_type,
-                    "data": safe_app.access_control_sources
+                    "type": SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST,
+                    "data": [client_1.url, client_2.url],
                 }
             }
         ]
@@ -55,6 +58,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_1.description,
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_1.access_control_type,
+                    "data": safe_app_1.access_control_sources
+                }
             },
             {
                 "id": safe_app_2.app_id,
@@ -64,6 +71,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_2.description,
                 "chainIds": safe_app_2.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_2.access_control_type,
+                    "data": safe_app_2.access_control_sources
+                }
             },
             {
                 "id": safe_app_3.app_id,
@@ -73,6 +84,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_3.description,
                 "chainIds": safe_app_3.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_3.access_control_type,
+                    "data": safe_app_3.access_control_sources
+                }
             },
         ]
         url = reverse("v1:safe-apps:list")
@@ -93,6 +108,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_1.description,
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_1.access_control_type,
+                    "data": safe_app_1.access_control_sources
+                }
             },
             {
                 "id": safe_app_2.app_id,
@@ -102,6 +121,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_2.description,
                 "chainIds": safe_app_2.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_2.access_control_type,
+                    "data": safe_app_2.access_control_sources
+                }
             },
             {
                 "id": safe_app_3.app_id,
@@ -111,6 +134,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_3.description,
                 "chainIds": safe_app_3.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_3.access_control_type,
+                    "data": safe_app_3.access_control_sources
+                }
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId="}'
@@ -133,6 +160,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_4.description,
                 "chainIds": safe_app_4.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_4.access_control_type,
+                    "data": safe_app_4.access_control_sources
+                }
             },
             {
                 "id": safe_app_5.app_id,
@@ -142,6 +173,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_5.description,
                 "chainIds": safe_app_5.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_5.access_control_type,
+                    "data": safe_app_5.access_control_sources
+                }
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId=1"}'
@@ -173,6 +208,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 "description": safe_app_1.description,
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_1.access_control_type,
+                    "data": safe_app_1.access_control_sources
+                }
             }
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId=2&chainId=1"}'
@@ -197,6 +236,10 @@ class ProviderInfoTests(APITestCase):
                 "description": safe_app.description,
                 "chainIds": safe_app.chain_ids,
                 "provider": {"name": provider.name, "url": provider.url},
+                "accessControl": {
+                    "type": safe_app.access_control_type,
+                    "data": safe_app.access_control_sources
+                }
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -218,6 +261,10 @@ class ProviderInfoTests(APITestCase):
                 "description": safe_app.description,
                 "chainIds": safe_app.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app.access_control_type,
+                    "data": safe_app.access_control_sources
+                }
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -241,6 +288,10 @@ class CacheSafeAppTests(APITestCase):
                 "description": safe_app_1.description,
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": safe_app_1.access_control_type,
+                    "data": safe_app_1.access_control_sources
+                }
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -267,6 +318,11 @@ class SafeAppsVisibilityTests(APITestCase):
                 "description": visible_safe_app.description,
                 "chainIds": visible_safe_app.chain_ids,
                 "provider": None,
+                "accessControl": {
+                    "type": visible_safe_app.access_control_type,
+                    "data": visible_safe_app.access_control_sources
+                }
+
             }
         ]
         url = reverse("v1:safe-apps:list")
