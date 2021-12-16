@@ -18,8 +18,8 @@ class ClientSerializer(serializers.Serializer[Client]):
 
 
 class AccessControlPolicySerializer(serializers.Serializer[SafeApp]):
-    type = serializers.CharField(source="access_control_type")
-    data = ClientSerializer(source="access_control_sources", many=True)
+    type = serializers.CharField(source="get_access_control_type")
+    data = ClientSerializer(source="exclusive_clients", many=True)
 
 
 class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):

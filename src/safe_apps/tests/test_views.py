@@ -360,7 +360,7 @@ class SafeAppsVisibilityTests(APITestCase):
 class ClientTests(APITestCase):
     def test_client_with_no_exclusive_apps(self) -> None:
         safe_app = SafeAppFactory.create()
-        client_1 = ClientFactory(apps=())
+        client_1 = ClientFactory()
         url = reverse("v1:safe-apps:list")
 
         response = self.client.get(path=url, data=None, format="json")
@@ -371,8 +371,8 @@ class ClientTests(APITestCase):
         self.assertEqual(json_response[0]["accessControl"]["data"], [])
 
     def test_client_with_exclusive_apps(self) -> None:
-        safe_app = SafeAppFactory.create()
-        client_1 = ClientFactory(apps=(safe_app,))
+        client_1 = ClientFactory()
+        safe_app = SafeAppFactory.create(exclusive_clients=(client_1,))
         url = reverse("v1:safe-apps:list")
 
         response = self.client.get(path=url, data=None, format="json")

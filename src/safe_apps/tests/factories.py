@@ -19,17 +19,6 @@ class ClientFactory(DjangoModelFactory):  # type: ignore[misc]
 
     url = factory.Faker("url")
 
-    @factory.post_generation
-    def apps(self, create, extracted, **kwargs):
-        if not create:
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            # A list of apps was passed in, use them
-            for app in extracted:
-                self.apps.add(app)
-
 
 class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
     class Meta:
@@ -43,3 +32,14 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
     description = factory.Faker("catch_phrase")
     chain_ids = factory.Faker("pylist", nb_elements=2, value_types=(int,))
     provider = None
+
+    @factory.post_generation
+    def exclusive_clients(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of apps was passed in, use them
+            for client in extracted:
+                self.exclusive_clients.add(client)

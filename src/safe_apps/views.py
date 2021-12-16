@@ -40,7 +40,7 @@ class SafeAppsListView(ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[SafeApp]:
-        queryset = SafeApp.objects.with_access_control_params().filter(visible=True)
+        queryset = SafeApp.objects.filter(visible=True)
         print(queryset)
         network_id = self.request.query_params.get("chainId")
         if network_id is not None and network_id.isdigit():
@@ -48,6 +48,6 @@ class SafeAppsListView(ListAPIView):
 
         host = self.request.query_params.get("host")
         if host is not None:
-            print("pamp")
+            queryset = queryset.filter(exclusive_clients__contains=[host])
 
         return queryset
