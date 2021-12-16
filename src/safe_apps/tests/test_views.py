@@ -219,6 +219,22 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
 
+    def test_apps_returned_on_non_existent_host(self) -> None:
+        SafeAppFactory.create(chain_ids=[1])
+        json_response: List[Dict[str, Any]] = []
+        url = reverse("v1:safe-apps:list") + f'{"?host=non_existent_host"}'
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), json_response)
+
+    def test_apps_returned_on_filtered_host(self) -> None:
+        return
+
+    def test_apps_returned_on_filtered_host_and_chain_id(self) -> None:
+        return
+
 
 class ProviderInfoTests(APITestCase):
     def test_provider_returned_in_response(self) -> None:
@@ -304,32 +320,6 @@ class CacheSafeAppTests(APITestCase):
         self.assertEqual(response.json(), json_response)
 
 
-class ClientTests(APITestCase):
-    def test_client_with_no_exclusive_apps(self) -> None:
-        safe_app = SafeAppFactory.create()
-        client_1 = ClientFactory(apps=())
-        url = reverse("v1:safe-apps:list")
-
-        response = self.client.get(path=url, data=None, format="json")
-
-        json_response = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(json_response[0]["accessControl"]["type"], SafeApp.AccessControlPolicy.NO_RESTRICTIONS)
-        self.assertEqual(json_response[0]["accessControl"]["data"], [])
-
-    def test_client_with_exclusive_apps(self) -> None:
-        safe_app = SafeAppFactory.create()
-        client_1 = ClientFactory(apps=(safe_app,))
-        url = reverse("v1:safe-apps:list")
-
-        response = self.client.get(path=url, data=None, format="json")
-
-        json_response = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(json_response[0]["accessControl"]["type"], SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST)
-        self.assertEqual(json_response[0]["accessControl"]["data"], [client_1.url])
-
-
 class SafeAppsVisibilityTests(APITestCase):
     def test_visible_safe_app_is_shown(self) -> None:
         visible_safe_app = SafeAppFactory.create(visible=True)
@@ -365,3 +355,29 @@ class SafeAppsVisibilityTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
+
+
+class ClientTests(APITestCase):
+    def test_client_with_no_exclusive_apps(self) -> None:
+        safe_app = SafeAppFactory.create()
+        client_1 = ClientFactory(apps=())
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json_response[0]["accessControl"]["type"], SafeApp.AccessControlPolicy.NO_RESTRICTIONS)
+        self.assertEqual(json_response[0]["accessControl"]["data"], [])
+
+    def test_client_with_exclusive_apps(self) -> None:
+        safe_app = SafeAppFactory.create()
+        client_1 = ClientFactory(apps=(safe_app,))
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json_response[0]["accessControl"]["type"], SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST)
+        self.assertEqual(json_response[0]["accessControl"]["data"], [client_1.url])
