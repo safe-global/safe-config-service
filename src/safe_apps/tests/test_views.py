@@ -219,18 +219,57 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
 
-    def test_apps_returned_on_non_existent_host(self) -> None:
+    def test_apps_returned_on_non_existent_client_url(self) -> None:
         SafeAppFactory.create(chain_ids=[1])
         json_response: List[Dict[str, Any]] = []
-        url = reverse("v1:safe-apps:list") + f'{"?host=non_existent_host"}'
+        url = reverse("v1:safe-apps:list") + f'{"?client_url=non_existent_host"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
 
-    def test_apps_returned_on_filtered_host(self) -> None:
-        return
+    def test_apps_returned_on_filtered_client_url(self) -> None:
+        client = ClientFactory.create(url="safe.com")
+        client_2 = ClientFactory.create(url="pump.com")
+        safe_app_1 = SafeAppFactory.create(exclusive_clients=(client,))
+        safe_app_2 = SafeAppFactory.create()
+        SafeAppFactory.create(exclusive_clients=(client_2,))
+
+        json_response = [
+            {
+                "id": safe_app_1.app_id,
+                "url": safe_app_1.url,
+                "name": safe_app_1.name,
+                "iconUrl": safe_app_1.icon_url,
+                "description": safe_app_1.description,
+                "chainIds": safe_app_1.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST,
+                    "data": ["safe.com"]
+                }
+            },
+            {
+                "id": safe_app_2.app_id,
+                "url": safe_app_2.url,
+                "name": safe_app_2.name,
+                "iconUrl": safe_app_2.icon_url,
+                "description": safe_app_2.description,
+                "chainIds": safe_app_2.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "data": []
+                }
+            }
+        ]
+        url = reverse("v1:safe-apps:list") + f'{"?client_url=safe.com"}'
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), json_response)
 
     def test_apps_returned_on_filtered_host_and_chain_id(self) -> None:
         return
