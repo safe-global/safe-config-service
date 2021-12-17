@@ -194,7 +194,7 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
 
-    def test_apps_returned_on_same_key_pair(self) -> None:
+    def test_apps_returned_on_same_chainid_key_pair(self) -> None:
         safe_app_1 = SafeAppFactory.create(chain_ids=[1])
         SafeAppFactory.create(chain_ids=[2])
         json_response = [
@@ -240,6 +240,57 @@ class FilterSafeAppListViewTests(APITestCase):
                 },
             }
         ]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), json_response)
+
+    def test_apps_returned_on_empty_client_url(self) -> None:
+        safe_app = SafeAppFactory.create()
+        url = reverse("v1:safe-apps:list") + f'{"?client_url="}'
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = [
+            {
+                "id": safe_app.app_id,
+                "url": safe_app.url,
+                "name": safe_app.name,
+                "iconUrl": safe_app.icon_url,
+                "description": safe_app.description,
+                "chainIds": safe_app.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "data": [],
+                },
+            }
+        ]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), json_response)
+
+    def test_apps_returned_on_same_client_url_key_pair(self) -> None:
+        client_1 = ClientFactory.create(url="safe.com")
+        client_2 = ClientFactory.create(url="pump.com")
+        safe_app_1 = SafeAppFactory.create(exclusive_clients=(client_1,))
+        SafeAppFactory.create(exclusive_clients=(client_2,))
+        json_response = [
+            {
+                "id": safe_app_1.app_id,
+                "url": safe_app_1.url,
+                "name": safe_app_1.name,
+                "iconUrl": safe_app_1.icon_url,
+                "description": safe_app_1.description,
+                "chainIds": safe_app_1.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST,
+                    "data": [client_1.url],
+                },
+            }
+        ]
+        url = reverse("v1:safe-apps:list") + f'{"?client_url=pump.com&client_url=safe.com"}'
+
+        response = self.client.get(path=url, data=None, format="json")
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
 
