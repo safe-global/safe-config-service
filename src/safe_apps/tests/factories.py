@@ -33,7 +33,7 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
     provider = None
 
     @factory.post_generation
-    def exclusive_clients(self, create, extracted, **kwargs):
+    def exclusive_clients(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
         if not create:
             # Simple build, do nothing.
             return
