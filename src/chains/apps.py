@@ -4,7 +4,6 @@ from django.core.exceptions import ImproperlyConfigured
 
 
 def _validate_storage_setup() -> None:
-    print(settings.DEFAULT_FILE_STORAGE)
     if (
         settings.DEFAULT_FILE_STORAGE == "storages.backends.s3boto3.S3Boto3Storage"
         and settings.AWS_ACCESS_KEY_ID is None
