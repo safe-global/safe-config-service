@@ -287,7 +287,10 @@ class FilterSafeAppListViewTests(APITestCase):
                 },
             }
         ]
-        url = reverse("v1:safe-apps:list") + f'{"?client_url=pump.com&client_url=safe.com"}'
+        url = (
+            reverse("v1:safe-apps:list")
+            + f'{"?client_url=pump.com&client_url=safe.com"}'
+        )
 
         response = self.client.get(path=url, data=None, format="json")
 
