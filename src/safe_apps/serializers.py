@@ -1,8 +1,8 @@
-from rest_framework import serializers
 from drf_yasg.utils import swagger_serializer_method
+from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Provider, SafeApp, Client
+from .models import Client, Provider, SafeApp
 
 
 class ProviderSerializer(serializers.ModelSerializer[Provider]):

@@ -6,20 +6,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('safe_apps', '0006_safeapp_chain_ids_big_int'),
+        ("safe_apps", "0006_safeapp_chain_ids_big_int"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Client',
+            name="Client",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField(help_text='The domain URL client is hosted at', unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "url",
+                    models.URLField(
+                        help_text="The domain URL client is hosted at", unique=True
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='safeapp',
-            name='exclusive_clients',
-            field=models.ManyToManyField(blank=True, help_text='Clients that are only allowed to use this SafeApp', to='safe_apps.Client'),
+            model_name="safeapp",
+            name="exclusive_clients",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Clients that are only allowed to use this SafeApp",
+                to="safe_apps.Client",
+            ),
         ),
     ]

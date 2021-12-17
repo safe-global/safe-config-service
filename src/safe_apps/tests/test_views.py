@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from ..models import SafeApp
-from .factories import ProviderFactory, SafeAppFactory, ClientFactory
+from .factories import ClientFactory, ProviderFactory, SafeAppFactory
 
 
 class EmptySafeAppsListViewTests(APITestCase):
@@ -33,7 +33,7 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
                     "data": [],
-                }
+                },
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -58,8 +58,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             },
             {
                 "id": safe_app_2.app_id,
@@ -71,8 +71,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             },
             {
                 "id": safe_app_3.app_id,
@@ -84,8 +84,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             },
         ]
         url = reverse("v1:safe-apps:list")
@@ -108,8 +108,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             },
             {
                 "id": safe_app_2.app_id,
@@ -121,8 +121,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             },
             {
                 "id": safe_app_3.app_id,
@@ -134,8 +134,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId="}'
@@ -160,8 +160,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             },
             {
                 "id": safe_app_5.app_id,
@@ -173,8 +173,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId=1"}'
@@ -208,8 +208,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             }
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId=2&chainId=1"}'
@@ -220,12 +220,26 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(response.json(), json_response)
 
     def test_apps_returned_on_non_existent_client_url(self) -> None:
-        SafeAppFactory.create(chain_ids=[1])
-        json_response: List[Dict[str, Any]] = []
+        safe_app = SafeAppFactory.create()
         url = reverse("v1:safe-apps:list") + f'{"?client_url=non_existent_host"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
+        json_response = [
+            {
+                "id": safe_app.app_id,
+                "url": safe_app.url,
+                "name": safe_app.name,
+                "iconUrl": safe_app.icon_url,
+                "description": safe_app.description,
+                "chainIds": safe_app.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "data": [],
+                },
+            }
+        ]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
 
@@ -247,8 +261,8 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST,
-                    "data": ["safe.com"]
-                }
+                    "data": ["safe.com"],
+                },
             },
             {
                 "id": safe_app_2.app_id,
@@ -260,9 +274,9 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
-            }
+                    "data": [],
+                },
+            },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?client_url=safe.com"}'
 
@@ -270,9 +284,6 @@ class FilterSafeAppListViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)
-
-    def test_apps_returned_on_filtered_host_and_chain_id(self) -> None:
-        return
 
 
 class ProviderInfoTests(APITestCase):
@@ -291,8 +302,8 @@ class ProviderInfoTests(APITestCase):
                 "provider": {"name": provider.name, "url": provider.url},
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -316,8 +327,8 @@ class ProviderInfoTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -343,8 +354,8 @@ class CacheSafeAppTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
+                    "data": [],
+                },
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -373,9 +384,8 @@ class SafeAppsVisibilityTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
-                    "data": []
-                }
-
+                    "data": [],
+                },
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -398,25 +408,31 @@ class SafeAppsVisibilityTests(APITestCase):
 
 class ClientTests(APITestCase):
     def test_client_with_no_exclusive_apps(self) -> None:
-        safe_app = SafeAppFactory.create()
-        client_1 = ClientFactory()
+        SafeAppFactory.create()
+        ClientFactory()
         url = reverse("v1:safe-apps:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json_response[0]["accessControl"]["type"], SafeApp.AccessControlPolicy.NO_RESTRICTIONS)
+        self.assertEqual(
+            json_response[0]["accessControl"]["type"],
+            SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+        )
         self.assertEqual(json_response[0]["accessControl"]["data"], [])
 
     def test_client_with_exclusive_apps(self) -> None:
         client_1 = ClientFactory()
-        safe_app = SafeAppFactory.create(exclusive_clients=(client_1,))
+        SafeAppFactory.create(exclusive_clients=(client_1,))
         url = reverse("v1:safe-apps:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json_response[0]["accessControl"]["type"], SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST)
+        self.assertEqual(
+            json_response[0]["accessControl"]["type"],
+            SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST,
+        )
         self.assertEqual(json_response[0]["accessControl"]["data"], [client_1.url])

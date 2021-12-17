@@ -1,6 +1,6 @@
 from typing import Any
 
-from django.db.models import QuerySet, Q
+from django.db.models import Q, QuerySet
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from drf_yasg import openapi
@@ -9,7 +9,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from .models import SafeApp, Client
+from .models import SafeApp
 from .serializers import SafeAppsResponseSerializer
 
 
@@ -30,8 +30,8 @@ class SafeAppsListView(ListAPIView):
         type=openapi.TYPE_STRING,
     )
 
-    @ method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
-    @ swagger_auto_schema(manual_parameters=[_swagger_network_id_param])  # type: ignore[misc]
+    @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
+    @swagger_auto_schema(manual_parameters=[_swagger_network_id_param])  # type: ignore[misc]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Returns a collection of Safe Apps (across different chains).
@@ -41,16 +41,15 @@ class SafeAppsListView(ListAPIView):
 
     def get_queryset(self) -> QuerySet[SafeApp]:
         queryset = SafeApp.objects.filter(visible=True)
-        client_queryset = Client.objects
 
-        print(queryset)
         network_id = self.request.query_params.get("chainId")
         if network_id is not None and network_id.isdigit():
             queryset = queryset.filter(chain_ids__contains=[network_id])
 
         host = self.request.query_params.get("client_url")
         if host is not None:
-            queryset = queryset.filter(Q(exclusive_clients__url=host) | Q(exclusive_clients__isnull=True))
-            # queryset = queryset.filter(Q(exclusive_clients__url=host).__or__(exclusive_clients__isnull=True))
+            queryset = queryset.filter(
+                Q(exclusive_clients__url=host) | Q(exclusive_clients__isnull=True)
+            )
 
         return queryset

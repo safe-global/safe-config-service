@@ -1,8 +1,9 @@
-import factory
 import random
+
+import factory
 from factory.django import DjangoModelFactory
 
-from ..models import Provider, SafeApp, Client
+from ..models import Client, Provider, SafeApp
 
 
 class ProviderFactory(DjangoModelFactory):  # type: ignore[misc]

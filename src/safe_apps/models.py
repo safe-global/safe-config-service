@@ -1,7 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import QuerySet, F
-from rest_framework.utils.serializer_helpers import ReturnDict
 
 
 class Provider(models.Model):
@@ -40,7 +38,9 @@ class SafeApp(models.Model):
         Provider, null=True, blank=True, on_delete=models.SET_NULL
     )
     exclusive_clients = models.ManyToManyField(
-        Client, blank=True, help_text="Clients that are only allowed to use this SafeApp"
+        Client,
+        blank=True,
+        help_text="Clients that are only allowed to use this SafeApp",
     )
 
     def get_access_control_type(self) -> str:
