@@ -215,7 +215,6 @@ AWS_S3_FILE_OVERWRITE = True
 # Setting AWS_QUERYSTRING_AUTH to False to remove query parameter authentication from generated URLs.
 # This can be useful if your S3 buckets are public.
 AWS_QUERYSTRING_AUTH = False
-
 DEFAULT_FILE_STORAGE = os.getenv(
     "DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage"
 )
