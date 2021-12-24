@@ -1,7 +1,9 @@
 import os
 import re
+from typing import IO
 
 from django.core.exceptions import ValidationError
+from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import QuerySet
@@ -22,6 +24,12 @@ sem_ver_validator = RegexValidator(SEM_VER_REGEX, "Invalid version (semver)", "i
 def native_currency_path(instance: "Chain", filename: str) -> str:
     _, file_extension = os.path.splitext(filename)  # file_extension includes the dot
     return f"chains/{instance.id}/currency_logo{file_extension}"
+
+
+def validate_native_currency_size(image: str | IO[bytes]) -> None:
+    image_width, image_height = get_image_dimensions(image)
+    if image_width > 512 or image_height > 512:
+        raise ValidationError("Image width and height need to be at most 512 pixels")
 
 
 class Chain(models.Model):
@@ -62,7 +70,9 @@ class Chain(models.Model):
     currency_symbol = models.CharField(max_length=255)
     currency_decimals = models.IntegerField(default=18)
     currency_logo_uri = models.ImageField(
-        upload_to=native_currency_path, max_length=255
+        validators=[validate_native_currency_size],
+        upload_to=native_currency_path,
+        max_length=255,
     )
     transaction_service_uri = models.URLField()
     vpc_transaction_service_uri = models.URLField()
