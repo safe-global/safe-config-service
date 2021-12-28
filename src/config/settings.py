@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     "about.apps.AboutAppConfig",
     "chains.apps.AppsConfig",
     "safe_apps.apps.AppsConfig",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -57,6 +56,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "drf_yasg",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
 ]
 
 MIDDLEWARE = [
@@ -67,9 +69,18 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+DJANGO_OTP_ADMIN = strtobool(os.getenv("DJANGO_OTP_ADMIN", "true"))
+if DJANGO_OTP_ADMIN:
+    # Use OTP admin
+    INSTALLED_APPS.append("config.admin.OTPAdminConfig")
+else:
+    # Use Default admin
+    INSTALLED_APPS.append("django.contrib.admin")
 
 CACHES = {
     "default": {
