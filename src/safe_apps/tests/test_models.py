@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .factories import ProviderFactory, SafeAppFactory, ClientFactory
+from .factories import ClientFactory, ProviderFactory, SafeAppFactory
 
 
 class ProviderTestCase(TestCase):
