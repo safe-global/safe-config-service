@@ -39,6 +39,6 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
             return
 
         if extracted:
-            # A list of apps was passed in, use them
+            # A list of clients was passed in, use them
             for client in extracted:
                 self.exclusive_clients.add(client)
