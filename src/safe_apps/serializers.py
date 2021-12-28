@@ -17,9 +17,17 @@ class ClientSerializer(serializers.Serializer[Client]):
         return instance.url
 
 
-class AccessControlPolicySerializer(serializers.Serializer[SafeApp]):
-    type = serializers.CharField(source="get_access_control_type")
+class DomainAllowlistAccessControlPolicySerializer(serializers.Serializer[SafeApp]):
+    type = serializers.ReadOnlyField(
+        default=SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST.value
+    )
     value = ClientSerializer(source="exclusive_clients", many=True)
+
+
+class NoRestrictionsAccessControlPolicySerializer(serializers.Serializer[SafeApp]):
+    type = serializers.ReadOnlyField(
+        default=SafeApp.AccessControlPolicy.NO_RESTRICTIONS.value
+    )
 
 
 class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
@@ -40,7 +48,11 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
             "access_control",
         ]
 
-    @staticmethod
-    @swagger_serializer_method(serializer_or_field=AccessControlPolicySerializer)  # type: ignore[misc]
-    def get_access_control(obj: SafeApp) -> ReturnDict:
-        return AccessControlPolicySerializer(obj).data
+    @swagger_serializer_method(serializer_or_field=DomainAllowlistAccessControlPolicySerializer)  # type: ignore[misc]
+    def get_access_control(self, instance) -> ReturnDict:
+        if (
+            instance.get_access_control_type()
+            == SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST
+        ):
+            return DomainAllowlistAccessControlPolicySerializer(instance).data
+        return NoRestrictionsAccessControlPolicySerializer(instance).data

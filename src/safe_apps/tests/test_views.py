@@ -31,7 +31,6 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             }
         ]
@@ -57,7 +56,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
             {
@@ -70,7 +68,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
             {
@@ -83,7 +80,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
         ]
@@ -107,7 +103,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
             {
@@ -120,7 +115,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
             {
@@ -133,7 +127,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
         ]
@@ -159,7 +152,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
             {
@@ -172,7 +164,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
         ]
@@ -207,7 +198,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             }
         ]
@@ -235,7 +225,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             }
         ]
@@ -259,7 +248,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             }
         ]
@@ -348,7 +336,6 @@ class FilterSafeAppListViewTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             },
         ]
@@ -376,7 +363,6 @@ class ProviderInfoTests(APITestCase):
                 "provider": {"name": provider.name, "url": provider.url},
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             }
         ]
@@ -401,7 +387,6 @@ class ProviderInfoTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             }
         ]
@@ -428,7 +413,6 @@ class CacheSafeAppTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             }
         ]
@@ -458,7 +442,6 @@ class SafeAppsVisibilityTests(APITestCase):
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
-                    "value": [],
                 },
             }
         ]
@@ -494,7 +477,6 @@ class ClientTests(APITestCase):
             json_response[0]["accessControl"]["type"],
             "NO_RESTRICTIONS",
         )
-        self.assertEqual(json_response[0]["accessControl"]["value"], [])
 
     def test_client_with_exclusive_apps(self) -> None:
         client_1 = ClientFactory()
