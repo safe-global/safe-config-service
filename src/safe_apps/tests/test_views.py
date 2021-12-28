@@ -310,7 +310,8 @@ class FilterSafeAppListViewTests(APITestCase):
         )
         SafeAppFactory.create(exclusive_clients=(client_2,))
 
-        # For some reason, it puts an app with no restrictions to the end of the array. For now we will ignore this until we add a meaningful ordering to the API.
+        # For some reason, it puts an app with no restrictions to the end of the array.
+        # For now we will ignore this until we add a meaningful ordering to the API.
         json_response = [
             {
                 "id": safe_app_1.app_id,
