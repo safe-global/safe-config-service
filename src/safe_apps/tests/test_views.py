@@ -302,8 +302,10 @@ class FilterSafeAppListViewTests(APITestCase):
         client_2 = ClientFactory.create(url="pump.com")
         safe_app_1 = SafeAppFactory.create(exclusive_clients=(client,))
         safe_app_2 = SafeAppFactory.create()
+        safe_app_3 = SafeAppFactory.create(exclusive_clients=(client, client_2,))
         SafeAppFactory.create(exclusive_clients=(client_2,))
 
+        # For some reason, it puts an app with no restrictions to the end of the array. For now we will ignore this until we add a meaningful ordering to the API.
         json_response = [
             {
                 "id": safe_app_1.app_id,
@@ -314,8 +316,21 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST,
+                    "type": 'DOMAIN_ALLOWLIST',
                     "value": ["safe.com"],
+                },
+            },
+            {
+                "id": safe_app_3.app_id,
+                "url": safe_app_3.url,
+                "name": safe_app_3.name,
+                "iconUrl": safe_app_3.icon_url,
+                "description": safe_app_3.description,
+                "chainIds": safe_app_3.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": 'DOMAIN_ALLOWLIST',
+                    "value": ["safe.com", "pump.com"],
                 },
             },
             {
@@ -327,7 +342,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_2.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": 'NO_RESTRICTIONS',
                     "value": [],
                 },
             },
