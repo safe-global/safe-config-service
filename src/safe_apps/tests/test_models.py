@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .factories import ProviderFactory, SafeAppFactory
+from .factories import ProviderFactory, SafeAppFactory, ClientFactory
 
 
 class ProviderTestCase(TestCase):
@@ -23,3 +23,9 @@ class SafeAppTestCase(TestCase):
 
         # Run validations including blank checks
         safe_app.full_clean()
+
+
+class ClientTestCase(TestCase):
+    def test_str_method_outputs_url(self):
+        client = ClientFactory.create()
+        self.assertEqual(str(client), f"Client: {client.url}")
