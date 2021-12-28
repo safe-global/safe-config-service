@@ -49,7 +49,7 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
         ]
 
     @swagger_serializer_method(serializer_or_field=DomainAllowlistAccessControlPolicySerializer)  # type: ignore[misc]
-    def get_access_control(self, instance) -> ReturnDict:
+    def get_access_control(self, instance: SafeApp) -> ReturnDict:
         if (
             instance.get_access_control_type()
             == SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST
