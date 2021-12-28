@@ -26,6 +26,6 @@ class SafeAppTestCase(TestCase):
 
 
 class ClientTestCase(TestCase):
-    def test_str_method_outputs_url(self):
+    def test_str_method_outputs_url(self) -> None:
         client = ClientFactory.create()
         self.assertEqual(str(client), f"Client: {client.url}")
