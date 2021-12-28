@@ -3,7 +3,6 @@ from typing import Any, Dict, List
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from ..models import SafeApp
 from .factories import ClientFactory, ProviderFactory, SafeAppFactory
 
 
@@ -31,7 +30,7 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "chainIds": safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             }
@@ -57,7 +56,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             },
@@ -70,7 +69,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_2.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             },
@@ -83,7 +82,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_3.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             },
@@ -107,7 +106,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             },
@@ -120,7 +119,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_2.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             },
@@ -133,7 +132,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_3.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             },
@@ -159,7 +158,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_4.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             },
@@ -172,7 +171,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_5.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             },
@@ -207,7 +206,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             }
@@ -235,7 +234,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             }
@@ -259,7 +258,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             }
@@ -282,7 +281,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST,
+                    "type": "DOMAIN_ALLOWLIST",
                     "value": [client_1.url],
                 },
             }
@@ -376,7 +375,7 @@ class ProviderInfoTests(APITestCase):
                 "chainIds": safe_app.chain_ids,
                 "provider": {"name": provider.name, "url": provider.url},
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             }
@@ -401,7 +400,7 @@ class ProviderInfoTests(APITestCase):
                 "chainIds": safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             }
@@ -428,7 +427,7 @@ class CacheSafeAppTests(APITestCase):
                 "chainIds": safe_app_1.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             }
@@ -458,7 +457,7 @@ class SafeAppsVisibilityTests(APITestCase):
                 "chainIds": visible_safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
-                    "type": SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+                    "type": "NO_RESTRICTIONS",
                     "value": [],
                 },
             }
@@ -493,7 +492,7 @@ class ClientTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             json_response[0]["accessControl"]["type"],
-            SafeApp.AccessControlPolicy.NO_RESTRICTIONS,
+            "NO_RESTRICTIONS",
         )
         self.assertEqual(json_response[0]["accessControl"]["value"], [])
 
@@ -508,6 +507,6 @@ class ClientTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             json_response[0]["accessControl"]["type"],
-            SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST,
+            "DOMAIN_ALLOWLIST",
         )
         self.assertEqual(json_response[0]["accessControl"]["value"], [client_1.url])
