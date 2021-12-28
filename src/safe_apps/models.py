@@ -47,8 +47,8 @@ class SafeApp(models.Model):
 
     def get_access_control_type(self) -> str:
         if self.exclusive_clients.exists():
-            return self.AccessControlPolicy.DOMAIN_ALLOWLIST.value
-        return self.AccessControlPolicy.NO_RESTRICTIONS.value
+            return SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST.value
+        return SafeApp.AccessControlPolicy.NO_RESTRICTIONS.value
 
     def __str__(self) -> str:
         return f"{self.name} | {self.url} | chain_ids={self.chain_ids}"
