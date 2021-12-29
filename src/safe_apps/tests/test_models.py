@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from .factories import ClientFactory, ProviderFactory, SafeAppFactory
@@ -26,6 +27,24 @@ class SafeAppTestCase(TestCase):
 
 
 class ClientTestCase(TestCase):
+    def test_allow_create_client_with_valid_domain_name(self) -> None:
+        client = ClientFactory.build(url="www.example.com")
+        client.full_clean()
+
+    def test_allow_create_client_with_valid_hostname_specifying_protocol(self) -> None:
+        client = ClientFactory.build(url="https://www.example.com")
+        client.full_clean()
+
+    def test_doesnt_allow_create_client_with_invalid_hostname(self) -> None:
+        client = ClientFactory.build(url="https://www.example.com/pump")
+        with self.assertRaises(ValidationError):
+            client.full_clean()
+
+    def test_doesnt_allow_create_client_with_random_string(self) -> None:
+        client = ClientFactory.build(url="random")
+        with self.assertRaises(ValidationError):
+            client.full_clean()
+
     def test_str_method_outputs_url(self) -> None:
         client = ClientFactory.create()
         self.assertEqual(str(client), f"Client: {client.url}")
