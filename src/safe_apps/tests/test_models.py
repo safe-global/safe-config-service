@@ -27,12 +27,16 @@ class SafeAppTestCase(TestCase):
 
 
 class ClientTestCase(TestCase):
-    def test_allow_create_client_with_valid_domain_name(self) -> None:
+    def test_allows_create_client_with_valid_domain_name(self) -> None:
         client = ClientFactory.build(url="www.example.com")
         client.full_clean()
 
-    def test_allow_create_client_with_valid_hostname_specifying_protocol(self) -> None:
+    def test_allows_create_client_with_valid_hostname_specifying_protocol(self) -> None:
         client = ClientFactory.build(url="https://www.example.com")
+        client.full_clean()
+
+    def test_allows_create_client_with_valid_hostname_with_trailing_slash(self) -> None:
+        client = ClientFactory.build(url="https://www.example.com/")
         client.full_clean()
 
     def test_doesnt_allow_create_client_with_invalid_hostname(self) -> None:
