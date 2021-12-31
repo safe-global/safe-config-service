@@ -3,7 +3,7 @@ from typing import Any
 from django.contrib import admin
 from django.db.models import QuerySet
 
-from .models import Provider, SafeApp
+from .models import Client, Provider, SafeApp
 
 
 class ChainIdFilter(admin.SimpleListFilter):
@@ -36,3 +36,10 @@ class ProviderAdmin(admin.ModelAdmin[Provider]):
     list_display = ("name", "url")
     search_fields = ("name",)
     ordering = ("name",)
+
+
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin[Client]):
+    list_display = ("url",)
+    search_fields = ("url",)
+    ordering = ("url",)
