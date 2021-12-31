@@ -5,8 +5,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 
 _HOSTNAME_VALIDATOR = RegexValidator(
-    # tweaked https://www.regextester.com/104034
-    # 🤞🤞🤞
     r"^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\/?$",
     message="Enter a valid hostname (Without a resource path)",
     code="invalid_hostname",
