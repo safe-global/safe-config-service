@@ -4,7 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator
 from django.db import models
 
-HostnameValidator = RegexValidator(
+_HOSTNAME_VALIDATOR = RegexValidator(
     # tweaked https://www.regextester.com/104034
     # 🤞🤞🤞
     r"^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\/?$",
@@ -27,7 +27,7 @@ class Client(models.Model):
         help_text="The domain URL client is hosted at",
         # The maximum length of a full host name is 253 characters per RFC 1034
         max_length=255,
-        validators=[HostnameValidator],
+        validators=[_HOSTNAME_VALIDATOR],
     )
 
     def __str__(self) -> str:
