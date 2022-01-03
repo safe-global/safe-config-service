@@ -24,9 +24,9 @@ class SafeAppsListView(ListAPIView):
         type=openapi.TYPE_INTEGER,
     )
     _swagger_client_url_param = openapi.Parameter(
-        "client_url",
+        "clientUrl",
         openapi.IN_QUERY,
-        description="Used to filter Safe Apps that are available on `client_url`",
+        description="Used to filter Safe Apps that are available on `clientUrl`",
         type=openapi.TYPE_STRING,
     )
 
@@ -46,7 +46,7 @@ class SafeAppsListView(ListAPIView):
         if network_id is not None and network_id.isdigit():
             queryset = queryset.filter(chain_ids__contains=[network_id])
 
-        host = self.request.query_params.get("client_url")
+        host = self.request.query_params.get("clientUrl")
         if host is not None:
             queryset = queryset.filter(
                 Q(exclusive_clients__url=host) | Q(exclusive_clients__isnull=True)
