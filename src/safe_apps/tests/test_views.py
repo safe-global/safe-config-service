@@ -210,7 +210,7 @@ class FilterSafeAppListViewTests(APITestCase):
 
     def test_apps_returned_on_non_existent_client_url(self) -> None:
         safe_app = SafeAppFactory.create()
-        url = reverse("v1:safe-apps:list") + f'{"?client_url=non_existent_host"}'
+        url = reverse("v1:safe-apps:list") + f'{"?clientUrl=non_existent_host"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -233,7 +233,7 @@ class FilterSafeAppListViewTests(APITestCase):
 
     def test_apps_returned_on_empty_client_url(self) -> None:
         safe_app = SafeAppFactory.create()
-        url = reverse("v1:safe-apps:list") + f'{"?client_url="}'
+        url = reverse("v1:safe-apps:list") + f'{"?clientUrl="}'
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -275,8 +275,7 @@ class FilterSafeAppListViewTests(APITestCase):
             }
         ]
         url = (
-            reverse("v1:safe-apps:list")
-            + f'{"?client_url=pump.com&client_url=safe.com"}'
+            reverse("v1:safe-apps:list") + f'{"?clientUrl=pump.com&clientUrl=safe.com"}'
         )
 
         response = self.client.get(path=url, data=None, format="json")
@@ -339,7 +338,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 },
             },
         ]
-        url = reverse("v1:safe-apps:list") + f'{"?client_url=safe.com"}'
+        url = reverse("v1:safe-apps:list") + f'{"?clientUrl=safe.com"}'
 
         response = self.client.get(path=url, data=None, format="json")
 

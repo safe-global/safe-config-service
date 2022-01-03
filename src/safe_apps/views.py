@@ -17,21 +17,21 @@ class SafeAppsListView(ListAPIView):
     serializer_class = SafeAppsResponseSerializer
     pagination_class = None
 
-    _swagger_network_id_param = openapi.Parameter(
+    _swagger_chain_id_param = openapi.Parameter(
         "chainId",
         openapi.IN_QUERY,
         description="Used to filter Safe Apps that are available on `chainId`",
         type=openapi.TYPE_INTEGER,
     )
-    _swagger_host_param = openapi.Parameter(
-        "client_url",
+    _swagger_client_url_param = openapi.Parameter(
+        "clientUrl",
         openapi.IN_QUERY,
-        description="Used to filter Safe Apps that are available on `client_url`",
+        description="Used to filter Safe Apps that are available on `clientUrl`",
         type=openapi.TYPE_STRING,
     )
 
     @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
-    @swagger_auto_schema(manual_parameters=[_swagger_network_id_param])  # type: ignore[misc]
+    @swagger_auto_schema(manual_parameters=[_swagger_chain_id_param, _swagger_client_url_param])  # type: ignore[misc]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Returns a collection of Safe Apps (across different chains).
@@ -46,7 +46,7 @@ class SafeAppsListView(ListAPIView):
         if network_id is not None and network_id.isdigit():
             queryset = queryset.filter(chain_ids__contains=[network_id])
 
-        host = self.request.query_params.get("client_url")
+        host = self.request.query_params.get("clientUrl")
         if host is not None:
             queryset = queryset.filter(
                 Q(exclusive_clients__url=host) | Q(exclusive_clients__isnull=True)
