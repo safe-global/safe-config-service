@@ -35,7 +35,7 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     currency_name = factory.Faker("cryptocurrency_name")
     currency_symbol = factory.Faker("cryptocurrency_code")
     currency_decimals = factory.Faker("pyint")
-    currency_logo_uri = factory.django.ImageField()
+    currency_logo_uri = factory.django.ImageField(width=50, height=50)
     transaction_service_uri = factory.Faker("url")
     vpc_transaction_service_uri = factory.Faker("url")
     theme_text_color = factory.Faker("hex_color")

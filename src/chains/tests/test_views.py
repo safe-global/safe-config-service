@@ -1,6 +1,8 @@
 from decimal import Decimal
 from typing import Any
 
+import factory
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from faker import Faker
 from rest_framework.test import APITestCase
@@ -257,6 +259,29 @@ class ChainsEnsRegistryTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["ensRegistryAddress"], None)
+
+
+class ChainCurrencyLogoTests(APITestCase):
+    def test_image_max_size_validation(self) -> None:
+        chain = ChainFactory.create(
+            currency_logo_uri=factory.django.ImageField(width=512, height=512)
+        )
+
+        chain.full_clean()  # should not rise any exception
+
+    def test_image_width_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                currency_logo_uri=factory.django.ImageField(width=513, height=50)
+            )
+            chain.full_clean()
+
+    def test_image_height_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                currency_logo_uri=factory.django.ImageField(width=50, height=513)
+            )
+            chain.full_clean()
 
 
 class ChainGasPriceTests(APITestCase):
