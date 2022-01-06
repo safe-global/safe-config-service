@@ -42,14 +42,14 @@ class SafeAppsListView(ListAPIView):
     def get_queryset(self) -> QuerySet[SafeApp]:
         queryset = SafeApp.objects.filter(visible=True)
 
-        network_id = self.request.query_params.get("chainId")
-        if network_id is not None and network_id.isdigit():
-            queryset = queryset.filter(chain_ids__contains=[network_id])
+        chain_id = self.request.query_params.get("chainId")
+        if chain_id is not None and chain_id.isdigit():
+            queryset = queryset.filter(chain_ids__contains=[chain_id])
 
-        host = self.request.query_params.get("clientUrl")
-        if host is not None:
+        client_url = self.request.query_params.get("clientUrl")
+        if client_url:
             queryset = queryset.filter(
-                Q(exclusive_clients__url=host) | Q(exclusive_clients__isnull=True)
+                Q(exclusive_clients__url=client_url) | Q(exclusive_clients__isnull=True)
             )
 
         return queryset

@@ -232,24 +232,39 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(response.json(), json_response)
 
     def test_apps_returned_on_empty_client_url(self) -> None:
-        safe_app = SafeAppFactory.create()
+        client_1 = ClientFactory.create(url="safe.com")
+        safe_app_1 = SafeAppFactory.create()
+        safe_app_2 = SafeAppFactory.create(exclusive_clients=(client_1,))
         url = reverse("v1:safe-apps:list") + f'{"?clientUrl="}'
 
         response = self.client.get(path=url, data=None, format="json")
 
         json_response = [
             {
-                "id": safe_app.app_id,
-                "url": safe_app.url,
-                "name": safe_app.name,
-                "iconUrl": safe_app.icon_url,
-                "description": safe_app.description,
-                "chainIds": safe_app.chain_ids,
+                "id": safe_app_1.app_id,
+                "url": safe_app_1.url,
+                "name": safe_app_1.name,
+                "iconUrl": safe_app_1.icon_url,
+                "description": safe_app_1.description,
+                "chainIds": safe_app_1.chain_ids,
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
-            }
+            },
+            {
+                "id": safe_app_2.app_id,
+                "url": safe_app_2.url,
+                "name": safe_app_2.name,
+                "iconUrl": safe_app_2.icon_url,
+                "description": safe_app_2.description,
+                "chainIds": safe_app_2.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": "DOMAIN_ALLOWLIST",
+                    "value": [client_1.url],
+                },
+            },
         ]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), json_response)

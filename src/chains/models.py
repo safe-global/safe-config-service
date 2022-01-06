@@ -1,6 +1,6 @@
 import os
 import re
-from typing import IO
+from typing import IO, Union
 
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
@@ -26,7 +26,7 @@ def native_currency_path(instance: "Chain", filename: str) -> str:
     return f"chains/{instance.id}/currency_logo{file_extension}"
 
 
-def validate_native_currency_size(image: str | IO[bytes]) -> None:
+def validate_native_currency_size(image: Union[str, IO[bytes]]) -> None:
     image_width, image_height = get_image_dimensions(image)
     if image_width > 512 or image_height > 512:
         raise ValidationError("Image width and height need to be at most 512 pixels")
