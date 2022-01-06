@@ -47,7 +47,7 @@ class SafeAppsListView(ListAPIView):
             queryset = queryset.filter(chain_ids__contains=[chain_id])
 
         client_url = self.request.query_params.get("clientUrl")
-        if client_url is not None and client_url:
+        if client_url:
             queryset = queryset.filter(
                 Q(exclusive_clients__url=client_url) | Q(exclusive_clients__isnull=True)
             )
