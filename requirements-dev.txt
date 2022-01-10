@@ -14,4 +14,4 @@ responses==0.16.0
 mypy==0.930
 django-stubs==1.9.0
 djangorestframework-stubs==1.4.0
-types-requests==2.26.3
+types-requests==2.27.5
