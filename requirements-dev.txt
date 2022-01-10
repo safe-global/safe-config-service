@@ -11,7 +11,7 @@ pytest-django==4.5.2
 responses==0.16.0
 
 # mypy and PEP 561 stubs
-mypy==0.930
+mypy==0.931
 django-stubs==1.9.0
 djangorestframework-stubs==1.4.0
 types-requests==2.27.5
