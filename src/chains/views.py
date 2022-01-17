@@ -14,7 +14,7 @@ from .serializers import ChainSerializer
 class ChainsListView(ListAPIView):
     serializer_class = ChainSerializer
     pagination_class = LimitOffsetPagination
-    pagination_class.max_limit = 100
+    pagination_class.max_limit = 20
     pagination_class.default_limit = 20
     queryset = Chain.objects.all()
     filter_backends = [filters.OrderingFilter]
