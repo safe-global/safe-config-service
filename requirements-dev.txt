@@ -8,10 +8,10 @@ flake8==4.0.1
 isort==5.10.1
 pre-commit==2.16.0
 pytest-django==4.5.2
-responses==0.16.0
+responses==0.17.0
 
 # mypy and PEP 561 stubs
 mypy==0.931
 django-stubs==1.9.0
 djangorestframework-stubs==1.4.0
-types-requests==2.27.5
+types-requests==2.27.7

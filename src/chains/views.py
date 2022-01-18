@@ -11,11 +11,14 @@ from .models import Chain
 from .serializers import ChainSerializer
 
 
+class ChainsPagination(LimitOffsetPagination):
+    default_limit = 20
+    max_limit = 20
+
+
 class ChainsListView(ListAPIView):
     serializer_class = ChainSerializer
-    pagination_class = LimitOffsetPagination
-    pagination_class.max_limit = 100
-    pagination_class.default_limit = 20
+    pagination_class = ChainsPagination
     queryset = Chain.objects.all()
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["relevance", "name"]
