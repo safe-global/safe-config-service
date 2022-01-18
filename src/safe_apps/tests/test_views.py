@@ -39,7 +39,7 @@ class JsonPayloadFormatViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
 
 class FilterSafeAppListViewTests(APITestCase):
@@ -88,7 +88,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_all_apps_returned_on_empty_chain_id_value(self) -> None:
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
@@ -135,7 +135,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_apps_returned_on_filtered_chain_id(self) -> None:
         SafeAppFactory.create_batch(3, chain_ids=[10])
@@ -172,7 +172,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_apps_returned_on_unexisting_chain(self) -> None:
         SafeAppFactory.create_batch(3, chain_ids=[12])
@@ -182,7 +182,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_apps_returned_on_same_chainid_key_pair(self) -> None:
         safe_app_1 = SafeAppFactory.create(chain_ids=[1])
@@ -206,7 +206,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_apps_returned_on_non_existent_client_url(self) -> None:
         safe_app = SafeAppFactory.create()
@@ -229,7 +229,7 @@ class FilterSafeAppListViewTests(APITestCase):
             }
         ]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_apps_returned_on_empty_client_url(self) -> None:
         client_1 = ClientFactory.create(url="safe.com")
@@ -267,7 +267,7 @@ class FilterSafeAppListViewTests(APITestCase):
             },
         ]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_apps_returned_on_same_client_url_key_pair(self) -> None:
         client_1 = ClientFactory.create(url="safe.com")
@@ -296,7 +296,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_apps_returned_on_filtered_client_url(self) -> None:
         client = ClientFactory.create(url="safe.com")
@@ -311,8 +311,6 @@ class FilterSafeAppListViewTests(APITestCase):
         )
         SafeAppFactory.create(exclusive_clients=(client_2,))
 
-        # For some reason, it puts an app with no restrictions to the end of the array.
-        # For now we will ignore this until we add a meaningful ordering to the API.
         json_response = [
             {
                 "id": safe_app_1.app_id,
@@ -358,7 +356,7 @@ class FilterSafeAppListViewTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
 
 class ProviderInfoTests(APITestCase):
@@ -385,7 +383,7 @@ class ProviderInfoTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_provider_not_returned_in_response(self) -> None:
         safe_app = SafeAppFactory.create()
@@ -409,7 +407,7 @@ class ProviderInfoTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
 
 class CacheSafeAppTests(APITestCase):
@@ -439,7 +437,7 @@ class CacheSafeAppTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         # Cache-Control should be 10 minutes (60 * 10)
         self.assertEqual(cache_control, "max-age=600")
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
 
 class SafeAppsVisibilityTests(APITestCase):
@@ -464,7 +462,7 @@ class SafeAppsVisibilityTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
     def test_not_visible_safe_app_is_not_shown(self) -> None:
         SafeAppFactory.create(visible=False)
@@ -474,7 +472,7 @@ class SafeAppsVisibilityTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), json_response)
+        self.assertCountEqual(response.json(), json_response)
 
 
 class ClientTests(APITestCase):
