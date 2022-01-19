@@ -227,3 +227,8 @@ AWS_QUERYSTRING_AUTH = False
 DEFAULT_FILE_STORAGE = os.getenv(
     "DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage"
 )
+
+# SECURITY
+# https://docs.djangoproject.com/en/4.0/ref/settings/#csrf-trusted-origins
+allowed_csrf_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [allowed_csrf_origins.strip() for allowed_csrf_origins in allowed_csrf_origins.split(",")]
