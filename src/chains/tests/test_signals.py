@@ -10,7 +10,7 @@ from chains.tests.factories import ChainFactory, GasPriceFactory
     CGW_FLUSH_TOKEN="example-token",
 )
 class ChainNetworkHookTestCase(TestCase):
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501 # noqa: E501
+    @responses.activate
     def test_on_chain_update_hook_200(self) -> None:
         responses.add(
             responses.POST,
@@ -27,7 +27,7 @@ class ChainNetworkHookTestCase(TestCase):
             responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
         )
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_chain_update_hook_400(self) -> None:
         responses.add(
             responses.POST,
@@ -40,7 +40,7 @@ class ChainNetworkHookTestCase(TestCase):
 
         assert len(responses.calls) == 1
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_chain_update_hook_500(self) -> None:
         responses.add(
             responses.POST,
@@ -53,7 +53,7 @@ class ChainNetworkHookTestCase(TestCase):
 
         assert len(responses.calls) == 1
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_chain_delete_hook_call(self) -> None:
         chain = ChainFactory.create()
 
@@ -62,7 +62,7 @@ class ChainNetworkHookTestCase(TestCase):
         # 2 calls: one for creation and one for deletion
         assert len(responses.calls) == 2
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_chain_update_hook_call(self) -> None:
         chain = ChainFactory.create()
 
@@ -77,7 +77,7 @@ class ChainNetworkHookTestCase(TestCase):
         CGW_URL=None,
         CGW_FLUSH_TOKEN=None,
     )
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_chain_update_with_no_cgw_set(self) -> None:
         ChainFactory.create()
 
@@ -87,7 +87,7 @@ class ChainNetworkHookTestCase(TestCase):
         CGW_URL="http://127.0.0.1",
         CGW_FLUSH_TOKEN=None,
     )
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_chain_update_with_no_flush_token_set(self) -> None:
         ChainFactory.create()
 
@@ -99,7 +99,7 @@ class ChainNetworkHookTestCase(TestCase):
     CGW_FLUSH_TOKEN="example-token",
 )
 class FeatureHookTestCase(TestCase):
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_feature_create_hook_call(self) -> None:
         responses.add(
             responses.POST,
@@ -116,7 +116,7 @@ class FeatureHookTestCase(TestCase):
             responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
         )
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_feature_delete_hook_call(self) -> None:
         feature = Feature(key="Test Feature")
 
@@ -126,7 +126,7 @@ class FeatureHookTestCase(TestCase):
         # 2 calls: one for creation and one for deletion
         assert len(responses.calls) == 2
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_feature_update_hook_call(self) -> None:
         feature = Feature(key="Test Feature")
 
@@ -143,7 +143,7 @@ class FeatureHookTestCase(TestCase):
     CGW_FLUSH_TOKEN="example-token",
 )
 class WalletHookTestCase(TestCase):
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_wallet_create_hook_call(self) -> None:
         responses.add(
             responses.POST,
@@ -160,7 +160,7 @@ class WalletHookTestCase(TestCase):
             responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
         )
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_wallet_delete_hook_call(self) -> None:
         wallet = Wallet(key="Test Wallet")
 
@@ -170,7 +170,7 @@ class WalletHookTestCase(TestCase):
         # 2 calls: one for creation and one for deletion
         assert len(responses.calls) == 2
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_wallet_update_hook_call(self) -> None:
         wallet = Wallet(key="Test Wallet")
 
@@ -192,7 +192,7 @@ class GasPriceHookTestCase(TestCase):
             ChainFactory.create()
         )  # chain creation: a GasPrice requires a chain
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_gas_price_create_hook_call(self) -> None:
         responses.add(
             responses.POST,
@@ -209,7 +209,7 @@ class GasPriceHookTestCase(TestCase):
             responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
         )
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_gas_price_delete_hook_call(self) -> None:
         gas_price = GasPriceFactory.create(chain=self.chain)  # create
         gas_price.delete()  # delete
@@ -217,7 +217,7 @@ class GasPriceHookTestCase(TestCase):
         # 2 calls: one for creation and one for deletion
         assert len(responses.calls) == 2
 
-    @responses.activate  # type: ignore[misc] # Fix: https://github.com/getsentry/responses/commit/0852c09edf4fd8acc52c5b30052899163b15aa83  # noqa: E501
+    @responses.activate
     def test_on_gas_price_update_hook_call(self) -> None:
         gas_price = GasPriceFactory.create(
             chain=self.chain, fixed_wei_value=1000
