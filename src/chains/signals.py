@@ -32,7 +32,7 @@ def _trigger_client_gateway_flush() -> None:
         logger.error("CGW_FLUSH_TOKEN is not set. Skipping hook call")
         return
 
-    url = urljoin(cgw_url, "/v1/flush/events")
+    url = urljoin(cgw_url, "/v2/flush")
     try:
         post = setup_session().post(
             url,
