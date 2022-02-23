@@ -32,9 +32,13 @@ def _trigger_client_gateway_flush() -> None:
         logger.error("CGW_FLUSH_TOKEN is not set. Skipping hook call")
         return
 
-    url = urljoin(cgw_url, f"/v1/flush/{cgw_flush_token}")
+    url = urljoin(cgw_url, "/v2/flush")
     try:
-        post = setup_session().post(url, json={"invalidate": "Chains"})
+        post = setup_session().post(
+            url,
+            json={"invalidate": "Chains"},
+            headers={"Authorization": f"Basic {cgw_flush_token}"},
+        )
         post.raise_for_status()
     except Exception as error:
         logger.error(error)

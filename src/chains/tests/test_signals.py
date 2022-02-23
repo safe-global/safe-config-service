@@ -14,26 +14,38 @@ class ChainNetworkHookTestCase(TestCase):
     def test_on_chain_update_hook_200(self) -> None:
         responses.add(
             responses.POST,
-            "http://127.0.0.1/v1/flush/example-token",
+            "http://127.0.0.1/v2/flush",
             status=200,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher({"invalidate": "Chains"}),
+            ],
         )
 
         ChainFactory.create()
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
-            responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
+            responses.calls[0].request.headers.get("Authorization")
+            == "Basic example-token"
         )
 
     @responses.activate
     def test_on_chain_update_hook_400(self) -> None:
         responses.add(
             responses.POST,
-            "http://127.0.0.1/v1/flush/example-token",
+            "http://127.0.0.1/v2/flush",
             status=400,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher({"invalidate": "Chains"}),
+            ],
         )
 
         ChainFactory.create()
@@ -44,9 +56,14 @@ class ChainNetworkHookTestCase(TestCase):
     def test_on_chain_update_hook_500(self) -> None:
         responses.add(
             responses.POST,
-            "http://127.0.0.1/v1/flush/example-token",
+            "http://127.0.0.1/v2/flush",
             status=500,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher({"invalidate": "Chains"}),
+            ],
         )
 
         ChainFactory.create()
@@ -103,17 +120,24 @@ class FeatureHookTestCase(TestCase):
     def test_on_feature_create_hook_call(self) -> None:
         responses.add(
             responses.POST,
-            "http://127.0.0.1/v1/flush/example-token",
+            "http://127.0.0.1/v2/flush",
             status=200,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher({"invalidate": "Chains"}),
+            ],
         )
 
         Feature(key="Test Feature").save()
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
-            responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
+            responses.calls[0].request.headers.get("Authorization")
+            == "Basic example-token"
         )
 
     @responses.activate
@@ -147,17 +171,24 @@ class WalletHookTestCase(TestCase):
     def test_on_wallet_create_hook_call(self) -> None:
         responses.add(
             responses.POST,
-            "http://127.0.0.1/v1/flush/example-token",
+            "http://127.0.0.1/v2/flush",
             status=200,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher({"invalidate": "Chains"}),
+            ],
         )
 
         Wallet(key="Test Wallet").save()
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
-            responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
+            responses.calls[0].request.headers.get("Authorization")
+            == "Basic example-token"
         )
 
     @responses.activate
@@ -196,17 +227,24 @@ class GasPriceHookTestCase(TestCase):
     def test_on_gas_price_create_hook_call(self) -> None:
         responses.add(
             responses.POST,
-            "http://127.0.0.1/v1/flush/example-token",
+            "http://127.0.0.1/v2/flush",
             status=200,
-            match=[responses.matchers.json_params_matcher({"invalidate": "Chains"})],
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher({"invalidate": "Chains"}),
+            ],
         )
 
         GasPriceFactory.create(chain=self.chain)
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
-            responses.calls[0].request.url == "http://127.0.0.1/v1/flush/example-token"
+            responses.calls[0].request.headers.get("Authorization")
+            == "Basic example-token"
         )
 
     @responses.activate
