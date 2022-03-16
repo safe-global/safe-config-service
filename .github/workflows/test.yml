@@ -170,7 +170,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Deploy Staging
-      if: github.ref == 'refs/heads/main'
       run: bash scripts/autodeploy.sh
       env:
         AUTODEPLOY_URL: ${{ secrets.AUTODEPLOY_URL }}
