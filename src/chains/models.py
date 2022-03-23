@@ -36,14 +36,14 @@ def validate_native_currency_size(image: Union[str, IO[bytes]]) -> None:
 def validate_tx_service_url(url: str) -> None:
     result = urlparse(url)
     if not all(
-        [
+        (
             result.scheme
             in (
                 "http",
                 "https",
             ),
             result.netloc,
-        ]
+        )
     ):
         raise ValidationError(f"{url} is not a valid url")
 

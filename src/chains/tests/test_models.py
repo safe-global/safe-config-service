@@ -181,6 +181,7 @@ class ChainTransactionServiceUrlValidationTestCase(TestCase):
         param_list = [
             "http://tx-service",
             "https://tx-service",
+            "https://tx-service:8000",
             "https://safe-transaction.mainnet.gnosis.io",
             "http://mainnet-safe-transaction-web.safe.svc.cluster.local",
         ]
