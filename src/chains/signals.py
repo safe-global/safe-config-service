@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-import clients.safeclientgateway
+import clients.safe_client_gateway
 
 from .models import Chain, Feature, GasPrice, Wallet
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def _flush_cgw_chains() -> None:
-    clients.safeclientgateway.flush(
+    clients.safe_client_gateway.flush(
         cgw_url=settings.CGW_URL,
         cgw_flush_token=settings.CGW_FLUSH_TOKEN,
         json={"invalidate": "Chains"},
