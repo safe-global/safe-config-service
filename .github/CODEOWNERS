@@ -2,4 +2,4 @@
 # the repo. Unless a later match takes precedence,
 * @gnosis/safe-services
 
-/src/safe_apps @mikheevm
+/src/safe_apps @mikheevm @gnosis/safe-services
