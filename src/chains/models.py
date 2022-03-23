@@ -1,6 +1,7 @@
 import os
 import re
 from typing import IO, Union
+from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
@@ -30,6 +31,21 @@ def validate_native_currency_size(image: Union[str, IO[bytes]]) -> None:
     image_width, image_height = get_image_dimensions(image)
     if image_width > 512 or image_height > 512:
         raise ValidationError("Image width and height need to be at most 512 pixels")
+
+
+def validate_tx_service_url(url: str) -> None:
+    result = urlparse(url)
+    if not all(
+        [
+            result.scheme
+            in (
+                "http",
+                "https",
+            ),
+            result.netloc,
+        ]
+    ):
+        raise ValidationError(f"{url} is not a valid url")
 
 
 class Chain(models.Model):
@@ -74,8 +90,12 @@ class Chain(models.Model):
         upload_to=native_currency_path,
         max_length=255,
     )
-    transaction_service_uri = models.URLField()
-    vpc_transaction_service_uri = models.URLField()
+    transaction_service_uri = models.CharField(
+        max_length=255, validators=[validate_tx_service_url]
+    )
+    vpc_transaction_service_uri = models.CharField(
+        max_length=255, validators=[validate_tx_service_url]
+    )
     theme_text_color = models.CharField(
         validators=[color_validator],
         max_length=9,
