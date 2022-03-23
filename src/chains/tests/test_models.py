@@ -159,6 +159,42 @@ class ChainEnsRegistryAddressValidationTestCase(TransactionTestCase):
                 chain.full_clean()
 
 
+class ChainTransactionServiceUrlValidationTestCase(TestCase):
+    def test_invalid_urls(self) -> None:
+        param_list = [
+            "foo://bar",
+            "foo",
+            "://",
+        ]
+        for invalid_url in param_list:
+            with self.subTest(msg=f"{invalid_url} is not a valid url"):
+                with self.assertRaises(ValidationError):
+                    chain = ChainFactory.create(transaction_service_uri=invalid_url)
+                    chain.full_clean()
+
+            with self.subTest(msg=f"{invalid_url} is not a valid url"):
+                with self.assertRaises(ValidationError):
+                    chain = ChainFactory.create(vpc_transaction_service_uri=invalid_url)
+                    chain.full_clean()
+
+    def test_valid_urls(self) -> None:
+        param_list = [
+            "http://tx-service",
+            "https://tx-service",
+            "https://tx-service:8000",
+            "https://safe-transaction.mainnet.gnosis.io",
+            "http://mainnet-safe-transaction-web.safe.svc.cluster.local",
+        ]
+        for valid_url in param_list:
+            with self.subTest(msg=f"Valid url {valid_url} should not throw"):
+                chain = ChainFactory.create(transaction_service_uri=valid_url)
+                chain.full_clean()
+
+            with self.subTest(msg=f"Valid url {valid_url} should not throw"):
+                chain = ChainFactory.create(vpc_transaction_service_uri=valid_url)
+                chain.full_clean()
+
+
 class ChainGweiFactorTestCase(TestCase):
     @staticmethod
     def test_ether_to_gwei_conversion_rate_valid() -> None:
