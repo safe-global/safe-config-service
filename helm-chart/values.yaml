@@ -1,0 +1,85 @@
+# Default values for safe-config-service-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Chart name override
+nameOverride: ""
+# -- Chart full name override
+fullnameOverride: ""
+
+# -- Number of deployment replicas
+replicaCount: 1
+
+image:
+  # -- Image repository
+  repository: us-central1-docker.pkg.dev/clabs-gnosis-safe/charts/safe-config-service
+  # -- Image pullpolicy
+  pullPolicy: IfNotPresent
+  # -- Image tag
+  tag: 7563d11ebf253aa251177eb010e14f23e03ac73e
+
+# -- Image pull secrets
+imagePullSecrets: []
+
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- Custom pod annotations
+podAnnotations: {}
+
+# -- Custom pod security context
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# -- Custom container security context
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  # -- Kubernetes Service Type
+  type: ClusterIP
+  # -- Kubernetes Service Type
+  port: 80
+
+# -- Container resources
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# -- Kubernetes node selector
+nodeSelector: {}
+
+# -- Kubernetes tolerations
+tolerations: []
+
+# -- Kubernetes pod affinity
+affinity: {}
+
+global:
+  postgresql:
+    # -- Postgresql dependency chart database for storing data
+    postgresqlDatabase: ""
+    # -- Postgresql dependency chart password
+    postgresqlPassword: ""
+
+safeConfigService:
+  # -- Secret key for safe-config-service
+  secretKey: ""
