@@ -48,14 +48,31 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+          {{- $svc := include "safe-config-service-helm.fullname" . -}}
+          {{- with .Values.livenessProbe }}
           livenessProbe:
+            {{- toYaml . | nindent 12 }}
+            {{- if not .httpGet }}
             httpGet:
               path: /
               port: http
+              httpHeaders:
+              - name: Host
+                value: {{ $svc }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
           readinessProbe:
+            {{- toYaml . | nindent 12 }}
+            {{- if not .httpGet }}
             httpGet:
               path: /
               port: http
+              httpHeaders:
+              - name: Host
+                value: {{ $svc }}
+            {{- end }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
