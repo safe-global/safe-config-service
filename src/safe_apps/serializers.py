@@ -1,8 +1,11 @@
+from typing import Any
+
+from django.conf import settings
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Client, Provider, SafeApp
+from .models import Client, Provider, SafeApp, Tag
 
 
 class ProviderSerializer(serializers.ModelSerializer[Provider]):
@@ -30,10 +33,16 @@ class NoRestrictionsAccessControlPolicySerializer(serializers.Serializer[SafeApp
     )
 
 
+class TagSerializer(serializers.Serializer[Tag]):
+    def to_representation(self, instance: Tag) -> str:
+        return instance.name
+
+
 class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
     id = serializers.IntegerField(source="app_id")
     provider = ProviderSerializer()
     access_control = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField()
 
     class Meta:
         model = SafeApp
@@ -46,6 +55,7 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
             "chain_ids",
             "provider",
             "access_control",
+            "tags",
         ]
 
     @swagger_serializer_method(serializer_or_field=DomainAllowlistAccessControlPolicySerializer)  # type: ignore[misc]
@@ -56,3 +66,15 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
         ):
             return DomainAllowlistAccessControlPolicySerializer(instance).data
         return NoRestrictionsAccessControlPolicySerializer(instance).data
+
+    @swagger_serializer_method(serializer_or_field=TagSerializer)  # type: ignore[misc]
+    def get_tags(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
+        queryset = instance.tag_set.all().order_by("name")
+        return TagSerializer(queryset, many=True).data
+
+    def to_representation(self, instance: SafeApp) -> Any:
+        result = super().to_representation(instance)
+        if not settings.SAFE_APPS_TAGS_FEATURE_ENABLED:
+            result.pop("tags", None)
+
+        return result

@@ -1,9 +1,10 @@
 from typing import Any
 
+from django.conf import settings
 from django.contrib import admin
-from django.db.models import QuerySet
+from django.db.models import Model, QuerySet
 
-from .models import Client, Provider, SafeApp
+from .models import Client, Provider, SafeApp, Tag
 
 
 class ChainIdFilter(admin.SimpleListFilter):
@@ -23,12 +24,24 @@ class ChainIdFilter(admin.SimpleListFilter):
         return queryset
 
 
+class TagInline(admin.TabularInline[Model]):
+    model = Tag.safe_apps.through
+    extra = 0
+    verbose_name_plural = "Tags set for this Safe App"
+
+
 @admin.register(SafeApp)
 class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
     list_display = ("name", "url", "chain_ids", "visible")
     list_filter = (ChainIdFilter,)
     search_fields = ("name", "url")
     ordering = ("name",)
+    inlines = []
+
+    if settings.SAFE_APPS_TAGS_FEATURE_ENABLED:
+        inlines.append(
+            TagInline,
+        )
 
 
 @admin.register(Provider)
@@ -43,3 +56,12 @@ class ClientAdmin(admin.ModelAdmin[Client]):
     list_display = ("url",)
     search_fields = ("url",)
     ordering = ("url",)
+
+
+if settings.SAFE_APPS_TAGS_FEATURE_ENABLED:
+
+    @admin.register(Tag)
+    class TagAdmin(admin.ModelAdmin[Tag]):
+        list_display = ("name",)
+        search_fields = ("name",)
+        ordering = ("name",)

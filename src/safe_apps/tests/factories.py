@@ -1,7 +1,7 @@
 import factory
 from factory.django import DjangoModelFactory
 
-from ..models import Client, Provider, SafeApp
+from ..models import Client, Provider, SafeApp, Tag
 
 
 class ProviderFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -17,6 +17,24 @@ class ClientFactory(DjangoModelFactory):  # type: ignore[misc]
         model = Client
 
     url = factory.Faker("url")
+
+
+class TagFactory(DjangoModelFactory):  # type: ignore[misc]
+    class Meta:
+        model = Tag
+
+    name = factory.Faker("word")
+
+    @factory.post_generation
+    def safe_apps(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of clients was passed in, use them
+            for safe_app in extracted:
+                self.safe_apps.add(safe_app)
 
 
 class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]

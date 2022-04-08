@@ -1,9 +1,10 @@
 from typing import Any, Dict, List
 
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from .factories import ClientFactory, ProviderFactory, SafeAppFactory
+from .factories import ClientFactory, ProviderFactory, SafeAppFactory, TagFactory
 
 
 class EmptySafeAppsListViewTests(APITestCase):
@@ -16,6 +17,7 @@ class EmptySafeAppsListViewTests(APITestCase):
         self.assertEqual(response.json(), [])
 
 
+@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class JsonPayloadFormatViewTests(APITestCase):
     def test_json_payload_format(self) -> None:
         safe_app = SafeAppFactory.create()
@@ -41,7 +43,34 @@ class JsonPayloadFormatViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.json(), json_response)
 
+    @override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=True)
+    def test_tags_payload(self) -> None:
+        safe_app = SafeAppFactory.create()
+        tag = TagFactory.create(safe_apps=(safe_app,))
+        json_response = [
+            {
+                "id": safe_app.app_id,
+                "url": safe_app.url,
+                "name": safe_app.name,
+                "iconUrl": safe_app.icon_url,
+                "description": safe_app.description,
+                "chainIds": safe_app.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": "NO_RESTRICTIONS",
+                },
+                "tags": [tag.name],
+            }
+        ]
+        url = reverse("v1:safe-apps:list")
 
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(response.json(), json_response)
+
+
+@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class FilterSafeAppListViewTests(APITestCase):
     def test_all_safes_returned(self) -> None:
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
@@ -359,6 +388,7 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
+@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class ProviderInfoTests(APITestCase):
     def test_provider_returned_in_response(self) -> None:
         provider = ProviderFactory.create()
@@ -410,6 +440,7 @@ class ProviderInfoTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
+@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class CacheSafeAppTests(APITestCase):
     def test_should_cache_response(self) -> None:
         safe_app_1 = SafeAppFactory.create()
@@ -440,6 +471,7 @@ class CacheSafeAppTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
+@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class SafeAppsVisibilityTests(APITestCase):
     def test_visible_safe_app_is_shown(self) -> None:
         visible_safe_app = SafeAppFactory.create(visible=True)
@@ -475,6 +507,7 @@ class SafeAppsVisibilityTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
+@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class ClientTests(APITestCase):
     def test_client_with_no_exclusive_apps(self) -> None:
         SafeAppFactory.create()
@@ -504,3 +537,28 @@ class ClientTests(APITestCase):
             "DOMAIN_ALLOWLIST",
         )
         self.assertEqual(json_response[0]["accessControl"]["value"], [client_1.url])
+
+
+@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=True)
+class TagsTests(APITestCase):
+    def test_empty_tags(self) -> None:
+        SafeAppFactory.create()
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json_response[0]["tags"], [])
+
+    def test_multiple_tags(self) -> None:
+        safe_app = SafeAppFactory.create()
+        tag_1 = TagFactory.create(name="Z", safe_apps=(safe_app,))
+        tag_2 = TagFactory.create(name="A", safe_apps=(safe_app,))
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json_response[0]["tags"], [tag_2.name, tag_1.name])
