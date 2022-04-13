@@ -51,6 +51,26 @@ service:
   # -- Kubernetes Service Type
   port: 80
 
+# -- Liveness probe configuration
+livenessProbe:
+  timeoutSeconds: 30
+#  httpGet:
+#    path: /
+#    port: http
+#    httpHeaders:
+#    - name: Host
+#      value: safe-config-service
+
+# -- Readiness probe configuration
+readinessProbe:
+  timeoutSeconds: 30
+#  httpGet:
+#    path: /
+#    port: http
+#    httpHeaders:
+#    - name: Host
+#      value: safe-config-service
+
 # -- Container resources
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

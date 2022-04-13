@@ -26,10 +26,12 @@ The chart is deployed to Artifact Repository through Cloud Build (using [../clou
 | image.repository | string | `"us-central1-docker.pkg.dev/clabs-gnosis-safe/charts/safe-config-service"` | Image repository |
 | image.tag | string | `"7563d11ebf253aa251177eb010e14f23e03ac73e"` | Image tag |
 | imagePullSecrets | list | `[]` | Image pull secrets |
+| livenessProbe | object | `{"timeoutSeconds":30}` | Liveness probe configuration |
 | nameOverride | string | `""` | Chart name override |
 | nodeSelector | object | `{}` | Kubernetes node selector |
 | podAnnotations | object | `{}` | Custom pod annotations |
 | podSecurityContext | object | `{}` | Custom pod security context |
+| readinessProbe | object | `{"timeoutSeconds":30}` | Readiness probe configuration |
 | replicaCount | int | `1` | Number of deployment replicas |
 | resources | object | `{}` | Container resources |
 | safeConfigService.secretKey | string | `""` | Secret key for safe-config-service |
