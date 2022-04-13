@@ -8,7 +8,7 @@ from django.dispatch import receiver
 
 import clients.safe_client_gateway
 
-from .models import Provider, SafeApp
+from .models import Provider, SafeApp, Tag
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,8 @@ def _flush_cgw_safe_apps() -> None:
 @receiver(post_delete, sender=SafeApp)
 @receiver(post_save, sender=Provider)
 @receiver(post_delete, sender=Provider)
+@receiver(post_save, sender=Tag)
+@receiver(post_delete, sender=Tag)
 def on_safe_app_update(sender: SafeApp, **kwargs: Any) -> None:
     logger.info("Clearing safe-apps cache")
     caches["safe-apps"].clear()
