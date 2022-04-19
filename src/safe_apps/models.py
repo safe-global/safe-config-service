@@ -62,3 +62,11 @@ class SafeApp(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} | {self.url} | chain_ids={self.chain_ids}"
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=255)
+    safe_apps = models.ManyToManyField(SafeApp, blank=True)
+
+    def __str__(self) -> str:
+        return f"Tag: {self.name}"
