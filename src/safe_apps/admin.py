@@ -1,6 +1,5 @@
 from typing import Any
 
-from django.conf import settings
 from django.contrib import admin
 from django.db.models import Model, QuerySet
 
@@ -36,12 +35,9 @@ class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
     list_filter = (ChainIdFilter,)
     search_fields = ("name", "url")
     ordering = ("name",)
-    inlines = []
-
-    if settings.SAFE_APPS_TAGS_FEATURE_ENABLED:
-        inlines.append(
-            TagInline,
-        )
+    inlines = [
+        TagInline,
+    ]
 
 
 @admin.register(Provider)
@@ -58,10 +54,8 @@ class ClientAdmin(admin.ModelAdmin[Client]):
     ordering = ("url",)
 
 
-if settings.SAFE_APPS_TAGS_FEATURE_ENABLED:
-
-    @admin.register(Tag)
-    class TagAdmin(admin.ModelAdmin[Tag]):
-        list_display = ("name",)
-        search_fields = ("name",)
-        ordering = ("name",)
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin[Tag]):
+    list_display = ("name",)
+    search_fields = ("name",)
+    ordering = ("name",)
