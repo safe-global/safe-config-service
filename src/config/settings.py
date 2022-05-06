@@ -225,7 +225,3 @@ if allowed_csrf_origins:
         allowed_csrf_origins.strip()
         for allowed_csrf_origins in allowed_csrf_origins.split(",")
     ]
-
-SAFE_APPS_TAGS_FEATURE_ENABLED = bool(
-    strtobool(os.getenv("SAFE_APPS_TAGS_FEATURE_ENABLED", "false"))
-)

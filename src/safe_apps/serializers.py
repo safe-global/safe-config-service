@@ -1,6 +1,3 @@
-from typing import Any
-
-from django.conf import settings
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import ReturnDict
@@ -71,10 +68,3 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
     def get_tags(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
         queryset = instance.tag_set.all().order_by("name")
         return TagSerializer(queryset, many=True).data
-
-    def to_representation(self, instance: SafeApp) -> Any:
-        result = super().to_representation(instance)
-        if not settings.SAFE_APPS_TAGS_FEATURE_ENABLED:
-            result.pop("tags", None)
-
-        return result
