@@ -6,7 +6,7 @@ factory-boy==3.2.1
 Faker==13.7.0
 flake8==4.0.1
 isort==5.10.1
-pre-commit==2.18.1
+pre-commit==2.19.0
 pytest-django==4.5.2
 responses==0.20.0
 
