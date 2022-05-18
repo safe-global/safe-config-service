@@ -32,7 +32,7 @@ class SafeAppsListView(ListAPIView):
     _swagger_url_param = openapi.Parameter(
         "url",
         openapi.IN_QUERY,
-        description="Filter Safe Apps available from `url`",
+        description="Filter Safe Apps available from `url`. `url` needs to be an exact match",
         type=openapi.TYPE_STRING,
     )
 
