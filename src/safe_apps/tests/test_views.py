@@ -574,3 +574,31 @@ class TagsTests(APITestCase):
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json_response[0]["tags"], [tag_2.name, tag_1.name])
+
+
+class SafeAppsUrlQueryTests(APITestCase):
+    def test_query_url_match(self) -> None:
+        safe_app = SafeAppFactory.create()
+        url = reverse("v1:safe-apps:list") + f"?url={safe_app.url}"
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        # There should be a non-empty list
+        self.assertTrue(len(json_response) > 0)
+        # All items should have safe_app.url as the url
+        self.assertTrue(
+            all(map(lambda item: item["url"] == safe_app.url, json_response))
+        )
+
+    def test_query_url_no_match(self) -> None:
+        safe_app = SafeAppFactory.create(url="http://test.com")
+        query_url = safe_app.url + "/"
+        url = reverse("v1:safe-apps:list") + f"?url={query_url}"
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(len(json_response) == 0)

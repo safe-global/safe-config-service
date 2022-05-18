@@ -29,9 +29,21 @@ class SafeAppsListView(ListAPIView):
         description="Used to filter Safe Apps that are available on `clientUrl`",
         type=openapi.TYPE_STRING,
     )
+    _swagger_url_param = openapi.Parameter(
+        "url",
+        openapi.IN_QUERY,
+        description="Filter Safe Apps available from `url`. `url` needs to be an exact match",
+        type=openapi.TYPE_STRING,
+    )
 
     @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
-    @swagger_auto_schema(manual_parameters=[_swagger_chain_id_param, _swagger_client_url_param])  # type: ignore[misc]
+    @swagger_auto_schema(
+        manual_parameters=[
+            _swagger_chain_id_param,
+            _swagger_client_url_param,
+            _swagger_url_param,
+        ]
+    )  # type: ignore[misc]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Returns a collection of Safe Apps (across different chains).
@@ -51,5 +63,9 @@ class SafeAppsListView(ListAPIView):
             queryset = queryset.filter(
                 Q(exclusive_clients__url=client_url) | Q(exclusive_clients__isnull=True)
             )
+
+        url = self.request.query_params.get("url")
+        if url:
+            queryset = queryset.filter(url=url)
 
         return queryset
