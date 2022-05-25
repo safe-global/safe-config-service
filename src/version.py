@@ -1,2 +1,2 @@
 __name__ = "Safe Config Service"
-__version__ = "2.19.0"
+__version__ = "2.20.0"
