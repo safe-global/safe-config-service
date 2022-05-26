@@ -21,6 +21,7 @@ RUN set ex \
 		" \
     && apt-get update \
     && apt-get install -y --no-install-recommends $buildDeps tini \
+    && pip3 install -U --no-cache-dir wheel setuptools pip \
     && pip3 install --no-cache-dir --user -r requirements.txt \
     && apt-get purge -y --auto-remove $buildDeps \
     && rm -rf /var/lib/apt/lists/* \
