@@ -96,7 +96,7 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          pip install -U --no-cache-dir wheel setuptools
+          pip install -U wheel setuptools
           pip install -r requirements-dev.txt
       - name: Run mypy
         run: mypy --strict src/chains src/safe_apps
