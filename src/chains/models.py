@@ -28,7 +28,13 @@ def native_currency_path(instance: "Chain", filename: str) -> str:
 
 
 def validate_native_currency_size(image: Union[str, IO[bytes]]) -> None:
-    image_width, image_height = get_image_dimensions(image)
+    image_width, image_height = get_image_dimensions(
+        image
+    )  # (Optional[Int], Optional[Int])
+    if not image_width or not image_height:
+        raise ValidationError(
+            f"Could not get image dimensions. Width={image_width}, Height={image_height}"
+        )
     if image_width > 512 or image_height > 512:
         raise ValidationError("Image width and height need to be at most 512 pixels")
 

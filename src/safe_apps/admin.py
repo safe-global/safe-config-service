@@ -23,7 +23,7 @@ class ChainIdFilter(admin.SimpleListFilter):
         return queryset
 
 
-class TagInline(admin.TabularInline[Model]):
+class TagInline(admin.TabularInline[Model, Model]):
     model = Tag.safe_apps.through
     extra = 0
     verbose_name_plural = "Tags set for this Safe App"
