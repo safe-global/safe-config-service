@@ -32,6 +32,19 @@ docker compose up
 
 The service will then be available under `localhost:$NGINX_HOST_PORT`.
 
+### 3. Create an admin user
+
+The admin interface of the service is available under `http://<host>:<NGINX_HOST_PORT>/admin` but you need to have a an admin registered before you are able to access the panel.
+
+To create an admin user (assuming that the name of the `web` container is `safe-config-service-web-1`):
+
+```shell
+docker exec -it safe-config-service-web-1 /bin/bash
+python src/manage.py createsuperuser
+```
+
+And then just follow the prompts in order to create an admin user. Further users (admin or not) can be created from the admin interface itself.
+
 ## Development
 
 If you wish to develop locally without running an image for the Django service you can do the following:

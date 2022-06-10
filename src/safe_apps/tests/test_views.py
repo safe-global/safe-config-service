@@ -1,6 +1,5 @@
 from typing import Any, Dict, List
 
-from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -17,7 +16,6 @@ class EmptySafeAppsListViewTests(APITestCase):
         self.assertEqual(response.json(), [])
 
 
-@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class JsonPayloadFormatViewTests(APITestCase):
     def test_json_payload_format(self) -> None:
         safe_app = SafeAppFactory.create()
@@ -34,6 +32,7 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -43,7 +42,6 @@ class JsonPayloadFormatViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.json(), json_response)
 
-    @override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=True)
     def test_tags_payload(self) -> None:
         safe_app = SafeAppFactory.create()
         tag = TagFactory.create(safe_apps=(safe_app,))
@@ -70,7 +68,6 @@ class JsonPayloadFormatViewTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
-@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class FilterSafeAppListViewTests(APITestCase):
     def test_all_safes_returned(self) -> None:
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
@@ -86,6 +83,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
             {
                 "id": safe_app_2.app_id,
@@ -98,6 +96,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
             {
                 "id": safe_app_3.app_id,
@@ -110,6 +109,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
         ]
         url = reverse("v1:safe-apps:list")
@@ -133,6 +133,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
             {
                 "id": safe_app_2.app_id,
@@ -145,6 +146,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
             {
                 "id": safe_app_3.app_id,
@@ -157,6 +159,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId="}'
@@ -182,6 +185,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
             {
                 "id": safe_app_5.app_id,
@@ -194,6 +198,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId=1"}'
@@ -228,6 +233,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             }
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId=2&chainId=1"}'
@@ -255,6 +261,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             }
         ]
         self.assertEqual(response.status_code, 200)
@@ -280,6 +287,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
             {
                 "id": safe_app_2.app_id,
@@ -293,6 +301,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "DOMAIN_ALLOWLIST",
                     "value": [client_1.url],
                 },
+                "tags": [],
             },
         ]
         self.assertEqual(response.status_code, 200)
@@ -316,6 +325,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "DOMAIN_ALLOWLIST",
                     "value": [client_1.url],
                 },
+                "tags": [],
             }
         ]
         url = (
@@ -353,6 +363,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "DOMAIN_ALLOWLIST",
                     "value": ["safe.com"],
                 },
+                "tags": [],
             },
             {
                 "id": safe_app_3.app_id,
@@ -366,6 +377,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "DOMAIN_ALLOWLIST",
                     "value": ["safe.com", "pump.com"],
                 },
+                "tags": [],
             },
             {
                 "id": safe_app_2.app_id,
@@ -378,6 +390,7 @@ class FilterSafeAppListViewTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?clientUrl=safe.com"}'
@@ -388,7 +401,6 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
-@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class ProviderInfoTests(APITestCase):
     def test_provider_returned_in_response(self) -> None:
         provider = ProviderFactory.create()
@@ -406,6 +418,7 @@ class ProviderInfoTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -430,6 +443,7 @@ class ProviderInfoTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -440,7 +454,6 @@ class ProviderInfoTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
-@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class CacheSafeAppTests(APITestCase):
     def test_should_cache_response(self) -> None:
         safe_app_1 = SafeAppFactory.create()
@@ -457,6 +470,7 @@ class CacheSafeAppTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -471,7 +485,6 @@ class CacheSafeAppTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
-@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class SafeAppsVisibilityTests(APITestCase):
     def test_visible_safe_app_is_shown(self) -> None:
         visible_safe_app = SafeAppFactory.create(visible=True)
@@ -487,6 +500,7 @@ class SafeAppsVisibilityTests(APITestCase):
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
+                "tags": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -507,7 +521,6 @@ class SafeAppsVisibilityTests(APITestCase):
         self.assertCountEqual(response.json(), json_response)
 
 
-@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=False)
 class ClientTests(APITestCase):
     def test_client_with_no_exclusive_apps(self) -> None:
         SafeAppFactory.create()
@@ -539,7 +552,6 @@ class ClientTests(APITestCase):
         self.assertEqual(json_response[0]["accessControl"]["value"], [client_1.url])
 
 
-@override_settings(SAFE_APPS_TAGS_FEATURE_ENABLED=True)
 class TagsTests(APITestCase):
     def test_empty_tags(self) -> None:
         SafeAppFactory.create()
@@ -562,3 +574,31 @@ class TagsTests(APITestCase):
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json_response[0]["tags"], [tag_2.name, tag_1.name])
+
+
+class SafeAppsUrlQueryTests(APITestCase):
+    def test_query_url_match(self) -> None:
+        safe_app = SafeAppFactory.create()
+        url = reverse("v1:safe-apps:list") + f"?url={safe_app.url}"
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        # There should be a non-empty list
+        self.assertTrue(len(json_response) > 0)
+        # All items should have safe_app.url as the url
+        self.assertTrue(
+            all(map(lambda item: item["url"] == safe_app.url, json_response))
+        )
+
+    def test_query_url_no_match(self) -> None:
+        safe_app = SafeAppFactory.create(url="http://test.com")
+        query_url = safe_app.url + "/"
+        url = reverse("v1:safe-apps:list") + f"?url={query_url}"
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(len(json_response) == 0)
