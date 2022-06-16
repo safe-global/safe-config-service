@@ -13,7 +13,7 @@ The `safe-config-service` is a service that provides configuration information i
 
 ### 1. Configuration
 
-The environment variables are set via the `.env` file. The configuration in `.env.example` is meant to be development ready. You can copy it and adjust it to your development needs (refer to the file for the explanation about each environment variable).
+The environment variables are set via the `.env` file. The configuration in `.env.example` is meant to be used **only for development**. You can copy it and adjust it to your development needs (refer to the file for the explanation about each environment variable).
 ```shell
 cp .env.example .env
 ```
