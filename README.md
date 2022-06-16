@@ -18,7 +18,7 @@ The environment variables are set via the `.env` file. The configuration in `.en
 cp .env.example .env
 ```
 
-**Important:** It's recommended change properly passwords and another default parameters for production environment.
+**Important:** It is recommended to set sensitive fields (like passwords) and adjust other parameters for your production environment needs. The `.env.sample` configuration shouldn't be used for any production deployment.
 
 ### 2. Running the service image
 
