@@ -13,14 +13,12 @@ The `safe-config-service` is a service that provides configuration information i
 
 ### 1. Configuration
 
-The environment variables are set via the `.env` file. The configuration in `.env.example` is meant to be production ready. You can copy it and adjust it to your development needs (refer to the file for the explanation about each environment variable).
-
+The environment variables are set via the `.env` file. The configuration in `.env.example` is meant to be used **only for development**. You can copy it and adjust it to your development needs (refer to the file for the explanation about each environment variable).
 ```shell
 cp .env.example .env
 ```
 
-**Important:** Some variables are required to be set before running the application: `SECRET_KEY`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
-They can be set either locally on your environment or (as a provided example) by uncommenting these variables from the `.env` file.
+**Important:** It is recommended to set sensitive fields (like passwords) and adjust other parameters for your production environment needs. The `.env.sample` configuration shouldn't be used for any production deployment.
 
 ### 2. Running the service image
 
@@ -34,7 +32,7 @@ The service will then be available under `localhost:$NGINX_HOST_PORT`.
 
 ### 3. Create an admin user
 
-The admin interface of the service is available under `http://<host>:<NGINX_HOST_PORT>/admin` but you need to have a an admin registered before you are able to access the panel.
+The admin interface of the service is available under `http://<host>:<NGINX_HOST_PORT>/admin` but you need to have an admin registered before you are able to access the panel.
 
 To create an admin user (assuming that the name of the `web` container is `safe-config-service-web-1`):
 
