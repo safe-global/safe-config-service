@@ -51,6 +51,24 @@ service:
   # -- Kubernetes Service Type
   port: 80
 
+ingress:
+  # -- Ingress enabled
+  enabled: true
+  # -- Custom Ingress annotations
+  annotations: {}
+
+  # -- List of hosts to expose safe-config-service. See values.yaml for an example.
+  hosts: []
+    # - host: config-service.celo-safe.io
+    #   paths:
+    #     - path: /
+
+  # -- TLS secret for exposing safe-config-service with https. See values.yaml for an example.
+  tls:
+    # - secretName: chart-example-tls
+    #   hosts:
+    #      - config-service.celo-safe.io
+
 # -- Liveness probe configuration
 livenessProbe:
   timeoutSeconds: 30
