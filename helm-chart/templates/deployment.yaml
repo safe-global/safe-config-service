@@ -43,7 +43,7 @@ spec:
             - name: GUNICORN_BIND_PORT
               value: "80"
             - name: DJANGO_ALLOWED_HOSTS
-              value: {{ include "safe-config-service-helm.fullname" . }},.localhost,127.0.0.1,[::1]
+              value: {{ include "safe-config-service-helm.fullname" . }},{{ range .Values.ingress.hosts }}{{- .host }},{{- end }}.localhost,127.0.0.1,[::1]
           ports:
             - name: http
               containerPort: 80
