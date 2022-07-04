@@ -64,7 +64,7 @@ ingress:
     #     - path: /
 
   # -- TLS secret for exposing safe-config-service with https. See values.yaml for an example.
-  tls:
+  tls: []
     # - secretName: chart-example-tls
     #   hosts:
     #      - config-service.celo-safe.io
