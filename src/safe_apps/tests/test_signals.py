@@ -24,7 +24,7 @@ class SafeAppHookTestCase(TestCase):
             ],
         )
 
-        SafeApp(chain_ids=[1]).save()
+        SafeApp(app_id=1, chain_ids=[1]).save()
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
@@ -48,7 +48,7 @@ class SafeAppHookTestCase(TestCase):
             ],
         )
 
-        safe_app = SafeApp(chain_ids=[1])
+        safe_app = SafeApp(app_id=1, chain_ids=[1])
         safe_app.save()  # create
         safe_app.name = "Test app"
         safe_app.save()  # update
@@ -75,7 +75,7 @@ class SafeAppHookTestCase(TestCase):
             ],
         )
 
-        safe_app = SafeApp(chain_ids=[1])
+        safe_app = SafeApp(app_id=1, chain_ids=[1])
         safe_app.save()  # create
         safe_app.delete()  # delete
 
