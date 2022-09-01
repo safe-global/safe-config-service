@@ -1,0 +1,28 @@
+global:
+  postgresql:
+    postgresqlDatabase: database
+    postgresqlPassword: testing
+image:
+  pullPolicy: IfNotPresent
+  repository: us-central1-docker.pkg.dev/clabs-gnosis-safe/images/safe-config-service
+  tag: 13a1e7b3fe0bfac9a49eb40037272bd84fe918cc
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+  enabled: true
+  hosts:
+  - host: config-service.celo-safe.io
+    paths:
+      - path: /
+  tls:
+  - hosts:
+    - config-service.celo-safe.io
+    secretName: config-service-tls
+resources:
+  limits:
+    cpu: 700m
+  requests:
+    cpu: 700m
+safeConfigService:
+  secretKey: testing
