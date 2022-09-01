@@ -1,6 +1,5 @@
 apiVersion: apps/v1
 kind: Deployment
-test: fail
 metadata:
   name: {{ include "safe-config-service-helm.fullname" . }}
   labels:
