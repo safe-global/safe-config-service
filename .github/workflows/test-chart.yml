@@ -3,6 +3,12 @@ name: Lint and Test Charts
 on: 
   workflow_dispatch:
   pull_request:
+    branches:
+      - main
+    paths:
+      - 'helm-chart/**'
+      - '!helm-chart/**/README.md'
+      - '!helm-chart/**/.helmignore'
 
 jobs:
   lint-test:
