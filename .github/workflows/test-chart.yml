@@ -1,0 +1,79 @@
+name: Lint and Test Charts
+
+on: 
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'helm-chart/**'
+      - '!helm-chart/**/README.md'
+      - '!helm-chart/**/.helmignore'
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: "Checkout main branch"
+        uses: actions/checkout@v2
+        with:
+          ref: main
+          path: main
+
+      - name: "Check version is bumped"
+        run: |
+          version=$(awk -F\: '/^version:/ {print $(NF)}' helm-chart/Chart.yaml|tr -d " ")
+          
+          version_main=$(awk -F\: '/^version:/ {print $(NF)}' main/helm-chart/Chart.yaml|tr -d " ")
+          
+          # Calculate valid next versions
+          major_main=$(echo ${version_main}| awk -F. '{print $1}')
+          major_main_next=$(echo ${major_main} + 1 | bc).0.0
+          minor_main=$(echo ${version_main}| awk -F. '{print $2}')
+          minor_main_next=${major_main}.$(echo ${minor_main} + 1 | bc).0
+          patch_main=$(echo ${version_main}| awk -F. '{print $3}')
+          patch_main_next=${major_main}.${minor_main}.$(echo ${patch_main} + 1 | bc)
+          
+          # Chart version in current PR must be one of the valid versions
+          set +e
+          echo "${major_main_next},${minor_main_next},${patch_main_next}" | tr "," "\n" | grep -w "${version}" > /dev/null
+          rc=$?
+          set -e
+
+          if [ ${rc} -ne 0 ]; then
+            echo "Version specified in helm-chart/Chart.yaml is ${version}, which does not follow semantic versioning."
+            echo "It must be a valid next semantic version. For this case, valid semantic versions are:"
+            echo ""
+            echo "- Next valid patch: ${patch_main_next}"
+            echo "- Next valid minor: ${minor_main_next}"
+            echo "- Next valid major: ${major_main_next}"
+            exit 1
+          fi
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.9.2
+
+      - name: Build dependencies
+        run: |
+          helm dep update ./helm-chart
+
+      - name: Lint
+        run: |
+          helm lint ./helm-chart --strict
+
+      - name: Template
+        run: |
+          helm template ./helm-chart -f helm-chart/values-test.yaml
+
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1.3.0
+
+      - name: Check k8s objects conform with API 
+        run: helm template ./helm-chart -f helm-chart/values-test.yaml --validate
