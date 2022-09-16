@@ -7,7 +7,7 @@ ENV PYTHONUSERBASE=/python-deps
 ENV PATH="${PATH}:${PYTHONUSERBASE}/bin"
 
 WORKDIR /app
-COPY . .
+COPY requirements.txt ./
 
 RUN set ex \
     && buildDeps=" \
@@ -27,4 +27,6 @@ RUN set ex \
     && rm -rf /var/lib/apt/lists/* \
     && chmod +x /usr/bin/tini
 
+COPY . .
+RUN DEFAULT_FILE_STORAGE=django.core.files.storage.FileSystemStorage python src/manage.py collectstatic --noinput
 ENTRYPOINT ["/usr/bin/tini", "--", "./docker-entrypoint.sh"]
