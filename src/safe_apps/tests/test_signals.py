@@ -27,6 +27,7 @@ class SafeAppHookTestCase(TestCase):
         SafeApp(app_id=1, chain_ids=[1]).save()
 
         assert len(responses.calls) == 1
+        assert isinstance(responses.calls[0], responses.Call)
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -54,6 +55,7 @@ class SafeAppHookTestCase(TestCase):
         safe_app.save()  # update
 
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
         assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[1].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -80,6 +82,7 @@ class SafeAppHookTestCase(TestCase):
         safe_app.delete()  # delete
 
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
         assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[1].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -110,6 +113,7 @@ class ProviderHookTestCase(TestCase):
         ProviderFactory.create()
 
         assert len(responses.calls) == 1
+        assert isinstance(responses.calls[0], responses.Call)
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -136,6 +140,7 @@ class ProviderHookTestCase(TestCase):
         provider.save()  # update
 
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
         assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[1].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -161,6 +166,7 @@ class ProviderHookTestCase(TestCase):
         provider.delete()  # delete
 
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
         assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[1].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -191,6 +197,7 @@ class TagHookTestCase(TestCase):
         Tag().save()  # create
 
         assert len(responses.calls) == 1
+        assert isinstance(responses.calls[0], responses.Call)
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -218,6 +225,7 @@ class TagHookTestCase(TestCase):
         tag.save()  # update
 
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
         assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[1].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -244,6 +252,7 @@ class TagHookTestCase(TestCase):
         tag.delete()  # delete
 
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
         assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[1].request.url == "http://127.0.0.1/v2/flush"
         assert (
