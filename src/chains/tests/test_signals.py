@@ -27,6 +27,7 @@ class ChainNetworkHookTestCase(TestCase):
         ChainFactory.create()
 
         assert len(responses.calls) == 1
+        assert isinstance(responses.calls[0], responses.Call)
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -133,6 +134,7 @@ class FeatureHookTestCase(TestCase):
         Feature(key="Test Feature").save()
 
         assert len(responses.calls) == 1
+        assert isinstance(responses.calls[0], responses.Call)
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -184,6 +186,7 @@ class WalletHookTestCase(TestCase):
         Wallet(key="Test Wallet").save()
 
         assert len(responses.calls) == 1
+        assert isinstance(responses.calls[0], responses.Call)
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
@@ -240,6 +243,7 @@ class GasPriceHookTestCase(TestCase):
         GasPriceFactory.create(chain=self.chain)
 
         assert len(responses.calls) == 1
+        assert isinstance(responses.calls[0], responses.Call)
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
