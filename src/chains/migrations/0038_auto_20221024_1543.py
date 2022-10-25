@@ -5,9 +5,10 @@ from django.contrib.auth.models import Group, Permission
 
 
 def create_support_group(apps, schema_editor) -> None:
-    new_group = Group.objects.get_or_create(name="support")
-    permission = Permission.objects.get(codename="change_chain")
-    new_group.permissions.add(permission)
+    support_group = Group.objects.get_or_create(name="support")
+    permission = Permission.objects.filter(codename="change_chain")
+    if permission:
+        support_group.permissions.add(permission)
 
 
 class Migration(migrations.Migration):
