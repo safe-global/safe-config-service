@@ -38,6 +38,13 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
     )
     inlines = [FeatureInline, GasPriceInline, WalletInline]
 
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.groups.filter(name="support"):
+            readonly_fields = [f.name for f in self.model._meta.fields]
+            readonly_fields.remove("warning")
+            return readonly_fields
+        return ()
+
 
 @admin.register(GasPrice)
 class GasPriceAdmin(admin.ModelAdmin[GasPrice]):

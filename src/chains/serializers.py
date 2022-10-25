@@ -118,6 +118,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     ens_registry_address = EthereumAddressField()
     disabled_wallets = serializers.SerializerMethodField()
     features = serializers.SerializerMethodField()
+    warning = serializers.CharField()
 
     class Meta:
         model = Chain
@@ -140,6 +141,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "recommended_master_copy_version",
             "disabled_wallets",
             "features",
+            "warning",
         ]
 
     @staticmethod

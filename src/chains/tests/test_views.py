@@ -80,6 +80,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
                     "disabledWallets": [],
                     "features": [],
+                    "warning": None,
                 }
             ],
         }
@@ -195,6 +196,7 @@ class ChainDetailViewTests(APITestCase):
             "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
             "disabledWallets": [],
             "features": [],
+            "warning": None,
         }
 
         response = self.client.get(path=url, data=None, format="json")
