@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db.models import Model
+from django.http import HttpRequest
 
 from .models import Chain, Feature, GasPrice, Wallet
 
@@ -38,7 +39,7 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
     )
     inlines = [FeatureInline, GasPriceInline, WalletInline]
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request: HttpRequest, obj=None):
         if request.user.groups.filter(name="support"):
             readonly_fields = [f.name for f in self.model._meta.fields]
             readonly_fields.remove("warning")
