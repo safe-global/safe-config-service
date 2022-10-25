@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from django.contrib import admin
 from django.db.models import Model
 from django.http import HttpRequest
@@ -39,12 +41,14 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
     )
     inlines = [FeatureInline, GasPriceInline, WalletInline]
 
-    def get_readonly_fields(self, request: HttpRequest, obj=None):
-        if request.user.groups.filter(name="support"):
+    def get_readonly_fields(
+        self, request: HttpRequest, obj: Optional[Chain] = None
+    ) -> List[str]:
+        if request.user.groups.filter(name="support"):  # type: ignore
             readonly_fields = [f.name for f in self.model._meta.fields]
             readonly_fields.remove("warning")
             return readonly_fields
-        return ()
+        return []
 
 
 @admin.register(GasPrice)
