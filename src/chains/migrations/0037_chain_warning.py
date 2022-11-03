@@ -36,5 +36,11 @@ class Migration(migrations.Migration):
             name="warning",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
+        migrations.AlterModelOptions(
+            name="chain",
+            options={
+                "permissions": [("change_only_warning", "Can change only warning")]
+            },
+        ),
         migrations.RunPython(create_support_group, migrations.RunPython.noop),
     ]
