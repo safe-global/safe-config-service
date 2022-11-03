@@ -141,7 +141,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: gnosispm/safe-config-service:staging
+          tags: safeglobal/safe-config-service:staging
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
       - # Temp fix
@@ -182,8 +182,8 @@ jobs:
           context: .
           push: true
           tags: |
-            gnosispm/safe-config-service:${{ github.event.release.tag_name }}
-            gnosispm/safe-config-service:latest
+            safeglobal/safe-config-service:${{ github.event.release.tag_name }}
+            safeglobal/safe-config-service:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
       - # Temp fix
