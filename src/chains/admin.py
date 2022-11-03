@@ -44,7 +44,10 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
     def get_readonly_fields(
         self, request: HttpRequest, obj: Optional[Chain] = None
     ) -> List[str]:
-        if request.user.groups.filter(name="support"):  # type: ignore
+        if (
+            request.user.has_perm("chains.change_only_warning")
+            and not request.user.is_superuser
+        ):
             readonly_fields = [f.name for f in self.model._meta.fields]
             readonly_fields.remove("warning")
             return readonly_fields

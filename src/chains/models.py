@@ -130,6 +130,9 @@ class Chain(models.Model):
     def __str__(self) -> str:
         return f"{self.name} | chain_id={self.id}"
 
+    class Meta:
+        permissions = [("change_only_warning", "Can change only warning")]
+
 
 class GasPrice(models.Model):
     chain = models.ForeignKey(Chain, on_delete=models.CASCADE)
