@@ -267,6 +267,16 @@ class FilterSafeAppListViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.json(), json_response)
 
+    def test_apps_returned_on_null_client_url(self) -> None:
+        url = reverse("v1:safe-apps:list") + "?clientUrl=\0"
+        response = self.client.get(path=url, data=None, format="json")
+        self.assertEqual(response.status_code, 200)
+
+    def test_apps_returned_on_null_url(self) -> None:
+        url = reverse("v1:safe-apps:list") + "?url=\0"
+        response = self.client.get(path=url, data=None, format="json")
+        self.assertEqual(response.status_code, 200)
+
     def test_apps_returned_on_empty_client_url(self) -> None:
         client_1 = ClientFactory.create(url="safe.com")
         safe_app_1 = SafeAppFactory.create()
