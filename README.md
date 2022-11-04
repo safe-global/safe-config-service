@@ -76,15 +76,8 @@ pytest src
 being pushed. You can refer to the documentation
 of these tools to check how to integrate them with your editor/IDE.
 
-```shell
-isort --profile black src # sorts imports according to the isort spec with a profile compatible with Black
-black src # formats the files in the src folder using Black
-flake8 src # runs flake8 Linter in the src folder
-```
-
-There's also a pre-commit hook that you can install locally via `pre-commit` so that it formats the files changed on each commit automatically:
+You must configure `pre-commit` so the project format and linting are checked before every commit.
 
 ```shell
-pre-commit install # installs commit hook under .git/hooks/pre-commit
-git commit # Initially this can take a couple minutes to setup the environment (which will be reused in following commits)
+pre-commit install -f # installs commit hook under .git/hooks/pre-commit
 ```
