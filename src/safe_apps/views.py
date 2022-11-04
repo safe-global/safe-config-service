@@ -59,13 +59,13 @@ class SafeAppsListView(ListAPIView):
             queryset = queryset.filter(chain_ids__contains=[chain_id])
 
         client_url = self.request.query_params.get("clientUrl")
-        if client_url:
+        if client_url and "\0" not in client_url:
             queryset = queryset.filter(
                 Q(exclusive_clients__url=client_url) | Q(exclusive_clients__isnull=True)
             )
 
         url = self.request.query_params.get("url")
-        if url:
+        if url and "\0" not in url:
             queryset = queryset.filter(url=url)
 
         return queryset
