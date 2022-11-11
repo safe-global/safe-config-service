@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="chain",
             name="warning",
-            field=models.CharField(blank=True, max_length=255, null=True),
+            field=models.TextField(blank=True, max_length=511, null=True),
         ),
         migrations.AlterModelOptions(
             name="chain",

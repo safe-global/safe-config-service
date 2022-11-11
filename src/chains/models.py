@@ -119,7 +119,7 @@ class Chain(models.Model):
     recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
-    warning = models.CharField(max_length=255, blank=True, null=True)
+    warning = models.TextField(max_length=511, blank=True, null=True)
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:
         all_wallets = Wallet.objects.all()

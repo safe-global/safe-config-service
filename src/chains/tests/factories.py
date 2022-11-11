@@ -43,6 +43,7 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     ens_registry_address = factory.LazyAttribute(
         lambda o: web3.Account.create().address
     )
+    warning = factory.Faker("pystr", max_chars=511)
     recommended_master_copy_version = "1.3.0"
 
 
