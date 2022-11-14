@@ -30,14 +30,14 @@ jobs:
           image-ref: "${{ env.CONTAINER }}:${{ github.sha}}"
           ignore-unfixed: true
           vuln-type: "os,library"
-          severity: "CRITICAL,HIGH"
+          severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
           format: "sarif"
           output: "trivy-results.sarif"
-          security-checks: "vuln,config"
-          timeout: 10m0s
+          exit-code: 1
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v1
+        if: always()
         with:
           sarif_file: "trivy-results.sarif"
 
