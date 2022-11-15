@@ -8,15 +8,20 @@ on:
       - 'feat/celo'
 env:
   REGISTRY: us-west1-docker.pkg.dev/devopsre/clabs-public-images
-  CONTAINER: safe-config-service
+  CONTAINER: safe-config-service-test-patrick
+  TAG: patrick-test
 
 jobs:
   Build-Push-Docker:
     runs-on: ubuntu-latest
+    env:
+      AKEYLESS_JWT_ACCESS_ID: p-kf9vjzruht6l
+      AKEYLESS_API_GATEWAY: https://api.gateway.akeyless.celo-networks-dev.org
     permissions: # Must change the job token permissions to use JWT auth
       id-token: write
       contents: read
       security-events: write
+
     steps:
       - name: 'Checkout'
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
@@ -41,6 +46,16 @@ jobs:
         with:
           sarif_file: "trivy-results.sarif"
 
+
+      - name: Fetch secrets from AKeyless
+        id: fetch-secrets
+        uses: docker://us-docker.pkg.dev/clabs-secrets-and-permissions/public-images/akeyless-actions:latest
+        with:
+          access-id: ${{ env.AKEYLESS_JWT_ACCESS_ID }}
+          api-url: ${{ env.AKEYLESS_API_GATEWAY }}
+          # we use a JSON string because Github actions don't support dictionaries as inputs
+          static-secrets: '{"/static-secrets/devops-circle/cosign-private-key":"SIGNING_SECRET"}'
+
       - id: auth
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@ceee102ec2387dd9e844e01b530ccd4ec87ce955'
@@ -63,5 +78,14 @@ jobs:
           push: true
           context: .
           tags: |
-             ${{ env.REGISTRY }}/${{ env.CONTAINER }}:latest-patrick-test
+             ${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ env.TAG}}
              ${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ github.sha }}
+
+      - uses: sigstore/cosign-installer@main
+
+      - name: Sign container image
+        run: |
+          cosign sign ${{ env.REGISTRY }}/${{ env.CONTAINER }}@${{ steps.docker-push-latest-patrick-test.outputs.digest }}
+
+
+
