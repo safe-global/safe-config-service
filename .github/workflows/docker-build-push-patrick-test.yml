@@ -15,8 +15,8 @@ jobs:
   Build-Push-Docker:
     runs-on: ubuntu-latest
     permissions: # Must change the job token permissions to use JWT auth
-    #  id-token: write
-    #  contents: read
+      id-token: write
+      contents: read
       security-events: write
 
     steps:
