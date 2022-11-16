@@ -23,24 +23,24 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
-      - name: Build the Docker image
-        run: docker build -t ${{ env.CONTAINER }}:${{ github.sha }} .
+#      - name: Build the Docker image
+#        run: docker build -t ${{ env.CONTAINER }}:${{ github.sha }} .
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "${{ env.CONTAINER }}:${{ github.sha}}"
-          vuln-type: "os,library"
-          severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
-          format: "sarif"
-          output: "trivy-results.sarif"
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: "trivy-results.sarif"
-
+#      - name: Run Trivy vulnerability scanner
+#        uses: aquasecurity/trivy-action@master
+#        with:
+#          image-ref: "${{ env.CONTAINER }}:${{ github.sha}}"
+#          vuln-type: "os,library"
+#          severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+#          format: "sarif"
+#          output: "trivy-results.sarif"
+#
+#      - name: Upload Trivy scan results to GitHub Security tab
+#        uses: github/codeql-action/upload-sarif@v2
+#        if: always()
+#        with:
+#          sarif_file: "trivy-results.sarif"
+#
       - id: auth
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@ceee102ec2387dd9e844e01b530ccd4ec87ce955'
@@ -75,4 +75,20 @@ jobs:
           cosign sign ${{ env.REGISTRY }}/${{ env.CONTAINER }}@${{ steps.docker-build-push.outputs.digest }}
 
 
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+#          image-ref: "${{ env.CONTAINER }}:${{ github.sha}}"
+          image-ref: "${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ github.sha}}"
+
+          vuln-type: "os,library"
+          severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
 
