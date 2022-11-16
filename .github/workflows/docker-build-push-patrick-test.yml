@@ -10,6 +10,8 @@ env:
   REGISTRY: us-west1-docker.pkg.dev/devopsre/clabs-public-images
   CONTAINER: safe-config-service-test-patrick
   TAG: patrick-test
+  SERVICE_ACCOUNT: safe-config-service-images@devopsre.iam.gserviceaccount.com
+  REPO: safe-config-service
 
 jobs:
   Build-Push-Docker:
@@ -18,18 +20,20 @@ jobs:
       id-token: write
       contents: read
       security-events: write
-
+        
     steps:
       - name: 'Checkout'
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
-#      - id: auth
-#        name: 'Authenticate to Google Cloud'
-#        uses: 'google-github-actions/auth@ceee102ec2387dd9e844e01b530ccd4ec87ce955'
-#        with:
+      - id: auth
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@ceee102ec2387dd9e844e01b530ccd4ec87ce955'
+        with:
 #          workload_identity_provider: 'projects/1094498259535/locations/global/workloadIdentityPools/gh-safe-config-service/providers/github-by-repos'
+          workload_identity_provider: 'projects/1094498259535/locations/global/workloadIdentityPools/gh-${{ env.REPO }}/providers/github-by-repos'
 #          service_account: 'safe-config-service-images@devopsre.iam.gserviceaccount.com'
-#          access_token_lifetime: '50m'
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+          access_token_lifetime: '50m'
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@877d4953d2c70a0ba7ef3290ae968eb24af233bb'
