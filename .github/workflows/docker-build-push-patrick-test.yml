@@ -11,6 +11,7 @@ env:
   CONTAINER: safe-config-service-test-patrick                                   # Container and Registry name
   TAG: patrick-test                                                             # container tag
   SERVICE_ACCOUNT: safe-config-service-images@devopsre.iam.gserviceaccount.com  # GCP service account to assume with permission to push to the registry
+  REPO: safe-config-service                                                     # Github Repository
 
 jobs:
   Build-Push-Docker:
@@ -28,7 +29,7 @@ jobs:
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d'
         with:
-          workload_identity_provider: 'projects/1094498259535/locations/global/workloadIdentityPools/gh-${{ github.action_repository }}/providers/github-by-repos'
+          workload_identity_provider: 'projects/1094498259535/locations/global/workloadIdentityPools/gh-${{ env.REPO }}/providers/github-by-repos'
           service_account: ${{ env.SERVICE_ACCOUNT }}
           access_token_lifetime: '50m'
 
