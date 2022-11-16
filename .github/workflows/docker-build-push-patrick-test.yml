@@ -9,7 +9,6 @@ on:
 env:
   VISIBILITY: public   #public or private
 #  REGISTRY: us-west1-docker.pkg.dev/devopsre/clabs-public-images
-  REGISTRY: us-west1-docker.pkg.dev/devopsre/clabs-${{ env. VISIBILITY }}-images
   CONTAINER: safe-config-service-test-patrick
   TAG: patrick-test
   SERVICE_ACCOUNT: safe-config-service-images@devopsre.iam.gserviceaccount.com
@@ -49,8 +48,12 @@ jobs:
           push: true
           context: .
           tags: |
-             ${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ env.TAG}}
-             ${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ github.sha }}
+          
+             us-west1-docker.pkg.dev/devopsre/clabs-${{ env.VISIBILITY }}-images/${{ env.CONTAINER }}:${{ env.TAG }}
+             us-west1-docker.pkg.dev/devopsre/clabs-${{ env.VISIBILITY }}-images/${{ env.CONTAINER }}:${{ github.sha }}
+
+#             ${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ env.TAG}}
+#             ${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ github.sha }}
 
       - uses: sigstore/cosign-installer@main
 
@@ -58,14 +61,15 @@ jobs:
         env:
           COSIGN_EXPERIMENTAL: "true"
         run: |
-          cosign sign ${{ env.REGISTRY }}/${{ env.CONTAINER }}@${{ steps.docker-build-push.outputs.digest }}
+#          cosign sign ${{ env.REGISTRY }}/${{ env.CONTAINER }}@${{ steps.docker-build-push.outputs.digest }}
+          cosign sign us-west1-docker.pkg.dev/devopsre/clabs-${{ env.VISIBILITY }}-images/${{ env.CONTAINER }}@${{ steps.docker-build-push.outputs.digest }}
 
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ github.sha}}"
-
+          #image-ref: "${{ env.REGISTRY }}/${{ env.CONTAINER }}:${{ github.sha}}"
+          image-ref: us-west1-docker.pkg.dev/devopsre/clabs-${{ env.VISIBILITY }}-images/${{ env.CONTAINER }}:${{ github.sha}}"
           vuln-type: "os,library"
           severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
           format: "sarif"
