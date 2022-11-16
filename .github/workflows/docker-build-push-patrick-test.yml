@@ -14,12 +14,9 @@ env:
 jobs:
   Build-Push-Docker:
     runs-on: ubuntu-latest
-    env:
-      AKEYLESS_JWT_ACCESS_ID: p-kf9vjzruht6l
-      AKEYLESS_API_GATEWAY: https://api.gateway.akeyless.celo-networks-dev.org
     permissions: # Must change the job token permissions to use JWT auth
-      id-token: write
-      contents: read
+    #  id-token: write
+    #  contents: read
       security-events: write
 
     steps:
@@ -43,16 +40,6 @@ jobs:
         if: always()
         with:
           sarif_file: "trivy-results.sarif"
-
-
-      - name: Fetch secrets from AKeyless
-        id: fetch-secrets
-        uses: docker://us-docker.pkg.dev/clabs-secrets-and-permissions/public-images/akeyless-actions:latest
-        with:
-          access-id: ${{ env.AKEYLESS_JWT_ACCESS_ID }}
-          api-url: ${{ env.AKEYLESS_API_GATEWAY }}
-          # we use a JSON string because Github actions don't support dictionaries as inputs
-          static-secrets: '{"/static-secrets/devops-circle/cosign-private-key":"SIGNING_SECRET"}'
 
       - id: auth
         name: 'Authenticate to Google Cloud'
