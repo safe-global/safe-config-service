@@ -11,43 +11,9 @@ The `safe-config-service` is a service that provides configuration information i
 
 ## Setup
 
-### 1. Configuration
+In order to start the server application:
 
-The environment variables are set via the `.env` file. The configuration in `.env.example` is meant to be used **only for development**. You can copy it and adjust it to your development needs (refer to the file for the explanation about each environment variable).
-```shell
-cp .env.example .env
-```
-
-**Important:** It is recommended to set sensitive fields (like passwords) and adjust other parameters for your production environment needs. The `.env.sample` configuration shouldn't be used for any production deployment.
-
-### 2. Running the service image
-
-The project relies on `nginx` and `postgres` services. If you are running this locally this is already set in the `docker-compose.yml` file:
-
-```shell
-docker compose up
-```
-
-The service will then be available under `localhost:$NGINX_HOST_PORT`.
-
-### 3. Create an admin user
-
-The admin interface of the service is available under `http://<host>:<NGINX_HOST_PORT>/admin` but you need to have an admin registered before you are able to access the panel.
-
-To create an admin user (assuming that the name of the `web` container is `safe-config-service-web-1`):
-
-```shell
-docker exec -it safe-config-service-web-1 /bin/bash
-python src/manage.py createsuperuser
-```
-
-And then just follow the prompts in order to create an admin user. Further users (admin or not) can be created from the admin interface itself.
-
-## Development
-
-If you wish to develop locally without running an image for the Django service you can do the following:
-
-1. Install the required Python dependencies. Eg.: With a python virtual environment:
+#### 1. Install the required Python dependencies. Eg.: With a python virtual environment:
 
 ```shell
 python -m venv venv # creates a virtual environment venv in the local directory
@@ -55,47 +21,59 @@ source venv/bin/activate
 pip install -r requirements-dev.txt
 ```
 
-2. Export the environment variables of `.env` to the local shell/environment (some [shells](https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html) might require you to `allexport` before doing that)
+#### 2. Launch the Postgres database image
 
 ```shell
-source .env
+docker compose up -d db
 ```
 
-3. Run a PostgreSQL database locally. Check your `.env` to see the user, host and port details which are expected by the Django application.
-You can also run the bundled Postrges image with Docker.
-   
+#### 3. Execute pending database migrations
+
 ```shell
-docker-compose up -d db # postgres will be listening on port $POSTGRES_PORT
+python src/manage.py migrate
 ```
 
-4. Launch the service:
+#### 4. Create an admin user
+
+The admin interface of the service will be available under `http://localhost:8000/admin` but you need to have an admin registered before you are able to access the panel.
+
+To create an admin user:
+
+```shell
+python src/manage.py createsuperuser
+```
+
+#### 5. Launch the service:
 
 ```shell
 python src/manage.py runserver
 ```
 
+By default the service will be available under http://127.0.0.1:8000/
 
-## Development Tools
+## Configuration
 
-The project uses a variety of tools to make sure that the styling, health and correctness are validated on each change.
-These tools are available via `requirements-dev.txt` so to have them available in your virtual environment run:
+The service is already configured for development purposes however if you wish to deploy it in a production environment you should set some sensitive parameters such as: `POSTGRES_USER`
+, `POSTGRES_PASSWORD`, `SECRET_KEY`.
+`DEBUG` should be set to `false`.
 
-```shell
-pip install -r requirements-dev.txt
-```
+We provide the `.dev.env` file which explains the role of each environment variable. You can set the configuration using this file and read it in terminal session where the application will be
+executed.
 
-### Testing
+## Testing
 
 Pytest is used to run the available tests in the project. **Some of these tests validate the integration with the database
-so having one running is required** (you can have one running in the background with `docker compose up -d db`). From the project root:
+so having one running is required**. From the project root:
 
 ```shell
+docker compose up -d db
 pytest src
 ```
 
-### Code Style Formatter and Linter
+## Code Style Formatter and Linter
 
-[Black](https://black.readthedocs.io/en/stable/), [Flake8](https://flake8.pycqa.org/en/latest/) and [isort](https://pycqa.github.io/isort/) are the tools used to validate the style of the changes being pushed. You can refer to the documentation
+[Black](https://black.readthedocs.io/en/stable/), [Flake8](https://flake8.pycqa.org/en/latest/) and [isort](https://pycqa.github.io/isort/) are the tools used to validate the style of the changes
+being pushed. You can refer to the documentation
 of these tools to check how to integrate them with your editor/IDE.
 
 ```shell

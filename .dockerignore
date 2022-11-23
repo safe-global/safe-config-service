@@ -2,7 +2,8 @@
 __pycache__/
 .gitignore
 .git
-.env*
+.env
+.dev.env
 venv/
 .idea/
 .pytest_cache/
