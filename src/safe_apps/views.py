@@ -13,7 +13,7 @@ from .models import SafeApp
 from .serializers import SafeAppsResponseSerializer
 
 
-class SafeAppsListView(ListAPIView):
+class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
     serializer_class = SafeAppsResponseSerializer
     pagination_class = None
 

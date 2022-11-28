@@ -16,7 +16,7 @@ class ChainsPagination(LimitOffsetPagination):
     max_limit = 20
 
 
-class ChainsListView(ListAPIView):
+class ChainsListView(ListAPIView):  # type: ignore[type-arg]
     serializer_class = ChainSerializer
     pagination_class = ChainsPagination
     queryset = Chain.objects.all()
@@ -28,7 +28,7 @@ class ChainsListView(ListAPIView):
     ]
 
 
-class ChainsDetailView(RetrieveAPIView):
+class ChainsDetailView(RetrieveAPIView):  # type: ignore[type-arg]
     serializer_class = ChainSerializer
     queryset = Chain.objects.all()
 
@@ -39,7 +39,7 @@ class ChainsDetailView(RetrieveAPIView):
         return super().get(request, *args, **kwargs)
 
 
-class ChainsDetailViewByShortName(RetrieveAPIView):
+class ChainsDetailViewByShortName(RetrieveAPIView):  # type: ignore[type-arg]
     lookup_field = "short_name"
     serializer_class = ChainSerializer
     queryset = Chain.objects.all()
