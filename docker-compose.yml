@@ -9,10 +9,10 @@ services:
     env_file:
       - .dev.env
     ports:
-      - "${NGINX_HOST_PORT}:80"
+      - "${NGINX_HOST_PORT:-8080}:80"
     volumes:
       - ./nginx/templates:/etc/nginx/templates
-      - nginx-shared:${DOCKER_NGINX_VOLUME_ROOT}
+      - nginx-shared:${DOCKER_NGINX_VOLUME_ROOT-/nginx}
     depends_on:
       - web
   db:
@@ -22,12 +22,12 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
   web:
     build: .
     tty: true
     volumes:
-      - nginx-shared:${DOCKER_NGINX_VOLUME_ROOT}
+      - nginx-shared:${DOCKER_NGINX_VOLUME_ROOT:-/nginx}
     env_file:
       - .dev.env
     environment:
