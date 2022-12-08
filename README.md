@@ -24,6 +24,7 @@ pip install -r requirements-dev.txt
 #### 2. Launch the Postgres database image
 
 ```shell
+cp .dev.env .env
 docker compose up -d db
 ```
 
