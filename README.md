@@ -24,7 +24,7 @@ pip install -r requirements-dev.txt
 #### 2. Launch the Postgres database image
 
 ```shell
-docker compose up -d db
+sudo docker compose up -d db
 ```
 
 #### 3. Execute pending database migrations
@@ -66,7 +66,7 @@ Pytest is used to run the available tests in the project. **Some of these tests 
 so having one running is required**. From the project root:
 
 ```shell
-docker compose up -d db
+sudo docker compose up -d db
 pytest src
 ```
 
