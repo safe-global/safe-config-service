@@ -2,7 +2,7 @@ from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Client, Provider, SafeApp, Tag
+from .models import Client, Feature, Provider, SafeApp, Tag
 
 
 class ProviderSerializer(serializers.ModelSerializer[Provider]):
@@ -35,11 +35,18 @@ class TagSerializer(serializers.Serializer[Tag]):
         return instance.name
 
 
+class FeatureSerializer(serializers.Serializer[Feature]):
+    @staticmethod
+    def to_representation(instance: Feature) -> str:
+        return instance.key
+
+
 class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
     id = serializers.IntegerField(source="app_id")
     provider = ProviderSerializer()
     access_control = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    features = serializers.SerializerMethodField()
 
     class Meta:
         model = SafeApp
@@ -53,6 +60,7 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
             "provider",
             "access_control",
             "tags",
+            "features",
         ]
 
     @swagger_serializer_method(serializer_or_field=DomainAllowlistAccessControlPolicySerializer)  # type: ignore[misc]
@@ -68,3 +76,8 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
     def get_tags(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
         queryset = instance.tag_set.all().order_by("name")
         return TagSerializer(queryset, many=True).data
+
+    @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[misc]
+    def get_features(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
+        features = instance.feature_set.all().order_by("key")
+        return FeatureSerializer(features, many=True).data

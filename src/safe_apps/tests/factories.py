@@ -1,7 +1,7 @@
 import factory
 from factory.django import DjangoModelFactory
 
-from ..models import Client, Provider, SafeApp, Tag
+from ..models import Client, Feature, Provider, SafeApp, Tag
 
 
 class ProviderFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -60,3 +60,19 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
             # A list of clients was passed in, use them
             for client in extracted:
                 self.exclusive_clients.add(client)
+
+
+class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]
+    class Meta:
+        model = Feature
+
+    key = factory.Faker("company")
+
+    @factory.post_generation
+    def safe_apps(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
+        if not create:
+            return
+
+        if extracted:
+            for app in extracted:
+                self.safe_apps.add(app)
