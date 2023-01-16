@@ -6,6 +6,7 @@ from .factories import (
     FeatureFactory,
     ProviderFactory,
     SafeAppFactory,
+    SocialProfileFactory,
     TagFactory,
 )
 
@@ -70,3 +71,12 @@ class FeatureTestCase(TestCase):
     def test_str_method_outputs_feature_key(self) -> None:
         feature = FeatureFactory.create()
         self.assertEqual(str(feature), f"Safe App Feature: {feature.key}")
+
+
+class SocialProfileTestCase(TestCase):
+    def test_str_method_outputs_social_profile_name(self) -> None:
+        social_profile = SocialProfileFactory.create()
+        self.assertEqual(
+            str(social_profile),
+            f"Social Profile: {social_profile.platform} | {social_profile.url}",
+        )

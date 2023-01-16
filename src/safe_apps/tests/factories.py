@@ -1,7 +1,9 @@
+import random
+
 import factory
 from factory.django import DjangoModelFactory
 
-from ..models import Client, Feature, Provider, SafeApp, Tag
+from ..models import Client, Feature, Provider, SafeApp, SocialProfile, Tag
 
 
 class ProviderFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -49,6 +51,7 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
     description = factory.Faker("catch_phrase")
     chain_ids = factory.Faker("pylist", nb_elements=2, value_types=(int,))
     provider = None
+    developer_website = factory.Faker("url")
 
     @factory.post_generation
     def exclusive_clients(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
@@ -76,3 +79,14 @@ class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]
         if extracted:
             for app in extracted:
                 self.safe_apps.add(app)
+
+
+class SocialProfileFactory(DjangoModelFactory):
+    class Meta:
+        model = SocialProfile
+
+    safe_app = factory.SubFactory(SafeAppFactory)
+    platform = factory.lazy_attribute(
+        lambda o: random.choice(list(SocialProfile.Platform))
+    )
+    url = factory.Faker("url")
