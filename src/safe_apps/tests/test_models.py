@@ -1,7 +1,13 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from .factories import ClientFactory, ProviderFactory, SafeAppFactory, TagFactory
+from .factories import (
+    ClientFactory,
+    FeatureFactory,
+    ProviderFactory,
+    SafeAppFactory,
+    TagFactory,
+)
 
 
 class ProviderTestCase(TestCase):
@@ -58,3 +64,9 @@ class TagTestCase(TestCase):
     def test_str_method_outputs_tag_name(self) -> None:
         tag = TagFactory.create()
         self.assertEqual(str(tag), f"Tag: {tag.name}")
+
+
+class FeatureTestCase(TestCase):
+    def test_str_method_outputs_feature_key(self) -> None:
+        feature = FeatureFactory.create()
+        self.assertEqual(str(feature), f"Safe App Feature: {feature.key}")

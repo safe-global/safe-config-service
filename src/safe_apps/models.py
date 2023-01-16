@@ -70,3 +70,18 @@ class Tag(models.Model):
 
     def __str__(self) -> str:
         return f"Tag: {self.name}"
+
+
+class Feature(models.Model):
+    # A feature can be enabled for multiple Safe Apps and a Safe App can have multiple features enabled
+    safe_apps = models.ManyToManyField(
+        SafeApp, blank=True, help_text="Safe Apps where this feature is enabled."
+    )
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The unique name/key that identifies this feature",
+    )
+
+    def __str__(self) -> str:
+        return f"Safe App Feature: {self.key}"

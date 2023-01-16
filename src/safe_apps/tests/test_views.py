@@ -3,7 +3,13 @@ from typing import Any, Dict, List
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from .factories import ClientFactory, ProviderFactory, SafeAppFactory, TagFactory
+from .factories import (
+    ClientFactory,
+    FeatureFactory,
+    ProviderFactory,
+    SafeAppFactory,
+    TagFactory,
+)
 
 
 class EmptySafeAppsListViewTests(APITestCase):
@@ -33,6 +39,7 @@ class JsonPayloadFormatViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -58,6 +65,33 @@ class JsonPayloadFormatViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [tag.name],
+                "features": [],
+            }
+        ]
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(response.json(), json_response)
+
+    def test_features_payload(self) -> None:
+        safe_app = SafeAppFactory.create()
+        feature = FeatureFactory.create(safe_apps=(safe_app,))
+        json_response = [
+            {
+                "id": safe_app.app_id,
+                "url": safe_app.url,
+                "name": safe_app.name,
+                "iconUrl": safe_app.icon_url,
+                "description": safe_app.description,
+                "chainIds": safe_app.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": "NO_RESTRICTIONS",
+                },
+                "tags": [],
+                "features": [feature.key],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -69,7 +103,7 @@ class JsonPayloadFormatViewTests(APITestCase):
 
 
 class FilterSafeAppListViewTests(APITestCase):
-    def test_all_safes_returned(self) -> None:
+    def test_all_apps_returned(self) -> None:
         (safe_app_1, safe_app_2, safe_app_3) = SafeAppFactory.create_batch(3)
         json_response = [
             {
@@ -84,6 +118,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
             {
                 "id": safe_app_2.app_id,
@@ -97,6 +132,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
             {
                 "id": safe_app_3.app_id,
@@ -110,6 +146,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
         ]
         url = reverse("v1:safe-apps:list")
@@ -134,6 +171,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
             {
                 "id": safe_app_2.app_id,
@@ -147,6 +185,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
             {
                 "id": safe_app_3.app_id,
@@ -160,6 +199,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId="}'
@@ -186,6 +226,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
             {
                 "id": safe_app_5.app_id,
@@ -199,6 +240,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId=1"}'
@@ -234,6 +276,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             }
         ]
         url = reverse("v1:safe-apps:list") + f'{"?chainId=2&chainId=1"}'
@@ -262,6 +305,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             }
         ]
         self.assertEqual(response.status_code, 200)
@@ -298,6 +342,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
             {
                 "id": safe_app_2.app_id,
@@ -312,6 +357,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "value": [client_1.url],
                 },
                 "tags": [],
+                "features": [],
             },
         ]
         self.assertEqual(response.status_code, 200)
@@ -336,6 +382,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "value": [client_1.url],
                 },
                 "tags": [],
+                "features": [],
             }
         ]
         url = (
@@ -374,6 +421,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "value": ["safe.com"],
                 },
                 "tags": [],
+                "features": [],
             },
             {
                 "id": safe_app_3.app_id,
@@ -388,6 +436,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "value": ["safe.com", "pump.com"],
                 },
                 "tags": [],
+                "features": [],
             },
             {
                 "id": safe_app_2.app_id,
@@ -401,6 +450,7 @@ class FilterSafeAppListViewTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             },
         ]
         url = reverse("v1:safe-apps:list") + f'{"?clientUrl=safe.com"}'
@@ -429,6 +479,7 @@ class ProviderInfoTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -454,6 +505,7 @@ class ProviderInfoTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -481,6 +533,7 @@ class CacheSafeAppTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -511,6 +564,7 @@ class SafeAppsVisibilityTests(APITestCase):
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
+                "features": [],
             }
         ]
         url = reverse("v1:safe-apps:list")
@@ -584,6 +638,30 @@ class TagsTests(APITestCase):
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json_response[0]["tags"], [tag_2.name, tag_1.name])
+
+
+class FeaturesTests(APITestCase):
+    def test_empty_features(self) -> None:
+        SafeAppFactory.create()
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json_response[0]["features"], [])
+
+    def test_multiple_features(self) -> None:
+        safe_app = SafeAppFactory.create()
+        feature_1 = FeatureFactory.create(key="Z", safe_apps=(safe_app,))
+        feature_2 = FeatureFactory.create(key="A", safe_apps=(safe_app,))
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json_response[0]["features"], [feature_2.key, feature_1.key])
 
 
 class SafeAppsUrlQueryTests(APITestCase):
