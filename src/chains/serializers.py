@@ -90,7 +90,7 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
 
 class FeatureSerializer(serializers.Serializer[Feature]):
     class Meta:
-        ref_name = "Chain.Feature"
+        ref_name = "chains.serializers.FeatureSerializer"
 
     @staticmethod
     def to_representation(instance: Feature) -> str:
