@@ -37,7 +37,7 @@ class TagSerializer(serializers.Serializer[Tag]):
 
 class FeatureSerializer(serializers.Serializer[Feature]):
     class Meta:
-        ref_name = "SafeApp.Feature"
+        ref_name = "safe_apps.serializers.FeatureSerializer"
 
     @staticmethod
     def to_representation(instance: Feature) -> str:
