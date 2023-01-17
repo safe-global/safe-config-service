@@ -81,7 +81,7 @@ class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]
                 self.safe_apps.add(app)
 
 
-class SocialProfileFactory(DjangoModelFactory):
+class SocialProfileFactory(DjangoModelFactory):  # type: ignore[misc]
     class Meta:
         model = SocialProfile
 
