@@ -93,7 +93,7 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
         features = instance.feature_set.all().order_by("key")
         return FeatureSerializer(features, many=True).data
 
-    @swagger_serializer_method(serializer_or_field=SocialProfile)  # type: ignore[misc]
+    @swagger_serializer_method(serializer_or_field=SocialProfileSerializer)  # type: ignore[misc]
     def get_social_profiles(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
         profiles = instance.socialprofile_set.all().order_by("platform")
         return SocialProfileSerializer(profiles, many=True).data
