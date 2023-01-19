@@ -80,3 +80,18 @@ class SocialProfileTestCase(TestCase):
             str(social_profile),
             f"Social Profile: {social_profile.platform} | {social_profile.url}",
         )
+
+    def test_doesnt_allow_create_social_profile_with_invalid_url(self) -> None:
+        social_profile = SocialProfileFactory.build(url="random")
+        with self.assertRaises(ValidationError):
+            social_profile.full_clean()
+
+    def test_doesnt_allow_create_social_profile_with_invalid_platform(self) -> None:
+        social_profile = SocialProfileFactory.build(platform="bereal")
+        with self.assertRaises(ValidationError):
+            social_profile.full_clean()
+
+    def test_cannot_exist_without_safe_app(self) -> None:
+        social_profile = SocialProfileFactory.build(safe_app=None)
+        with self.assertRaises(ValidationError):
+            social_profile.full_clean()

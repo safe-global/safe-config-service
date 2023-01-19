@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
+from ..models import SocialProfile
 from .factories import (
     ClientFactory,
     FeatureFactory,
@@ -786,8 +787,15 @@ class SafeAppsSocialProfilesTests(APITestCase):
 
     def test_multiple_social_profiles(self) -> None:
         safe_app = SafeAppFactory.create()
-        social_profile_1 = SocialProfileFactory.create(platform="Z", safe_app=safe_app)
-        social_profile_2 = SocialProfileFactory.create(platform="A", safe_app=safe_app)
+        social_profile_1 = SocialProfileFactory.create(
+            platform=SocialProfile.Platform.DISCORD, safe_app=safe_app
+        )
+        social_profile_2 = SocialProfileFactory.create(
+            platform=SocialProfile.Platform.GITHUB, safe_app=safe_app
+        )
+        social_profile_3 = SocialProfileFactory.create(
+            platform=SocialProfile.Platform.TWITTER, safe_app=safe_app
+        )
         url = reverse("v1:safe-apps:list")
 
         response = self.client.get(path=url, data=None, format="json")
@@ -798,12 +806,44 @@ class SafeAppsSocialProfilesTests(APITestCase):
             json_response[0]["socialProfiles"],
             [
                 {
-                    "platform": social_profile_2.platform,
+                    "platform": "DISCORD",
+                    "url": social_profile_1.url,
+                },
+                {
+                    "platform": "GITHUB",
                     "url": social_profile_2.url,
                 },
                 {
-                    "platform": social_profile_1.platform,
+                    "platform": "TWITTER",
+                    "url": social_profile_3.url,
+                },
+            ],
+        )
+
+    def test_multiple_social_profiles_of_same_type(self) -> None:
+        safe_app = SafeAppFactory.create()
+        social_profile_1 = SocialProfileFactory.create(
+            platform=SocialProfile.Platform.DISCORD, safe_app=safe_app
+        )
+        social_profile_2 = SocialProfileFactory.create(
+            platform=SocialProfile.Platform.DISCORD, safe_app=safe_app
+        )
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        json_response = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            json_response[0]["socialProfiles"],
+            [
+                {
+                    "platform": "DISCORD",
                     "url": social_profile_1.url,
+                },
+                {
+                    "platform": "DISCORD",
+                    "url": social_profile_2.url,
                 },
             ],
         )

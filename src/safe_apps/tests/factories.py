@@ -90,3 +90,9 @@ class SocialProfileFactory(DjangoModelFactory):  # type: ignore[misc]
         lambda o: random.choice(list(SocialProfile.Platform))
     )
     url = factory.Faker("url")
+
+    @factory.post_generation
+    def validate(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
+        if not create:
+            return
+        self.full_clean()
