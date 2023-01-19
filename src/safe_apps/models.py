@@ -54,6 +54,7 @@ class SafeApp(models.Model):
         blank=True,
         help_text="Clients that are only allowed to use this SafeApp",
     )
+    developer_website = models.URLField(null=True, blank=True)
 
     def get_access_control_type(self) -> AccessControlPolicy:
         if self.exclusive_clients.exists():
@@ -85,3 +86,17 @@ class Feature(models.Model):
 
     def __str__(self) -> str:
         return f"Safe App Feature: {self.key}"
+
+
+class SocialProfile(models.Model):
+    class Platform(models.TextChoices):
+        DISCORD = "DISCORD"
+        GITHUB = "GITHUB"
+        TWITTER = "TWITTER"
+
+    safe_app = models.ForeignKey(SafeApp, on_delete=models.CASCADE)
+    platform = models.CharField(choices=Platform.choices, max_length=255)
+    url = models.URLField()
+
+    def __str__(self) -> str:
+        return f"Social Profile: {self.platform} | {self.url}"

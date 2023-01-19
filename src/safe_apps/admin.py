@@ -3,7 +3,7 @@ from typing import Any
 from django.contrib import admin
 from django.db.models import Model, QuerySet
 
-from .models import Client, Feature, Provider, SafeApp, Tag
+from .models import Client, Feature, Provider, SafeApp, SocialProfile, Tag
 
 
 class ChainIdFilter(admin.SimpleListFilter):
@@ -35,6 +35,12 @@ class TagInline(admin.TabularInline[Model, Model]):
     verbose_name_plural = "Tags set for this Safe App"
 
 
+class SocialProfileInline(admin.TabularInline[Model, Model]):
+    model = SocialProfile
+    extra = 0
+    verbose_name_plural = "Social profiles set for this Safe App"
+
+
 @admin.register(SafeApp)
 class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
     list_display = ("name", "url", "chain_ids", "visible")
@@ -44,6 +50,7 @@ class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
     inlines = [
         TagInline,
         FeatureInline,
+        SocialProfileInline,
     ]
 
 
@@ -73,3 +80,10 @@ class FeatureAdmin(admin.ModelAdmin[Feature]):
     list_display = ("key",)
     search_fields = ("key",)
     ordering = ("key",)
+
+
+@admin.register(SocialProfile)
+class SocialProfileAdmin(admin.ModelAdmin[SocialProfile]):
+    list_display = ("safe_app", "url", "platform")
+    search_fields = ("name", "url")
+    ordering = ("platform",)
