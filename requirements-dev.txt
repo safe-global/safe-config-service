@@ -12,6 +12,6 @@ responses==0.22.0
 
 # mypy and PEP 561 stubs
 mypy==0.991
-django-stubs==1.13.1
+django-stubs==1.13.2
 djangorestframework-stubs==1.8.0
 types-requests==2.28.11.7
