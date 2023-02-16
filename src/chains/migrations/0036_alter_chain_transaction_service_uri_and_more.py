@@ -6,7 +6,6 @@ import chains.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0035_alter_chain_currency_logo_uri"),
     ]

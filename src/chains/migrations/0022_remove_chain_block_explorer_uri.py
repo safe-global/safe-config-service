@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0021_alter_chain_safe_apps_rpc_authentication"),
     ]
