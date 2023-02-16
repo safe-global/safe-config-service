@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0009_chain_gas_price_oracle_gwei_factor"),
     ]

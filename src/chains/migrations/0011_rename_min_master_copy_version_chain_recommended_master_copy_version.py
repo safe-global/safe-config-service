@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0010_chain_min_master_copy_version"),
     ]

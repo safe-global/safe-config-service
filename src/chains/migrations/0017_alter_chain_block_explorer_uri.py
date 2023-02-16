@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0016_alter_chain_block_explorer_uri"),
     ]

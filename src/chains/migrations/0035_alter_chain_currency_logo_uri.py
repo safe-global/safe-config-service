@@ -6,7 +6,6 @@ import chains.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0034_add_public_rpc_url"),
     ]
