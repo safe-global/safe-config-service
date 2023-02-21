@@ -8,8 +8,8 @@ on:
 
 jobs:
   Build-Container-dev:
-    uses: celo-org/reusable-workflows/.github/workflows/container-cicd-public.yaml@main
-    if: github.ref != 'refs/heads/celo/feat'
+    uses: celo-org/reusable-workflows/.github/workflows/container-cicd-trivy.yaml@968d632cd8dbf70cd3cc1b6aa15316bd1144699d
+    if: github.ref != 'refs/heads/feat/celo'
     with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_NON_PROD }}
       service-account:  'safe-config-service-images-dev@devopsre.iam.gserviceaccount.com'
@@ -19,8 +19,8 @@ jobs:
 
 
   Build-Container:
-   uses: celo-org/reusable-workflows/.github/workflows/container-cicd-public.yaml@main
-   if: github.ref == 'refs/heads/celo/feat'
+   uses: celo-org/reusable-workflows/.github/workflows/container-cicd-trivy.yaml@968d632cd8dbf70cd3cc1b6aa15316bd1144699d
+   if: github.ref == 'refs/heads/feat/celo'
    with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_PROD }}
       service-account:  'safe-config-service-images@devopsre.iam.gserviceaccount.com'
