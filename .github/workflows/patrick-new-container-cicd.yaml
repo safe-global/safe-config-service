@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'feat/celo'
+  pull_request:
 
 jobs:
   Build-Container-dev:
