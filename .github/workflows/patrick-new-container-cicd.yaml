@@ -9,7 +9,7 @@ on:
 jobs:
   Build-Container-dev:
     uses: celo-org/reusable-workflows/.github/workflows/container-cicd-public.yaml@main
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/celo/feat'
     with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_NON_PROD }}
       service-account:  'safe-config-service-images-dev@devopsre.iam.gserviceaccount.com'
@@ -20,7 +20,7 @@ jobs:
 
   Build-Container:
    uses: celo-org/reusable-workflows/.github/workflows/container-cicd-public.yaml@main
-   if: github.ref == 'refs/heads/main'
+   if: github.ref == 'refs/heads/celo/feat'
    with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_PROD }}
       service-account:  'safe-config-service-images@devopsre.iam.gserviceaccount.com'
