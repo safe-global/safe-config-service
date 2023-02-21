@@ -1,0 +1,28 @@
+name: Docker Build Push
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'feat/celo'
+
+jobs:
+  Build-Container-dev:
+    uses: celo-org/reusable-workflows/.github/workflows/container-cicd-public.yaml@main
+    if: github.ref != 'refs/heads/main'
+    with:
+      workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_NON_PROD }}
+      service-account:  'safe-config-service-images-dev@devopsre.iam.gserviceaccount.com'
+      artifact-registry: ${{ vars.DEV_IMAGE_REPO }}/safe-config-service
+      tag: testing
+      context: .
+
+
+  Build-Container:
+   uses: celo-org/reusable-workflows/.github/workflows/container-cicd-public.yaml@main
+   if: github.ref == 'refs/heads/main'
+   with:
+      workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_PROD }}
+      service-account:  'safe-config-service-images@devopsre.iam.gserviceaccount.com'
+      artifact-registry: ${{ vars.SAFE_CONFIG_SERVICE_IMAGE_REPO }}/safe-config-service
+      tag: latest
+      context: .
