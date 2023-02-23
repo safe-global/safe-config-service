@@ -20,7 +20,7 @@ jobs:
 
   Build-Container:
    uses: celo-org/reusable-workflows/.github/workflows/container-cicd-trivy.yaml@main
-   f: github.ref == 'refs/heads/feat/celo'
+   if: github.ref == 'refs/heads/feat/celo'
    with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_PROD }}
       service-account:  'safe-config-service-images@devopsre.iam.gserviceaccount.com'
