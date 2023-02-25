@@ -15,6 +15,7 @@ jobs:
       service-account:  'safe-config-service-images-dev@devopsre.iam.gserviceaccount.com'
       artifact-registry: ${{ vars.DEV_IMAGE_REPO }}/safe-config-service
       tag: testing
+      trivy: true
       context: .
   
   Build-Container:
@@ -25,5 +26,6 @@ jobs:
       service-account:  'safe-config-service-images@devopsre.iam.gserviceaccount.com'
       artifact-registry: ${{ vars.SAFE_CONFIG_SERVICE_IMAGE_REPO }}/safe-config-service
       tag: latest
+      trivy: true
       context: .
 
