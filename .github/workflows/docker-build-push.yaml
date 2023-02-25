@@ -17,7 +17,6 @@ jobs:
       tag: testing
       context: .
   
-
   Build-Container:
    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@main
    if: github.ref == 'refs/heads/feat/celo'
@@ -27,12 +26,4 @@ jobs:
       artifact-registry: ${{ vars.SAFE_CONFIG_SERVICE_IMAGE_REPO }}/safe-config-service
       tag: latest
       context: .
-
-  Trivy-Scan:
-   uses: celo-org/reusable-workflows/.github/workflows/trivy.yaml@main
-#   if: github.ref == 'refs/heads/feat/celo'
-   with:
-      workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_PROD }}
-      service-account:  'safe-config-service-images@devopsre.iam.gserviceaccount.com'
-      artifact-registry: ${{ vars.SAFE_CONFIG_SERVICE_IMAGE_REPO }}/safe-config-service
 
