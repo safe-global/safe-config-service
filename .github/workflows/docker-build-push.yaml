@@ -15,8 +15,8 @@ jobs:
       service-account:  'safe-config-service-images-dev@devopsre.iam.gserviceaccount.com'
       artifact-registry: ${{ vars.DEV_IMAGE_REPO }}/safe-config-service
       tag: testing
-      trivy: true
       context: .
+      trivy: true
   
   Build-Container:
    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@main
@@ -26,6 +26,5 @@ jobs:
       service-account:  'safe-config-service-images@devopsre.iam.gserviceaccount.com'
       artifact-registry: ${{ vars.SAFE_CONFIG_SERVICE_IMAGE_REPO }}/safe-config-service
       tag: latest
-      trivy: true
       context: .
-
+      trivy: true
