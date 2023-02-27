@@ -2,7 +2,7 @@ boto3==1.26.69
 Django==4.1.7
 django-cors-headers==3.13.0
 djangorestframework==3.14.0
-djangorestframework-camel-case==1.4.0
+djangorestframework-camel-case==1.4.2
 django-storages==1.13.2
 django-stubs-ext==0.7.0
 drf-yasg[validation]==1.21.5
