@@ -153,7 +153,7 @@ jobs:
         with:
           platforms: arm64
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.4.1
+        uses: docker/setup-buildx-action@v2.5.0
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
@@ -198,7 +198,7 @@ jobs:
         with:
           platforms: arm64
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.4.1
+        uses: docker/setup-buildx-action@v2.5.0
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
