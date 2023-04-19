@@ -19,7 +19,7 @@ class ChainsPagination(LimitOffsetPagination):
 class ChainsListView(ListAPIView):  # type: ignore[type-arg]
     serializer_class = ChainSerializer
     pagination_class = ChainsPagination
-    queryset = Chain.objects.all()
+    queryset = Chain.objects.filter(hidden=False)
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["relevance", "name"]
     ordering = [
@@ -30,7 +30,7 @@ class ChainsListView(ListAPIView):  # type: ignore[type-arg]
 
 class ChainsDetailView(RetrieveAPIView):  # type: ignore[type-arg]
     serializer_class = ChainSerializer
-    queryset = Chain.objects.all()
+    queryset = Chain.objects.filter(hidden=False)
 
     @swagger_auto_schema(
         operation_id="Get chain by id"
@@ -42,7 +42,7 @@ class ChainsDetailView(RetrieveAPIView):  # type: ignore[type-arg]
 class ChainsDetailViewByShortName(RetrieveAPIView):  # type: ignore[type-arg]
     lookup_field = "short_name"
     serializer_class = ChainSerializer
-    queryset = Chain.objects.all()
+    queryset = Chain.objects.filter(hidden=False)
 
     @swagger_auto_schema(
         operation_id="Get chain by shortName",

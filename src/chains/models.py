@@ -115,10 +115,10 @@ class Chain(models.Model):
         help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
     ens_registry_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-
     recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
+    hidden = models.BooleanField(default=False)
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:
         all_wallets = Wallet.objects.all()
