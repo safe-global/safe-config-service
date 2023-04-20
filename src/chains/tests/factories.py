@@ -44,6 +44,7 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
         lambda o: web3.Account.create().address
     )
     recommended_master_copy_version = "1.3.0"
+    hidden = False
 
 
 class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]

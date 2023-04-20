@@ -210,6 +210,14 @@ class ChainDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_hidden_chain_no_match(self) -> None:
+        ChainFactory.create(id=1, hidden=True)
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 404)
+
     def test_by_short_name(self) -> None:
         ChainFactory.create(id=1, short_name="eth")
         url_by_id = reverse("v1:chains:detail", args=[1])
@@ -223,6 +231,16 @@ class ChainDetailViewTests(APITestCase):
         self.assertEqual(response_by_id.status_code, 200)
         self.assertEqual(response_by_short_name.status_code, 200)
         self.assertEqual(response_by_id.json(), response_by_short_name.json())
+
+    def test_hidden_chain_by_short_name_no_match(self) -> None:
+        ChainFactory.create(id=1, short_name="eth", hidden=True)
+        url_by_short_name = reverse("v1:chains:detail_by_short_name", args=["eth"])
+
+        response_by_short_name = self.client.get(
+            path=url_by_short_name, data=None, format="json"
+        )
+
+        self.assertEqual(response_by_short_name.status_code, 404)
 
 
 class ChainsListViewRelevanceTests(APITestCase):
@@ -248,6 +266,20 @@ class ChainsListViewRelevanceTests(APITestCase):
         chain_ids = [result["chainId"] for result in response.json()["results"]]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(chain_ids, [str(chain_3.id), str(chain_2.id), str(chain_1.id)])
+
+
+class ChainsListViewHiddenTests(APITestCase):
+    def test_hidden_chains_get_ignored(self) -> None:
+        ChainFactory.create_batch(5)
+        ChainFactory.create(hidden=True)
+        ChainFactory.create(hidden=True)
+        url = reverse("v1:chains:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 5)
+        self.assertEqual(len(response.json()["results"]), 5)
 
 
 class ChainsEnsRegistryTests(APITestCase):
