@@ -1,0 +1,8 @@
+---
+apiVersion: v2
+name: safe-config
+version: 0.1.1
+appVersion: v2.52.0
+description: A Helm chart for configuration service
+type: application
+icon: "https://raw.githubusercontent.com/safe-global/safe-core-sdk/main/assets/logo.png"

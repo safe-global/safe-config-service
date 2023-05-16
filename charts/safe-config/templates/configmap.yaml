@@ -1,0 +1,30 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "safe-config.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "safe-config.labels" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- .Values.commonLabels | toYaml | nindent 4 }}
+    {{- end }}
+{{- if .Values.commonAnnotations }}
+  annotations:
+    {{- .Values.commonAnnotations | toYaml | nindent 4 }}
+{{- end }}
+data:
+  DOCKER_NGINX_VOLUME_ROOT: "/nginx"
+  GUNICORN_BIND_SOCKET: "unix:/nginx/gunicorn.socket"
+  DEFAULT_FILE_STORAGE: "django.core.files.storage.FileSystemStorage"
+  FORCE_SCRIPT_NAME: "/"
+  CGW_URL: "{{- .Values.config.cgw.url }}"
+  CSRF_TRUSTED_ORIGINS: "https://{{ .Values.ingress.hostname }}"
+  GUNICORN_BIND_PORT: "{{- .Values.service.socket.number }}"
+  PYTHONDONTWRITEBYTECODE: "{{- .Values.config.pythonDontWriteBytecode }}"
+  DEBUG: "{{- .Values.config.debug }}"
+  ROOT_LOG_LEVEL: "{{- .Values.config.rootLogLevel }}"
+  DJANGO_ALLOWED_HOSTS: "{{- .Values.config.django.allowedHosts }}"
+  {{- if .Values.config.extraEnvVars }}
+  {{ .Values.config.extraEnvVars | toYaml | nindent 2 }}
+  {{- end }}
