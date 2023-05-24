@@ -16,6 +16,12 @@ def setup_session() -> requests.Session:
     session.mount("https://", adapter)
     return session
 
+def valid_url(url) -> bool:
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
 
 def flush(
     cgw_url: Optional[str], cgw_flush_token: Optional[str], json: Dict[str, Any]
@@ -23,11 +29,14 @@ def flush(
     if cgw_url is None:
         logger.error("CGW_URL is not set. Skipping hook call")
         return
+    if not valid_url(cgw_url):
+        logger.error("CGW_URL is not valid. Skipping hook call")
+        return
     if cgw_flush_token is None:
         logger.error("CGW_FLUSH_TOKEN is not set. Skipping hook call")
         return
 
-    url = urljoin(cgw_url, "/v2/flush")
+    url = cgw_url + "/v2/flush"
     try:
         post = setup_session().post(
             url,
