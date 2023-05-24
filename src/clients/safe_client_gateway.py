@@ -27,7 +27,7 @@ def flush(
         logger.error("CGW_FLUSH_TOKEN is not set. Skipping hook call")
         return
 
-    url = urljoin(cgw_url, "/v2/flush")
+    url = urljoin(cgw_url, "/v2/flush", force_segment=True)
     try:
         post = setup_session().post(
             url,
