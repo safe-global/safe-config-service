@@ -12,7 +12,7 @@ services:
       - "${NGINX_HOST_PORT:-8080}:80"
     volumes:
       - ./nginx/templates:/etc/nginx/templates
-      - nginx-shared:${DOCKER_NGINX_VOLUME_ROOT-/nginx}
+      - nginx-shared:${DOCKER_NGINX_VOLUME_ROOT:-/nginx}
     depends_on:
       - web
   db:
