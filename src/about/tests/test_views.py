@@ -52,10 +52,14 @@ class AboutSecureRequestViewTests(APITestCase):
 class SwaggerTests(APITestCase):
     def test_swagger_json_schema(self):
         url = reverse("schema-json", args=(".json",))
+
         response = self.client.get(url, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_swagger_ui(self):
         url = reverse("schema-swagger-ui")
+
         response = self.client.get(url, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
