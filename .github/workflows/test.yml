@@ -135,11 +135,8 @@ jobs:
         run: python src/manage.py check
       - name: Run tests with coverage
         run: coverage run -m pytest src
-      - name: Upload coverage
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: coveralls --service=github
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
 
   docker-publish-staging:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
