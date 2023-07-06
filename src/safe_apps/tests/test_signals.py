@@ -100,6 +100,20 @@ class SafeAppHookTestCase(TestCase):
             responses.calls[1].request.headers.get("Authorization")
             == "Basic alternative-token"
         )
+        assert isinstance(responses.calls[2], responses.Call)
+        assert responses.calls[2].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[2].request.url == "http://127.0.0.1/v2/flush"
+        assert (
+            responses.calls[2].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[3], responses.Call)
+        assert responses.calls[3].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[3].request.url == "http://alternative.cgw.url/v2/flush"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
+            == "Basic alternative-token"
+        )
 
     @responses.activate
     def test_on_safe_app_delete_hook_call(self) -> None:
@@ -143,6 +157,20 @@ class SafeAppHookTestCase(TestCase):
         assert responses.calls[1].request.url == "http://alternative.cgw.url/v2/flush"
         assert (
             responses.calls[1].request.headers.get("Authorization")
+            == "Basic alternative-token"
+        )
+        assert isinstance(responses.calls[2], responses.Call)
+        assert responses.calls[2].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[2].request.url == "http://127.0.0.1/v2/flush"
+        assert (
+            responses.calls[2].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[3], responses.Call)
+        assert responses.calls[3].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[3].request.url == "http://alternative.cgw.url/v2/flush"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
             == "Basic alternative-token"
         )
 
@@ -241,6 +269,20 @@ class ProviderHookTestCase(TestCase):
             responses.calls[1].request.headers.get("Authorization")
             == "Basic alternative-token"
         )
+        assert isinstance(responses.calls[2], responses.Call)
+        assert responses.calls[2].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[2].request.url == "http://127.0.0.1/v2/flush"
+        assert (
+            responses.calls[2].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[3], responses.Call)
+        assert responses.calls[3].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[3].request.url == "http://alternative.cgw.url/v2/flush"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
+            == "Basic alternative-token"
+        )
 
     @responses.activate
     def test_on_provider_delete_hook_call(self) -> None:
@@ -283,6 +325,20 @@ class ProviderHookTestCase(TestCase):
         assert responses.calls[1].request.url == "http://alternative.cgw.url/v2/flush"
         assert (
             responses.calls[1].request.headers.get("Authorization")
+            == "Basic alternative-token"
+        )
+        assert isinstance(responses.calls[2], responses.Call)
+        assert responses.calls[2].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[2].request.url == "http://127.0.0.1/v2/flush"
+        assert (
+            responses.calls[2].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[3], responses.Call)
+        assert responses.calls[3].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[3].request.url == "http://alternative.cgw.url/v2/flush"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
             == "Basic alternative-token"
         )
 
@@ -382,6 +438,20 @@ class TagHookTestCase(TestCase):
             responses.calls[1].request.headers.get("Authorization")
             == "Basic alternative-token"
         )
+        assert isinstance(responses.calls[2], responses.Call)
+        assert responses.calls[2].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[2].request.url == "http://127.0.0.1/v2/flush"
+        assert (
+            responses.calls[2].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[3], responses.Call)
+        assert responses.calls[3].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[3].request.url == "http://alternative.cgw.url/v2/flush"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
+            == "Basic alternative-token"
+        )
 
     @responses.activate
     def test_on_tag_delete_hook_call(self) -> None:
@@ -425,5 +495,19 @@ class TagHookTestCase(TestCase):
         assert responses.calls[1].request.url == "http://alternative.cgw.url/v2/flush"
         assert (
             responses.calls[1].request.headers.get("Authorization")
+            == "Basic alternative-token"
+        )
+        assert isinstance(responses.calls[2], responses.Call)
+        assert responses.calls[2].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[2].request.url == "http://127.0.0.1/v2/flush"
+        assert (
+            responses.calls[2].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[3], responses.Call)
+        assert responses.calls[3].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[3].request.url == "http://alternative.cgw.url/v2/flush"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
             == "Basic alternative-token"
         )
