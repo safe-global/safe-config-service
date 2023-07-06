@@ -217,12 +217,12 @@ class ProviderHookTestCase(TestCase):
             responses.calls[0].request.headers.get("Authorization")
             == "Basic example-token"
         )
-        assert isinstance(responses.calls[0], responses.Call)
-        assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
-        assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
+        assert isinstance(responses.calls[1], responses.Call)
+        assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[1].request.url == "http://alternative.cgw.url/v2/flush"
         assert (
-            responses.calls[0].request.headers.get("Authorization")
-            == "Basic example-token"
+            responses.calls[1].request.headers.get("Authorization")
+            == "Basic alternative-token"
         )
 
     @responses.activate
@@ -385,12 +385,12 @@ class TagHookTestCase(TestCase):
             responses.calls[0].request.headers.get("Authorization")
             == "Basic example-token"
         )
-        assert isinstance(responses.calls[0], responses.Call)
-        assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
-        assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
+        assert isinstance(responses.calls[1], responses.Call)
+        assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
+        assert responses.calls[1].request.url == "http://alternative.cgw.url/v2/flush"
         assert (
-            responses.calls[0].request.headers.get("Authorization")
-            == "Basic example-token"
+            responses.calls[1].request.headers.get("Authorization")
+            == "Basic alternative-token"
         )
 
     @responses.activate
