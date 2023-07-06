@@ -304,9 +304,7 @@ class WalletHookTestCase(TestCase):
 
 @override_settings(
     CGW_URL="http://127.0.0.1",
-    ALTERNATIVE_CGW_URL="http://alternative.cgw.url",
     CGW_FLUSH_TOKEN="example-token",
-    ALTERNATIVE_CGW_FLUSH_TOKEN="alternative-token",
 )
 class GasPriceHookTestCase(TestCase):
     def setUp(self) -> None:
@@ -327,34 +325,16 @@ class GasPriceHookTestCase(TestCase):
                 responses.matchers.json_params_matcher({"invalidate": "Chains"}),
             ],
         )
-        responses.add(
-            responses.POST,
-            "http://alternative.cgw.url/v2/flush",
-            status=200,
-            match=[
-                responses.matchers.header_matcher(
-                    {"Authorization": "Basic alternative-token"}
-                ),
-                responses.matchers.json_params_matcher({"invalidate": "Chains"}),
-            ],
-        )
 
         GasPriceFactory.create(chain=self.chain)
 
-        assert len(responses.calls) == 2
+        assert len(responses.calls) == 1
         assert isinstance(responses.calls[0], responses.Call)
         assert responses.calls[0].request.body == b'{"invalidate": "Chains"}'
         assert responses.calls[0].request.url == "http://127.0.0.1/v2/flush"
         assert (
             responses.calls[0].request.headers.get("Authorization")
             == "Basic example-token"
-        )
-        assert isinstance(responses.calls[1], responses.Call)
-        assert responses.calls[1].request.body == b'{"invalidate": "Chains"}'
-        assert responses.calls[1].request.url == "http://alternative.cgw.url/v2/flush"
-        assert (
-            responses.calls[1].request.headers.get("Authorization")
-            == "Basic alternative-token"
         )
 
     @responses.activate
