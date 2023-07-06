@@ -18,7 +18,11 @@ def setup_session() -> requests.Session:
 
 
 def flush(
-    cgw_url: Optional[str], cgw_flush_token: Optional[str], json: Dict[str, Any]
+    cgw_url: Optional[str],
+    cgw_flush_token: Optional[str],
+    alternative_cgw_url: Optional[str],
+    alternative_cgw_flush_token: Optional[str],
+    json: Dict[str, Any],
 ) -> None:
     if cgw_url is None:
         logger.error("CGW_URL is not set. Skipping hook call")
@@ -27,13 +31,22 @@ def flush(
         logger.error("CGW_FLUSH_TOKEN is not set. Skipping hook call")
         return
 
-    url = urljoin(cgw_url, "/v2/flush")
+    targets = [cgw_url]
+    tokens = [cgw_flush_token]
+
+    if alternative_cgw_url is not None and alternative_cgw_flush_token is not None:
+        targets.append(alternative_cgw_url)
+        tokens.append(alternative_cgw_flush_token)
+
+    urls = list(map(lambda url: urljoin(url, "/v2/flush"), targets))
+
     try:
-        post = setup_session().post(
-            url,
-            json=json,
-            headers={"Authorization": f"Basic {cgw_flush_token}"},
-        )
+        for url, token in zip(urls, tokens):
+            post = setup_session().post(
+                url,
+                json=json,
+                headers={"Authorization": f"Basic {token}"},
+            )
         post.raise_for_status()
     except Exception as error:
         logger.error(error)
