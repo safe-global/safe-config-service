@@ -30,17 +30,18 @@ def flush(
     if cgw_flush_token is None:
         logger.error("CGW_FLUSH_TOKEN is not set. Skipping hook call")
         return
-    if (alternative_cgw_url is not None) and (alternative_cgw_flush_token is None):
-        logger.error(
-            "ALTERNATIVE_CGW_FLUSH_TOKEN is not set. Skipping alternative hook call"
-        )
 
-    urls = [cgw_url, alternative_cgw_url]
-    flush_urls = list(map(lambda url: urljoin(url, "/v2/flush"), urls))
-    flush_tokens = [cgw_flush_token, alternative_cgw_flush_token]
+    targets = [cgw_url]
+    tokens = [cgw_flush_token]
+
+    if alternative_cgw_url is not None and alternative_cgw_flush_token is not None:
+        targets.append(alternative_cgw_url)
+        tokens.append(alternative_cgw_flush_token)
+
+    urls = list(map(lambda url: urljoin(url, "/v2/flush"), targets))
 
     try:
-        for url, token in zip(flush_urls, flush_tokens):
+        for url, token in zip(urls, tokens):
             post = setup_session().post(
                 url,
                 json=json,
