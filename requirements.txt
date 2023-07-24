@@ -7,7 +7,7 @@ django-storages==1.13.2
 django-stubs-ext==4.2.2
 drf-yasg[validation]==1.21.5
 safe-eth-py[django]==5.5.0
-gunicorn==20.1.0
+gunicorn==21.2.0
 Pillow==10.0.0
 psycopg2-binary==2.9.6
 requests==2.31.0
