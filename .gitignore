@@ -135,3 +135,6 @@ data/
 docker-compose.override.yml
 .vscode/
 src/media/
+
+# helm packages
+safe-config-service-*.tgz
