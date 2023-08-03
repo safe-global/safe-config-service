@@ -145,10 +145,14 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "features",
         ]
 
-    @staticmethod
     @swagger_serializer_method(serializer_or_field=CurrencySerializer)  # type: ignore[misc]
-    def get_native_currency(obj: Chain) -> ReturnDict:
-        return CurrencySerializer(obj).data
+    def get_native_currency(self, obj: Chain) -> ReturnDict:
+        native_currency = CurrencySerializer(obj).data
+        absolute_logo_uri = self.context["request"].build_absolute_uri(
+            native_currency["logo_uri"]
+        )
+        native_currency["logo_uri"] = absolute_logo_uri
+        return native_currency
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=ThemeSerializer)  # type: ignore[misc]
