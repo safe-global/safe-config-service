@@ -5,7 +5,7 @@ djangorestframework==3.14.0
 djangorestframework-camel-case==1.4.2
 django-storages==1.13.2
 django-stubs-ext==4.2.2
-drf-yasg[validation]==1.21.5
+drf-yasg[validation]==1.21.7
 safe-eth-py[django]==5.7.0
 gunicorn==21.2.0
 Pillow==10.0.0
