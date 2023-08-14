@@ -9,5 +9,5 @@ drf-yasg[validation]==1.21.5
 safe-eth-py[django]==5.7.0
 gunicorn==21.2.0
 Pillow==10.0.0
-psycopg2-binary==2.9.6
+psycopg2-binary==2.9.7
 requests==2.31.0
