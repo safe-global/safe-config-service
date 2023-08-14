@@ -147,16 +147,25 @@ class GasPrice(models.Model):
     rank = models.SmallIntegerField(
         default=100
     )  # A lower number will indicate higher ranking
+    max_fee_per_gas = Uint256Field(
+        verbose_name="Max fee per gas (wei)", blank=True, null=True
+    )  # type: ignore[no-untyped-call]
+    max_priority_fee_per_gas = Uint256Field(
+        verbose_name="Max priority fee per gas (wei)", blank=True, null=True
+    )  # type: ignore[no-untyped-call]
 
     def __str__(self) -> str:
-        return f"Chain = {self.chain.id} | uri={self.oracle_uri} | fixed_wei_value={self.fixed_wei_value}"
+        return f"Chain = {self.chain.id} | uri={self.oracle_uri} | fixed_wei_value={self.fixed_wei_value} | max_fee_per_gas={self.max_fee_per_gas} | max_priority_fee_per-gas={self.max_priority_fee_per_gas}"
 
     def clean(self) -> None:
-        if (self.fixed_wei_value is not None) == (self.oracle_uri is not None):
+        if (self.fixed_wei_value is not None) == (self.oracle_uri is not None) == (self.max_fee_per_gas is not None and self.max_priority_fee_per_gas is not None):
             raise ValidationError(
                 {
-                    "oracle_uri": "An oracle uri or fixed gas price should be provided (but not both)",
-                    "fixed_wei_value": "An oracle uri or fixed gas price should be provided (but not both)",
+                    "oracle_uri": "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas should be provided (but not multiple)",
+                    "fixed_wei_value": "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas should be provided (but not multiple)",
+                    "max_fee_per_gas": "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas should be provided (but not multiple)",
+                    "max_priority_fee_per_gas": "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas should be provided (but not multiple)",
+
                 }
             )
         if self.oracle_uri is not None and self.oracle_parameter is None:
