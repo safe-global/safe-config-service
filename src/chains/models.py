@@ -1,7 +1,7 @@
-from functools import reduce
-from operator import xor
 import os
 import re
+from functools import reduce
+from operator import xor
 from typing import IO, Union
 from urllib.parse import urlparse
 

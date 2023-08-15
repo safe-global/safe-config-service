@@ -13,14 +13,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="gasprice",
             name="max_fee_per_gas",
-            field=gnosis.eth.django.models.Uint256Field(
+            field=gnosis.eth.django.models.Uint256Field(  # type: ignore[no-untyped-call]
                 blank=True, null=True, verbose_name="Max fee per gas (wei)"
             ),
         ),
         migrations.AddField(
             model_name="gasprice",
             name="max_priority_fee_per_gas",
-            field=gnosis.eth.django.models.Uint256Field(
+            field=gnosis.eth.django.models.Uint256Field(  # type: ignore[no-untyped-call]
                 blank=True, null=True, verbose_name="Max priority fee per gas (wei)"
             ),
         ),
