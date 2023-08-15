@@ -20,6 +20,7 @@ class GasPriceFixedSerializer(serializers.Serializer[GasPrice]):
     type = serializers.ReadOnlyField(default="fixed")
     wei_value = serializers.CharField(source="fixed_wei_value")
 
+
 class GasPriceFixed1559Serializer(serializers.Serializer[GasPrice]):
     type = serializers.ReadOnlyField(default="fixed1559")
     max_fee_per_gas = serializers.CharField()
@@ -28,11 +29,14 @@ class GasPriceFixed1559Serializer(serializers.Serializer[GasPrice]):
 
 class GasPriceSerializer(serializers.Serializer[GasPrice]):
     def to_representation(self, instance: GasPrice) -> ReturnDict:
-        if instance.oracle_uri and instance.fixed_wei_value is None and instance.max_fee_per_gas is None and instance.max_priority_fee_per_gas is None:
+        if instance.oracle_uri and instance.fixed_wei_value is None and instance.max_fee_per_gas is None and\
+                instance.max_priority_fee_per_gas is None:
             return GasPriceOracleSerializer(instance).data
-        elif instance.fixed_wei_value and instance.oracle_uri is None and instance.max_fee_per_gas is None and instance.max_priority_fee_per_gas is None:
+        elif instance.fixed_wei_value and instance.oracle_uri is None and instance.max_fee_per_gas is None and\
+                instance.max_priority_fee_per_gas is None:
             return GasPriceFixedSerializer(instance).data
-        elif instance.max_fee_per_gas and instance.max_priority_fee_per_gas and instance.oracle_uri is None and instance.fixed_wei_value is None:
+        elif instance.max_fee_per_gas and instance.max_priority_fee_per_gas and instance.oracle_uri is None and\
+                instance.fixed_wei_value is None:
             return GasPriceFixed1559Serializer(instance).data
         else:
             raise APIException(

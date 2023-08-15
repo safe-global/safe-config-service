@@ -57,6 +57,29 @@ class ChainGasPriceFixedTestCase(TestCase):
         gas_price.full_clean()
 
 
+class ChainGasPriceFixed1559TestCase(TestCase):
+    @staticmethod
+    def test_only_fixed1559_defined() -> None:
+        gas_price = GasPriceFactory.create(
+            oracle_uri=None,
+            fixed_wei_value=None,
+            max_fee_per_gas="100000",
+            max_priority_fee_per_gas="1000",
+        )
+
+        gas_price.full_clean()
+
+    def test_fixed_and_fixed1559_defined(self) -> None:
+        gas_price = GasPriceFactory.create(
+            fixed_wei_value="100000",
+            max_fee_per_gas="100000",
+            max_priority_fee_per_gas="1000",
+        )
+
+        with self.assertRaises(ValidationError):
+            gas_price.full_clean()
+
+
 class ChainGasPriceOracleTestCase(TestCase):
     faker = Faker()
 
