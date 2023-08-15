@@ -157,15 +157,19 @@ class GasPrice(models.Model):
     )  # type: ignore[no-untyped-call]
 
     def __str__(self) -> str:
-        return f"Chain = {self.chain.id} | uri={self.oracle_uri} | fixed_wei_value={self.fixed_wei_value} | \
-            max_fee_per_gas={self.max_fee_per_gas} | max_priority_fee_per-gas={self.max_priority_fee_per_gas}"
+        return f"Chain = {self.chain.id} | uri={self.oracle_uri} | fixed_wei_value={self.fixed_wei_value} | max_fee_per_gas={self.max_fee_per_gas} | max_priority_fee_per-gas={self.max_priority_fee_per_gas}"  # noqa E501
 
     def clean(self) -> None:
         fixed_wei_defined = self.fixed_wei_value is not None
-        fixed1559_defined = self.max_fee_per_gas is not None and self.max_priority_fee_per_gas is not None
+        fixed1559_defined = (
+            self.max_fee_per_gas is not None
+            and self.max_priority_fee_per_gas is not None
+        )
         oracle_defined = self.oracle_uri is not None
-        exactly_one_variant = reduce(xor, [fixed_wei_defined, fixed1559_defined, oracle_defined])
-        if (not exactly_one_variant):
+        exactly_one_variant = reduce(
+            xor, [fixed_wei_defined, fixed1559_defined, oracle_defined]
+        )
+        if not exactly_one_variant:
             raise ValidationError(
                 {
                     "oracle_uri": "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas should be \
@@ -176,7 +180,6 @@ class GasPrice(models.Model):
                         should be provided (but not multiple)",
                     "max_priority_fee_per_gas": "An oracle uri, fixed gas price or maxFeePerGas and \
                         maxPriorityFeePerGas should be provided (but not multiple)",
-
                 }
             )
         if self.oracle_uri is not None and self.oracle_parameter is None:

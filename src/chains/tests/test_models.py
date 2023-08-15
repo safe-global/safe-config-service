@@ -24,7 +24,7 @@ class GasPriceTestCase(TestCase):
 
         self.assertEqual(
             str(gas_price),
-            f"Chain = {gas_price.chain.id} | uri={gas_price.oracle_uri} | fixed_wei_value={gas_price.fixed_wei_value}",
+            f"Chain = {gas_price.chain.id} | uri={gas_price.oracle_uri} | fixed_wei_value={gas_price.fixed_wei_value} | max_fee_per_gas={gas_price.max_fee_per_gas} | max_priority_fee_per-gas={gas_price.max_priority_fee_per_gas}",  # noqa E501
         )
 
 
