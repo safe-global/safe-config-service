@@ -166,9 +166,8 @@ class GasPrice(models.Model):
             and self.max_priority_fee_per_gas is not None
         )
         oracle_defined = self.oracle_uri is not None
-        exactly_one_variant = reduce(
-            xor, [fixed_wei_defined, fixed1559_defined, oracle_defined]
-        )
+        exactly_one_variant = [fixed_wei_defined, fixed1559_defined, oracle_defined].count(True) == 1
+        
         if not exactly_one_variant:
             raise ValidationError(
                 {
