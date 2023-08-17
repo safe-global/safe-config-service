@@ -453,15 +453,14 @@ class ChainGasPriceTests(APITestCase):
             chain=chain,
             max_fee_per_gas=self.faker.pyint(),
             max_priority_fee_per_gas=self.faker.pyint(),
-            fixed_wei_value=None
-
+            fixed_wei_value=None,
         )
         url = reverse("v1:chains:detail", args=[1])
         expected_oracle_json_payload = [
             {
                 "type": "fixed1559",
                 "maxFeePerGas": str(gas_price.max_fee_per_gas),
-                "maxPriorityFeePerGas": str(gas_price.max_priority_fee_per_gas)
+                "maxPriorityFeePerGas": str(gas_price.max_priority_fee_per_gas),
             }
         ]
 
