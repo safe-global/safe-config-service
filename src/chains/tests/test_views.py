@@ -447,6 +447,28 @@ class ChainGasPriceTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["gasPrice"], expected_oracle_json_payload)
 
+    def test_fixed_gas_price_1559_json_payload_format(self) -> None:
+        chain = ChainFactory.create(id=1)
+        gas_price = GasPriceFactory.create(
+            chain=chain,
+            max_fee_per_gas=self.faker.pyint(),
+            max_priority_fee_per_gas=self.faker.pyint(),
+            fixed_wei_value=None,
+        )
+        url = reverse("v1:chains:detail", args=[1])
+        expected_oracle_json_payload = [
+            {
+                "type": "fixed1559",
+                "maxFeePerGas": str(gas_price.max_fee_per_gas),
+                "maxPriorityFeePerGas": str(gas_price.max_priority_fee_per_gas),
+            }
+        ]
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["gasPrice"], expected_oracle_json_payload)
+
 
 class WalletTests(APITestCase):
     def test_wallet_with_no_chains_show_as_disabled(self) -> None:

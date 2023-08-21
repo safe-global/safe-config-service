@@ -24,7 +24,7 @@ class GasPriceTestCase(TestCase):
 
         self.assertEqual(
             str(gas_price),
-            f"Chain = {gas_price.chain.id} | uri={gas_price.oracle_uri} | fixed_wei_value={gas_price.fixed_wei_value}",
+            f"Chain = {gas_price.chain.id} | uri={gas_price.oracle_uri} | fixed_wei_value={gas_price.fixed_wei_value} | max_fee_per_gas={gas_price.max_fee_per_gas} | max_priority_fee_per-gas={gas_price.max_priority_fee_per_gas}",  # noqa E501
         )
 
 
@@ -55,6 +55,43 @@ class ChainGasPriceFixedTestCase(TestCase):
         )
 
         gas_price.full_clean()
+
+
+class ChainGasPriceFixed1559TestCase(TestCase):
+    faker = Faker()
+
+    @staticmethod
+    def test_only_fixed1559_defined() -> None:
+        gas_price = GasPriceFactory.create(
+            oracle_uri=None,
+            fixed_wei_value=None,
+            max_fee_per_gas="100000",
+            max_priority_fee_per_gas="1000",
+        )
+
+        gas_price.full_clean()
+
+    def test_fixed_and_fixed1559_defined(self) -> None:
+        gas_price = GasPriceFactory.create(
+            fixed_wei_value="100000",
+            max_fee_per_gas="100000",
+            max_priority_fee_per_gas="1000",
+        )
+
+        with self.assertRaises(ValidationError):
+            gas_price.full_clean()
+
+    def test_fixed_and_fixed1559_and_oracle_defined(self) -> None:
+        gas_price = GasPriceFactory.create(
+            oracle_uri=self.faker.url(),
+            oracle_parameter="fake parameter",
+            fixed_wei_value="100000",
+            max_fee_per_gas="100000",
+            max_priority_fee_per_gas="1000",
+        )
+
+        with self.assertRaises(ValidationError):
+            gas_price.full_clean()
 
 
 class ChainGasPriceOracleTestCase(TestCase):

@@ -58,6 +58,8 @@ class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]
         "pydecimal", positive=True, min_value=1, max_value=1_000_000_000, right_digits=9
     )
     fixed_wei_value = factory.Faker("pyint")
+    max_fee_per_gas = None
+    max_priority_fee_per_gas = None
     rank = factory.Faker("pyint")
 
 
