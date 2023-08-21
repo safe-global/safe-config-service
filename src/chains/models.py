@@ -169,18 +169,15 @@ class GasPrice(models.Model):
             fixed1559_defined,
             oracle_defined,
         ].count(True) == 1
-
+        multiple_variants_error = "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas \
+            should be provided (but not multiple)"
         if not exactly_one_variant:
             raise ValidationError(
                 {
-                    "oracle_uri": "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas should be \
-                        provided (but not multiple)",
-                    "fixed_wei_value": "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas \
-                         should be provided (but not multiple)",
-                    "max_fee_per_gas": "An oracle uri, fixed gas price or maxFeePerGas and maxPriorityFeePerGas \
-                        should be provided (but not multiple)",
-                    "max_priority_fee_per_gas": "An oracle uri, fixed gas price or maxFeePerGas and \
-                        maxPriorityFeePerGas should be provided (but not multiple)",
+                    "oracle_uri": multiple_variants_error,
+                    "fixed_wei_value": multiple_variants_error,
+                    "max_fee_per_gas": multiple_variants_error,
+                    "max_priority_fee_per_gas": multiple_variants_error,
                 }
             )
         if self.oracle_uri is not None and self.oracle_parameter is None:
