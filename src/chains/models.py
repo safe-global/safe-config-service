@@ -8,7 +8,6 @@ from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import QuerySet
-from gnosis.eth.django.models import EthereumAddressField, Uint256Field
 
 HEX_ARGB_REGEX = re.compile("^#[0-9a-fA-F]{6}$")
 
@@ -114,7 +113,7 @@ class Chain(models.Model):
         default="#000000",
         help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
-    ens_registry_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    ens_registry_address = models.CharField(null=True, blank=True)
     recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
@@ -141,18 +140,30 @@ class GasPrice(models.Model):
         verbose_name="Gwei multiplier factor",
         help_text="Factor required to reach the Gwei unit",
     )
-    fixed_wei_value = Uint256Field(
-        verbose_name="Fixed gas price (wei)", blank=True, null=True
-    )  # type: ignore[no-untyped-call]
+    fixed_wei_value = models.DecimalField(
+        decimal_places=0,
+        max_digits=79,
+        verbose_name="Fixed gas price (wei)",
+        blank=True,
+        null=True,
+    )
     rank = models.SmallIntegerField(
         default=100
     )  # A lower number will indicate higher ranking
-    max_fee_per_gas = Uint256Field(
-        verbose_name="Max fee per gas (wei)", blank=True, null=True
-    )  # type: ignore[no-untyped-call]
-    max_priority_fee_per_gas = Uint256Field(
-        verbose_name="Max priority fee per gas (wei)", blank=True, null=True
-    )  # type: ignore[no-untyped-call]
+    max_fee_per_gas = models.DecimalField(
+        decimal_places=0,
+        max_digits=79,
+        verbose_name="Max fee per gas (wei)",
+        blank=True,
+        null=True,
+    )
+    max_priority_fee_per_gas = models.DecimalField(
+        decimal_places=0,
+        max_digits=79,
+        verbose_name="Max priority fee per gas (wei)",
+        blank=True,
+        null=True,
+    )
 
     def __str__(self) -> str:
         return f"Chain = {self.chain.id} | uri={self.oracle_uri} | fixed_wei_value={self.fixed_wei_value} | max_fee_per_gas={self.max_fee_per_gas} | max_priority_fee_per-gas={self.max_priority_fee_per_gas}"  # noqa E501

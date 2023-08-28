@@ -1,7 +1,6 @@
 from abc import abstractmethod
 
 from drf_yasg.utils import swagger_serializer_method
-from gnosis.eth.django.serializers import EthereumAddressField
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.utils.serializer_helpers import ReturnDict
@@ -141,7 +140,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     vpc_transaction_service = serializers.URLField(source="vpc_transaction_service_uri")
     theme = serializers.SerializerMethodField()
     gas_price = serializers.SerializerMethodField()
-    ens_registry_address = EthereumAddressField()
+    ens_registry_address = serializers.CharField()
     disabled_wallets = serializers.SerializerMethodField()
     features = serializers.SerializerMethodField()
 
