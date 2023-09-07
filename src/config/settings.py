@@ -200,9 +200,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_URLS_REGEX = r"^/api/.*$"
 
 CGW_URL = os.environ.get("CGW_URL")
-ALTERNATIVE_CGW_URL = os.environ.get("ALTERNATIVE_CGW_URL")
 CGW_FLUSH_TOKEN = os.environ.get("CGW_FLUSH_TOKEN")
-ALTERNATIVE_CGW_FLUSH_TOKEN = os.environ.get("ALTERNATIVE_CGW_FLUSH_TOKEN")
 
 # By default, Django stores files locally, using the MEDIA_ROOT and MEDIA_URL settings.
 # (using the default the default FileSystemStorage)

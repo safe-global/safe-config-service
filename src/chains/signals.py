@@ -16,8 +16,6 @@ def _flush_cgw_chains() -> None:
     clients.safe_client_gateway.flush(
         cgw_url=settings.CGW_URL,
         cgw_flush_token=settings.CGW_FLUSH_TOKEN,
-        alternative_cgw_url=settings.ALTERNATIVE_CGW_URL,
-        alternative_cgw_flush_token=settings.ALTERNATIVE_CGW_FLUSH_TOKEN,
         json={"invalidate": "Chains"},
     )
 
