@@ -17,8 +17,6 @@ def _flush_cgw_safe_apps() -> None:
     clients.safe_client_gateway.flush(
         cgw_url=settings.CGW_URL,
         cgw_flush_token=settings.CGW_FLUSH_TOKEN,
-        alternative_cgw_url=settings.ALTERNATIVE_CGW_URL,
-        alternative_cgw_flush_token=settings.ALTERNATIVE_CGW_FLUSH_TOKEN,
         # Even though the payload is Chains, it actually invalidates all the safe-config related cache
         json={"invalidate": "Chains"},
     )
