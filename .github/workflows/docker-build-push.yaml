@@ -8,7 +8,7 @@ on:
 
 jobs:
   Build-Container-dev:
-    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.1
+    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.11.4
     if: github.ref != 'refs/heads/feat/celo'
     with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_NON_PROD }}
@@ -19,7 +19,7 @@ jobs:
       trivy: true
   
   Build-Container:
-   uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.1
+   uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.11.4
    if: github.ref == 'refs/heads/feat/celo'
    with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_PROD }}
