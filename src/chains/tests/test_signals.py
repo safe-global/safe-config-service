@@ -1,11 +1,12 @@
 import responses
 from django.test import TestCase, override_settings
 
-from chains.models import Feature, Wallet
-from chains.tests.factories import ChainFactory, GasPriceFactory
+from ..models import Feature, Wallet
+from ..tests.factories import ChainFactory, GasPriceFactory
 
 
 @override_settings(
+    FF_HOOK_EVENTS=False,
     CGW_URL="http://127.0.0.1",
     CGW_FLUSH_TOKEN="example-token",
 )
@@ -113,6 +114,7 @@ class ChainNetworkHookTestCase(TestCase):
 
 
 @override_settings(
+    FF_HOOK_EVENTS=False,
     CGW_URL="http://127.0.0.1",
     CGW_FLUSH_TOKEN="example-token",
 )
@@ -165,6 +167,7 @@ class FeatureHookTestCase(TestCase):
 
 
 @override_settings(
+    FF_HOOK_EVENTS=False,
     CGW_URL="http://127.0.0.1",
     CGW_FLUSH_TOKEN="example-token",
 )
@@ -217,6 +220,7 @@ class WalletHookTestCase(TestCase):
 
 
 @override_settings(
+    FF_HOOK_EVENTS=False,
     CGW_URL="http://127.0.0.1",
     CGW_FLUSH_TOKEN="example-token",
 )

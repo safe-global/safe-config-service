@@ -232,3 +232,5 @@ if allowed_csrf_origins:
         allowed_csrf_origins.strip()
         for allowed_csrf_origins in allowed_csrf_origins.split(",")
     ]
+
+FF_HOOK_EVENTS = bool(strtobool(os.getenv("FF_HOOK_EVENTS", "false")))

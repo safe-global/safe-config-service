@@ -1,11 +1,12 @@
 import responses
 from django.test import TestCase, override_settings
 
-from safe_apps.models import SafeApp, Tag
-from safe_apps.tests.factories import ProviderFactory
+from ..models import SafeApp, Tag
+from ..tests.factories import ProviderFactory
 
 
 @override_settings(
+    FF_HOOK_EVENTS=False,
     CGW_URL="http://127.0.0.1",
     CGW_FLUSH_TOKEN="example-token",
 )
