@@ -16,7 +16,7 @@ Faker.seed(0)
 )
 class SafeAppHookTestCase(TestCase):
     @responses.activate
-    def test_on_safe_app_create_hook_call(self) -> None:
+    def test_on_safe_app_create(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/hooks/events",
@@ -46,7 +46,7 @@ class SafeAppHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_safe_app_update_hook_call(self) -> None:
+    def test_on_safe_app_update(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/hooks/events",
@@ -79,7 +79,7 @@ class SafeAppHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_safe_app_delete_hook_call(self) -> None:
+    def test_on_safe_app_delete(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/hooks/events",
@@ -118,7 +118,7 @@ class SafeAppHookTestCase(TestCase):
 )
 class ProviderHookTestCase(TestCase):
     @responses.activate
-    def test_on_provider_create_hook_call(self) -> None:
+    def test_on_provider_create_with_no_safe_app(self) -> None:
         ProviderFactory.create()
 
         assert len(responses.calls) == 0
@@ -167,7 +167,7 @@ class ProviderHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_provider_delete_hook_call(self) -> None:
+    def test_on_provider_delete_with_no_safe_app(self) -> None:
         provider = ProviderFactory.create()  # create
         provider.delete()  # delete
 
@@ -203,7 +203,7 @@ class ProviderHookTestCase(TestCase):
 )
 class TagHookTestCase(TestCase):
     @responses.activate
-    def test_on_tag_create_hook_call(self) -> None:
+    def test_on_tag_create_with_no_safe_app(self) -> None:
         TagFactory.create()  # create
 
         assert len(responses.calls) == 0
@@ -225,7 +225,7 @@ class TagHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_tag_update_hook_call(self) -> None:
+    def test_on_tag_update_with_no_safe_app(self) -> None:
         tag = TagFactory.create()  # create
         tag.name = "Test Tag"
 
@@ -252,7 +252,7 @@ class TagHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_tag_delete_hook_call(self) -> None:
+    def test_on_tag_delete_with_no_safe_app(self) -> None:
         tag = TagFactory.create()  # create
 
         tag.delete()  # delete
@@ -284,7 +284,7 @@ class TagHookTestCase(TestCase):
 )
 class FeatureHookTestCase(TestCase):
     @responses.activate
-    def test_on_feature_create_hook_call(self) -> None:
+    def test_on_feature_create_with_no_safe_app(self) -> None:
         FeatureFactory.create()  # create
 
         assert len(responses.calls) == 0
@@ -306,7 +306,7 @@ class FeatureHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_feature_update_hook_call(self) -> None:
+    def test_on_feature_update_with_no_safe_app(self) -> None:
         feature = FeatureFactory.create()  # create
         feature.name = "Test Feature"
 
@@ -333,7 +333,7 @@ class FeatureHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_feature_delete_hook_call(self) -> None:
+    def test_on_feature_delete_with_no_safe_app(self) -> None:
         feature = FeatureFactory.create()  # create
 
         feature.delete()  # delete

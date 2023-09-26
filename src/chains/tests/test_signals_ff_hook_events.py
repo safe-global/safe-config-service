@@ -104,7 +104,7 @@ class ChainNetworkHookWithFFHookEventsTestCase(TestCase):
 )
 class FeatureHookTestCase(TestCase):
     @responses.activate
-    def test_on_feature_create(self) -> None:
+    def test_on_feature_create_with_no_chain(self) -> None:
         Feature(key="Test Feature").save()
 
         # Creating a feature with no chains should not trigger any webhook
@@ -130,7 +130,7 @@ class FeatureHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_feature_delete(self) -> None:
+    def test_on_feature_delete_with_no_chain(self) -> None:
         feature = Feature(key="Test Feature")
 
         feature.save()  # create
@@ -161,7 +161,7 @@ class FeatureHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_feature_update(self) -> None:
+    def test_on_feature_update_with_no_chain(self) -> None:
         feature = Feature(key="Test Feature")
 
         feature.save()  # create
@@ -201,7 +201,7 @@ class FeatureHookTestCase(TestCase):
 )
 class WalletHookTestCase(TestCase):
     @responses.activate
-    def test_on_wallet_create_hook_call(self) -> None:
+    def test_on_wallet_create_with_no_chain(self) -> None:
         Wallet(key="Test Wallet").save()
 
         # Creating a wallet with no chains should not trigger any webhook
@@ -227,7 +227,7 @@ class WalletHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_wallet_delete_hook_call(self) -> None:
+    def test_on_wallet_delete_with_no_chain(self) -> None:
         wallet = Wallet(key="Test Wallet")
 
         wallet.save()  # create
@@ -258,7 +258,7 @@ class WalletHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_wallet_update_hook_call(self) -> None:
+    def test_on_wallet_update_with_no_chain(self) -> None:
         wallet = Wallet(key="Test Wallet")
 
         wallet.save()  # create
@@ -303,7 +303,7 @@ class GasPriceHookTestCase(TestCase):
         )  # chain creation: a GasPrice requires a chain
 
     @responses.activate
-    def test_on_gas_price_create_hook_call(self) -> None:
+    def test_on_gas_price_create(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/hooks/events",
@@ -334,7 +334,7 @@ class GasPriceHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_gas_price_delete_hook_call(self) -> None:
+    def test_on_gas_price_delete(self) -> None:
         gas_price = GasPriceFactory.create(chain=self.chain)  # create
         gas_price.delete()  # delete
 
@@ -353,7 +353,7 @@ class GasPriceHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_gas_price_update_hook_call(self) -> None:
+    def test_on_gas_price_update(self) -> None:
         gas_price = GasPriceFactory.create(
             chain=self.chain, fixed_wei_value=1000
         )  # create
