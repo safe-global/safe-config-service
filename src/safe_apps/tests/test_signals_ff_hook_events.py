@@ -131,24 +131,13 @@ class ProviderHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update
         assert len(responses.calls) == 2
-        assert isinstance(responses.calls[0], responses.Call)
         assert isinstance(responses.calls[1], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             1
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
             "utf-8"
         )
-        assert responses.calls[0].request.url == "http://127.0.0.1/v1/hooks/events"
         assert responses.calls[1].request.url == "http://127.0.0.1/v1/hooks/events"
-        assert (
-            responses.calls[0].request.headers.get("Authorization")
-            == "Basic example-token"
-        )
         assert (
             responses.calls[1].request.headers.get("Authorization")
             == "Basic example-token"
@@ -165,35 +154,13 @@ class ProviderHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update, Provider update
         assert len(responses.calls) == 3
-        assert isinstance(responses.calls[0], responses.Call)
-        assert isinstance(responses.calls[1], responses.Call)
         assert isinstance(responses.calls[2], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            1
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             2
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
             "utf-8"
         )
-        assert responses.calls[0].request.url == "http://127.0.0.1/v1/hooks/events"
-        assert responses.calls[1].request.url == "http://127.0.0.1/v1/hooks/events"
         assert responses.calls[2].request.url == "http://127.0.0.1/v1/hooks/events"
-        assert (
-            responses.calls[0].request.headers.get("Authorization")
-            == "Basic example-token"
-        )
-        assert (
-            responses.calls[1].request.headers.get("Authorization")
-            == "Basic example-token"
-        )
         assert (
             responses.calls[2].request.headers.get("Authorization")
             == "Basic example-token"
@@ -216,24 +183,13 @@ class ProviderHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update, Provider update
         assert len(responses.calls) == 2
-        assert isinstance(responses.calls[0], responses.Call)
         assert isinstance(responses.calls[1], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             1
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
             "utf-8"
         )
-        assert responses.calls[0].request.url == "http://127.0.0.1/v1/hooks/events"
         assert responses.calls[1].request.url == "http://127.0.0.1/v1/hooks/events"
-        assert (
-            responses.calls[0].request.headers.get("Authorization")
-            == "Basic example-token"
-        )
         assert (
             responses.calls[1].request.headers.get("Authorization")
             == "Basic example-token"
@@ -261,25 +217,7 @@ class TagHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update, M2M update, Tag create
         assert len(responses.calls) == 4
-        assert isinstance(responses.calls[0], responses.Call)
-        assert isinstance(responses.calls[1], responses.Call)
-        assert isinstance(responses.calls[2], responses.Call)
         assert isinstance(responses.calls[3], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            1
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            2
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             3
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
@@ -306,31 +244,7 @@ class TagHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update, M2M update, Tag create, Tag update
         assert len(responses.calls) == 5
-        assert isinstance(responses.calls[0], responses.Call)
-        assert isinstance(responses.calls[1], responses.Call)
-        assert isinstance(responses.calls[2], responses.Call)
-        assert isinstance(responses.calls[3], responses.Call)
         assert isinstance(responses.calls[4], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            1
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            2
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            3
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             4
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
@@ -355,31 +269,7 @@ class TagHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update, M2M update, Tag create, Tag delete
         assert len(responses.calls) == 5
-        assert isinstance(responses.calls[0], responses.Call)
-        assert isinstance(responses.calls[1], responses.Call)
-        assert isinstance(responses.calls[2], responses.Call)
-        assert isinstance(responses.calls[3], responses.Call)
         assert isinstance(responses.calls[4], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            1
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            2
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            3
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             4
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
@@ -408,25 +298,7 @@ class FeatureHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update, M2M update, Feature create
         assert len(responses.calls) == 4
-        assert isinstance(responses.calls[0], responses.Call)
-        assert isinstance(responses.calls[1], responses.Call)
-        assert isinstance(responses.calls[2], responses.Call)
         assert isinstance(responses.calls[3], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            1
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            2
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             3
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
@@ -453,31 +325,7 @@ class FeatureHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update, M2M update, Feature create, Feature update
         assert len(responses.calls) == 5
-        assert isinstance(responses.calls[0], responses.Call)
-        assert isinstance(responses.calls[1], responses.Call)
-        assert isinstance(responses.calls[2], responses.Call)
-        assert isinstance(responses.calls[3], responses.Call)
         assert isinstance(responses.calls[4], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            1
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            2
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            3
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             4
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
@@ -502,31 +350,7 @@ class FeatureHookTestCase(TestCase):
 
         # Safe App Creation, Safe App Update, M2M update, Feature create, Feature delete
         assert len(responses.calls) == 5
-        assert isinstance(responses.calls[0], responses.Call)
-        assert isinstance(responses.calls[1], responses.Call)
-        assert isinstance(responses.calls[2], responses.Call)
-        assert isinstance(responses.calls[3], responses.Call)
         assert isinstance(responses.calls[4], responses.Call)
-        assert responses.calls[
-            0
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            1
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            2
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
-        assert responses.calls[
-            3
-        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
-            "utf-8"
-        )
         assert responses.calls[
             4
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(

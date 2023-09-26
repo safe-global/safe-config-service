@@ -86,6 +86,17 @@ class ChainNetworkHookWithFFHookEventsTestCase(TestCase):
 
         # 2 calls: one for creation and one for updating
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
+        assert responses.calls[
+            1
+        ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{chain.id}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[0].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[0].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
 
 
 @override_settings(
@@ -112,9 +123,9 @@ class FeatureHookTestCase(TestCase):
         ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{chain.id}"}}'.encode(
             "utf-8"
         )
-        assert responses.calls[0].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert responses.calls[2].request.url == "http://127.0.0.1/v1/hooks/events"
         assert (
-            responses.calls[0].request.headers.get("Authorization")
+            responses.calls[2].request.headers.get("Authorization")
             == "Basic example-token"
         )
 
@@ -209,9 +220,9 @@ class WalletHookTestCase(TestCase):
         ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{chain.id}"}}'.encode(
             "utf-8"
         )
-        assert responses.calls[0].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert responses.calls[2].request.url == "http://127.0.0.1/v1/hooks/events"
         assert (
-            responses.calls[0].request.headers.get("Authorization")
+            responses.calls[2].request.headers.get("Authorization")
             == "Basic example-token"
         )
 
@@ -329,6 +340,17 @@ class GasPriceHookTestCase(TestCase):
 
         # 2 calls: one for creation and one for deletion
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
+        assert responses.calls[
+            1
+        ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{self.chain.id}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[1].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[1].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
 
     @responses.activate
     def test_on_gas_price_update_hook_call(self) -> None:
@@ -341,3 +363,14 @@ class GasPriceHookTestCase(TestCase):
 
         # 2 calls: one for creation and one for updating
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
+        assert responses.calls[
+            1
+        ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{self.chain.id}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[1].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[1].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
