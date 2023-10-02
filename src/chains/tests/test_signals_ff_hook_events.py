@@ -47,7 +47,7 @@ class ChainNetworkHookWithFFHookEventsTestCase(TestCase):
                     {"Authorization": "Basic example-token"}
                 ),
                 responses.matchers.json_params_matcher(
-                    {"type": "CHAIN_UPDATE", "chain_id": str(chain_id)}
+                    {"type": "CHAIN_UPDATE", "chainId": str(chain_id)}
                 ),
             ],
         )
@@ -69,12 +69,38 @@ class ChainNetworkHookWithFFHookEventsTestCase(TestCase):
 
     @responses.activate
     def test_on_chain_delete(self) -> None:
-        chain = ChainFactory.create()
+        # Deleting an object sets the primary key to None so we set it in a separate variable
+        chain_id = fake.pyint()
+        chain = ChainFactory.create(id=chain_id)
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher(
+                    {"type": "CHAIN_UPDATE", "chainId": str(chain.id)}
+                ),
+            ],
+        )
 
         chain.delete()
 
         # 2 calls: one for creation and one for deletion
         assert len(responses.calls) == 2
+        assert isinstance(responses.calls[1], responses.Call)
+        assert responses.calls[
+            1
+        ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{chain_id}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[1].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[1].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
 
     @responses.activate
     def test_on_chain_update(self) -> None:
@@ -269,7 +295,7 @@ class WalletHookTestCase(TestCase):
         assert len(responses.calls) == 0
 
     @responses.activate
-    def test_on_feature_update_with_chain(self) -> None:
+    def test_on_wallet_update_with_chain(self) -> None:
         chain = ChainFactory.create()
         wallet = FeatureFactory.create(key="Test Wallet", chains=(chain,))
 
@@ -313,7 +339,7 @@ class GasPriceHookTestCase(TestCase):
                     {"Authorization": "Basic example-token"}
                 ),
                 responses.matchers.json_params_matcher(
-                    {"type": "CHAIN_UPDATE", "chain_id": str(self.chain.id)}
+                    {"type": "CHAIN_UPDATE", "chainId": str(self.chain.id)}
                 ),
             ],
         )

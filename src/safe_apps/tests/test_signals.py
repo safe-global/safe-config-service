@@ -93,6 +93,7 @@ class SafeAppHookTestCase(TestCase):
 
 
 @override_settings(
+    FF_HOOK_EVENTS=False,
     CGW_URL="http://127.0.0.1",
     CGW_FLUSH_TOKEN="example-token",
 )
@@ -177,6 +178,7 @@ class ProviderHookTestCase(TestCase):
 
 
 @override_settings(
+    FF_HOOK_EVENTS=False,
     CGW_URL="http://127.0.0.1",
     CGW_FLUSH_TOKEN="example-token",
 )
