@@ -276,6 +276,41 @@ class TagHookTestCase(TestCase):
             "utf-8"
         )
 
+    @responses.activate
+    def test_on_tag_update_with_multiple_safe_apps(self) -> None:
+        chain_id_1 = fake.pyint()
+        chain_id_2 = fake.pyint()
+        safe_app = SafeAppFactory.create(chain_ids=[chain_id_1, chain_id_2])
+
+        TagFactory.create(safe_apps=(safe_app,))
+
+        # Safe App Creation for chain 1, Safe App Creation for chain 2,
+        # Safe App Update for chain 1, Safe App Update for chain 2,
+        # Tag update for chain 1, M2M update for chain 1
+        # Tag update for chain 2, M2M update for chain 2
+        assert len(responses.calls) == 8
+        assert isinstance(responses.calls[5], responses.Call)
+        assert responses.calls[
+            4
+        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id_2}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[
+            5
+        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id_1}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[
+            6
+        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id_1}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[
+            7
+        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id_2}"}}'.encode(
+            "utf-8"
+        )
+
 
 @override_settings(
     FF_HOOK_EVENTS=True,
@@ -354,5 +389,40 @@ class FeatureHookTestCase(TestCase):
         assert responses.calls[
             4
         ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id}"}}'.encode(
+            "utf-8"
+        )
+
+    @responses.activate
+    def test_on_feature_update_with_multiple_safe_apps(self) -> None:
+        chain_id_1 = fake.pyint()
+        chain_id_2 = fake.pyint()
+        safe_app = SafeAppFactory.create(chain_ids=[chain_id_1, chain_id_2])
+
+        FeatureFactory.create(safe_apps=(safe_app,))
+
+        # Safe App Creation for chain 1, Safe App Creation for chain 2,
+        # Safe App Update for chain 1, Safe App Update for chain 2,
+        # Feature update for chain 1, M2M update for chain 1
+        # Feature update for chain 2, M2M update for chain 2
+        assert len(responses.calls) == 8
+        assert isinstance(responses.calls[5], responses.Call)
+        assert responses.calls[
+            4
+        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id_2}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[
+            5
+        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id_1}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[
+            6
+        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id_1}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[
+            7
+        ].request.body == f'{{"type": "SAFE_APPS_UPDATE", "chainId": "{chain_id_2}"}}'.encode(
             "utf-8"
         )

@@ -219,6 +219,39 @@ class FeatureHookTestCase(TestCase):
             == "Basic example-token"
         )
 
+    @responses.activate
+    def test_on_feature_update_with_multiple_chains(self) -> None:
+        chain_1 = ChainFactory.create()
+        chain_2 = ChainFactory.create()
+
+        FeatureFactory.create(key="Test Feature", chains=(chain_1, chain_2))
+
+        # 1 call for Chain 1 creation, 1 call for Chain 2 creation, 1 call for feature creation,
+        # 1 call for Chain 1 M2M update, 1 call for Chain 2 M2M update, 1 call for Feature update
+        assert len(responses.calls) == 6
+        assert isinstance(responses.calls[3], responses.Call)
+        assert isinstance(responses.calls[4], responses.Call)
+        assert responses.calls[
+            3
+        ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{chain_2.id}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[
+            4
+        ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{chain_1.id}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[3].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert responses.calls[4].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert (
+            responses.calls[4].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+
 
 @override_settings(
     FF_HOOK_EVENTS=True,
@@ -297,7 +330,7 @@ class WalletHookTestCase(TestCase):
     @responses.activate
     def test_on_wallet_update_with_chain(self) -> None:
         chain = ChainFactory.create()
-        wallet = FeatureFactory.create(key="Test Wallet", chains=(chain,))
+        wallet = WalletFactory.create(key="Test Wallet", chains=(chain,))
 
         wallet.chains.remove(chain)
 
@@ -313,6 +346,39 @@ class WalletHookTestCase(TestCase):
         assert responses.calls[3].request.url == "http://127.0.0.1/v1/hooks/events"
         assert (
             responses.calls[3].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+
+    @responses.activate
+    def test_on_wallet_update_with_multiple_chains(self) -> None:
+        chain_1 = ChainFactory.create()
+        chain_2 = ChainFactory.create()
+
+        WalletFactory.create(key="Test Wallet", chains=(chain_1, chain_2))
+
+        # 1 call for Chain 1 creation, 1 call for Chain 2 creation, 1 call for Wallet creation,
+        # 1 call for Chain 1 M2M update, 1 call for Chain 2 M2M update, 1 call for Wallet update
+        assert len(responses.calls) == 6
+        assert isinstance(responses.calls[3], responses.Call)
+        assert isinstance(responses.calls[4], responses.Call)
+        assert responses.calls[
+            3
+        ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{chain_2.id}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[
+            4
+        ].request.body == f'{{"type": "CHAIN_UPDATE", "chainId": "{chain_1.id}"}}'.encode(
+            "utf-8"
+        )
+        assert responses.calls[3].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert responses.calls[4].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert (
+            responses.calls[4].request.headers.get("Authorization")
             == "Basic example-token"
         )
 
