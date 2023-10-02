@@ -3,7 +3,7 @@ Django==4.2.5
 django-cors-headers==4.2.0
 djangorestframework==3.14.0
 djangorestframework-camel-case==1.4.2
-django-storages==1.14
+django-storages==1.14.1
 django-stubs-ext==4.2.2
 drf-yasg[validation]==1.21.7
 safe-eth-py[django]==5.8.0
