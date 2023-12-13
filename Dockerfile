@@ -27,6 +27,16 @@ RUN set ex \
     && rm -rf /var/lib/apt/lists/* \
     && chmod +x /usr/bin/tini
 
-COPY . .
+# Group 'python' (GID 999) and user 'python' (uid 999) are created
+RUN groupadd -g 999 python && useradd -u 999 -r -g python python
+
+# App folder and '/nginx' mount point are created with the new user as owner
+RUN mkdir -p /nginx && chown -R python:python /nginx .
+COPY --chown=python:python . .
+
+# Container is ran by the new user
+# UID:GID is used as Kubernetes requires numeric IDs: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.28/#securitycontext-v1-core
+USER 999:999
+
 RUN DEFAULT_FILE_STORAGE=django.core.files.storage.FileSystemStorage python src/manage.py collectstatic --noinput
 ENTRYPOINT ["/usr/bin/tini", "--", "./docker-entrypoint.sh"]
