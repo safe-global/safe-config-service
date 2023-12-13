@@ -28,10 +28,10 @@ RUN set ex \
     && chmod +x /usr/bin/tini
 
 # Group 'python' (GID 999) and user 'python' (uid 999) are created
-RUN groupadd -g 999 python && useradd -u 999 -r -g python python
-
-# App folder and '/nginx' mount point are created with the new user as owner
-RUN mkdir -p /nginx && chown -R python:python /nginx .
+RUN groupadd -g 999 python && \
+    useradd -u 999 -r -g python python && \
+    # App folder and '/nginx' mount point are created with the new user as owner
+    mkdir -p /nginx && chown -R python:python /nginx .
 COPY --chown=python:python . .
 
 # Container is ran by the new user
