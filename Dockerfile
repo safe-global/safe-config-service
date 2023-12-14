@@ -20,12 +20,11 @@ RUN set ex \
         pkg-config  \
 		" \
     && apt-get update \
-    && apt-get install -y --no-install-recommends $buildDeps tini \
+    && apt-get install -y --no-install-recommends $buildDeps \
     && pip3 install -U --no-cache-dir wheel setuptools pip \
     && pip3 install --no-cache-dir --user -r requirements.txt \
     && apt-get purge -y --auto-remove $buildDeps \
-    && rm -rf /var/lib/apt/lists/* \
-    && chmod +x /usr/bin/tini
+    && rm -rf /var/lib/apt/lists/*
 
 # Group 'python' (GID 999) and user 'python' (uid 999) are created
 RUN groupadd -g 999 python && \
@@ -39,4 +38,4 @@ COPY --chown=python:python . .
 USER 999:999
 
 RUN DEFAULT_FILE_STORAGE=django.core.files.storage.FileSystemStorage python src/manage.py collectstatic --noinput
-ENTRYPOINT ["/usr/bin/tini", "--", "./docker-entrypoint.sh"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
