@@ -6,7 +6,7 @@ Faker==21.0.0
 flake8==6.1.0
 isort==5.13.2
 pre-commit==3.6.0
-pytest-django==4.5.2
+pytest-django==4.7.0
 responses==0.24.1
 
 # mypy and PEP 561 stubs
