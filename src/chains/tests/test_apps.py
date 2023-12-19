@@ -22,7 +22,7 @@ def test_validate_storage_setup(settings) -> None:  # type: ignore[no-untyped-de
     settings.AWS_STORAGE_BUCKET_NAME = None
 
     assertRaisesMessage(
-        ImproperlyConfigured,  # type: ignore[arg-type]
+        ImproperlyConfigured,
         "Storage set to S3 but AWS is not configured",
         _validate_storage_setup,
     )
