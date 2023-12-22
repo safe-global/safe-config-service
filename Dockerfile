@@ -31,7 +31,9 @@ RUN groupadd -g 999 python && \
     useradd -u 999 -r -g python python && \
     # App folder and '/nginx' mount point are created with the new user as owner
     mkdir -p /nginx && chown -R python:python /nginx .
-COPY --chown=python:python . .
+COPY --chown=python:python src/ src
+COPY --chown=python:python static/ static
+COPY --chown=python:python docker-entrypoint.sh .
 
 # Container is ran by the new user
 # UID:GID is used as Kubernetes requires numeric IDs: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.28/#securitycontext-v1-core
