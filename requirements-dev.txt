@@ -1,6 +1,6 @@
 -r requirements.txt
 black==23.12.1
-coverage==7.3.4
+coverage==7.4.0
 factory-boy==3.3.0
 Faker==22.0.0
 flake8==6.1.0
