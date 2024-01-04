@@ -2,7 +2,7 @@
 black==23.12.1
 coverage==7.3.4
 factory-boy==3.3.0
-Faker==21.0.0
+Faker==22.0.0
 flake8==6.1.0
 isort==5.13.2
 pre-commit==3.6.0
