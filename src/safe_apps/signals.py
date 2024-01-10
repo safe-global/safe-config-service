@@ -24,20 +24,15 @@ def on_safe_app_update(sender: SafeApp, instance: SafeApp, **kwargs: Any) -> Non
     logger.info("Clearing safe-apps cache")
     caches["safe-apps"].clear()
     if settings.FF_HOOK_EVENTS:
-        if instance.app_id is None:  # new SafeApp being created
-            for chain_id in instance.chain_ids:
-                hook_event(
-                    HookEvent(type=HookEvent.Type.SAFE_APPS_UPDATE, chain_id=chain_id)
-                )
-        else:  # existing SafeApp being updated
-            chain_ids = set(instance.chain_ids)
+        chain_ids = set(instance.chain_ids)
+        if instance.app_id is not None:  # existing SafeApp being updated
             previous = SafeApp.objects.filter(app_id=instance.app_id).first()
             if previous is not None:
                 chain_ids.update(previous.chain_ids)
-            for chain_id in chain_ids:
-                hook_event(
-                    HookEvent(type=HookEvent.Type.SAFE_APPS_UPDATE, chain_id=chain_id)
-                )
+        for chain_id in chain_ids:
+            hook_event(
+                HookEvent(type=HookEvent.Type.SAFE_APPS_UPDATE, chain_id=chain_id)
+            )
     else:
         flush()
 
