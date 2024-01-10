@@ -3,7 +3,13 @@ from typing import Any
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete
+from django.db.models.signals import (
+    m2m_changed,
+    post_delete,
+    post_save,
+    pre_delete,
+    pre_save,
+)
 from django.dispatch import receiver
 
 from clients.safe_client_gateway import HookEvent, flush, hook_event
@@ -13,9 +19,31 @@ from .models import Feature, Provider, SafeApp, Tag
 logger = logging.getLogger(__name__)
 
 
-@receiver(post_save, sender=SafeApp)
-@receiver(post_delete, sender=SafeApp)
+@receiver(pre_save, sender=SafeApp)
 def on_safe_app_update(sender: SafeApp, instance: SafeApp, **kwargs: Any) -> None:
+    logger.info("Clearing safe-apps cache")
+    caches["safe-apps"].clear()
+    if settings.FF_HOOK_EVENTS:
+        if instance.app_id is None:  # new SafeApp being created
+            for chain_id in instance.chain_ids:
+                hook_event(
+                    HookEvent(type=HookEvent.Type.SAFE_APPS_UPDATE, chain_id=chain_id)
+                )
+        else:  # existing SafeApp being updated
+            chain_ids = set(instance.chain_ids)
+            previous = SafeApp.objects.filter(app_id=instance.app_id).first()
+            if previous is not None:
+                chain_ids.update(previous.chain_ids)
+            for chain_id in chain_ids:
+                hook_event(
+                    HookEvent(type=HookEvent.Type.SAFE_APPS_UPDATE, chain_id=chain_id)
+                )
+    else:
+        flush()
+
+
+@receiver(post_delete, sender=SafeApp)
+def on_safe_app_delete(sender: SafeApp, instance: SafeApp, **kwargs: Any) -> None:
     logger.info("Clearing safe-apps cache")
     caches["safe-apps"].clear()
     if settings.FF_HOOK_EVENTS:
