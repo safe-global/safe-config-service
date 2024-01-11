@@ -79,6 +79,152 @@ class SafeAppHookTestCase(TestCase):
         )
 
     @responses.activate
+    def test_on_safe_app_update_by_adding_chain_ids(self) -> None:
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher(
+                    {"type": "SAFE_APPS_UPDATE", "chainId": "1"}
+                ),
+            ],
+        )
+
+        safe_app = SafeApp(app_id=1, chain_ids=[1])
+        safe_app.save()  # create
+        safe_app.chain_ids = [1, 2, 3]
+        safe_app.save()  # update
+
+        assert len(responses.calls) == 4
+        assert isinstance(responses.calls[0], responses.Call)
+        assert (
+            responses.calls[0].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "1"}'
+        )
+        assert responses.calls[0].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[0].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[1], responses.Call)
+        assert (
+            responses.calls[1].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "1"}'
+        )
+        assert responses.calls[1].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[1].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[2], responses.Call)
+        assert (
+            responses.calls[2].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "2"}'
+        )
+        assert responses.calls[2].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[2].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[3], responses.Call)
+        assert (
+            responses.calls[3].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "3"}'
+        )
+        assert responses.calls[3].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+
+    @responses.activate
+    def test_on_safe_app_update_by_removing_chain_ids(self) -> None:
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+            match=[
+                responses.matchers.header_matcher(
+                    {"Authorization": "Basic example-token"}
+                ),
+                responses.matchers.json_params_matcher(
+                    {"type": "SAFE_APPS_UPDATE", "chainId": "1"}
+                ),
+            ],
+        )
+
+        safe_app = SafeApp(app_id=1, chain_ids=[1, 2, 3])
+        safe_app.save()  # create
+        safe_app.chain_ids = [1]
+        safe_app.save()  # update
+
+        assert len(responses.calls) == 6
+        assert isinstance(responses.calls[0], responses.Call)
+        assert (
+            responses.calls[0].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "1"}'
+        )
+        assert responses.calls[0].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[0].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[1], responses.Call)
+        assert (
+            responses.calls[1].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "2"}'
+        )
+        assert responses.calls[1].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[1].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[2], responses.Call)
+        assert (
+            responses.calls[2].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "3"}'
+        )
+        assert responses.calls[2].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[2].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[3], responses.Call)
+        assert (
+            responses.calls[3].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "1"}'
+        )
+        assert responses.calls[3].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[3].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[4], responses.Call)
+        assert (
+            responses.calls[4].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "2"}'
+        )
+        assert responses.calls[4].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[4].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+        assert isinstance(responses.calls[5], responses.Call)
+        assert (
+            responses.calls[5].request.body
+            == b'{"type": "SAFE_APPS_UPDATE", "chainId": "3"}'
+        )
+        assert responses.calls[5].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert (
+            responses.calls[5].request.headers.get("Authorization")
+            == "Basic example-token"
+        )
+
+    @responses.activate
     def test_on_safe_app_delete(self) -> None:
         responses.add(
             responses.POST,
