@@ -9,7 +9,7 @@ fake = Faker()
 Faker.seed(0)
 
 
-@override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
+@override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class SafeAppHookTestCase(TestCase):
     @responses.activate
     def test_on_safe_app_create(self) -> None:
@@ -253,7 +253,7 @@ class SafeAppHookTestCase(TestCase):
         )
 
 
-@override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
+@override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class ProviderHookTestCase(TestCase):
     @responses.activate
     def test_on_provider_create_with_no_safe_app(self) -> None:
@@ -334,7 +334,7 @@ class ProviderHookTestCase(TestCase):
         )
 
 
-@override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
+@override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class TagHookTestCase(TestCase):
     @responses.activate
     def test_on_tag_create_with_no_safe_app(self) -> None:
@@ -446,7 +446,7 @@ class TagHookTestCase(TestCase):
         )
 
 
-@override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
+@override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class FeatureHookTestCase(TestCase):
     @responses.activate
     def test_on_feature_create_with_no_safe_app(self) -> None:

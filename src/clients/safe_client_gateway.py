@@ -35,9 +35,9 @@ def setup_session() -> requests.Session:
 def cgw_setup() -> tuple[str, str]:
     if settings.CGW_URL is None:
         raise ValueError("CGW_URL is not set. Skipping hook call")
-    if settings.CGW_FLUSH_TOKEN is None:
-        raise ValueError("CGW_FLUSH_TOKEN is not set. Skipping hook call")
-    return (settings.CGW_URL, settings.CGW_FLUSH_TOKEN)
+    if settings.CGW_AUTH_TOKEN is None:
+        raise ValueError("CGW_AUTH_TOKEN is not set. Skipping hook call")
+    return (settings.CGW_URL, settings.CGW_AUTH_TOKEN)
 
 
 def hook_event(event: HookEvent) -> None:
