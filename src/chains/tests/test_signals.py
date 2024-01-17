@@ -11,21 +11,21 @@ Faker.seed(0)
 
 class ChainNetworkHookTestCaseSetupCheck(TestCase):
     @responses.activate
-    @override_settings(CGW_URL=None, CGW_FLUSH_TOKEN="example-token")
+    @override_settings(CGW_URL=None, CGW_AUTH_TOKEN="example-token")
     def test_no_cgw_call_with_no_url(self) -> None:
         ChainFactory.create()
 
         assert len(responses.calls) == 0
 
     @responses.activate
-    @override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN=None)
+    @override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN=None)
     def test_no_cgw_call_with_no_token(self) -> None:
         ChainFactory.create()
 
         assert len(responses.calls) == 0
 
 
-@override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
+@override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class ChainNetworkHookTestCase(TestCase):
     @responses.activate
     def test_on_chain_create(self) -> None:
@@ -117,7 +117,7 @@ class ChainNetworkHookTestCase(TestCase):
         )
 
 
-@override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
+@override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class FeatureHookTestCase(TestCase):
     @responses.activate
     def test_on_feature_create_with_no_chain(self) -> None:
@@ -243,7 +243,7 @@ class FeatureHookTestCase(TestCase):
         )
 
 
-@override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
+@override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class WalletHookTestCase(TestCase):
     @responses.activate
     def test_on_wallet_create_with_no_chain(self) -> None:
@@ -369,7 +369,7 @@ class WalletHookTestCase(TestCase):
         )
 
 
-@override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
+@override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class GasPriceHookTestCase(TestCase):
     def setUp(self) -> None:
         self.chain = (

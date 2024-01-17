@@ -199,7 +199,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_URLS_REGEX = r"^/api/.*$"
 
 CGW_URL = os.environ.get("CGW_URL")
-CGW_FLUSH_TOKEN = os.environ.get("CGW_FLUSH_TOKEN")
+CGW_AUTH_TOKEN = os.environ.get("CGW_AUTH_TOKEN")
 CGW_SESSION_MAX_RETRIES = int(os.environ.get("CGW_SESSION_MAX_RETRIES", "0"))
 CGW_SESSION_TIMEOUT_SECONDS = int(os.environ.get("CGW_SESSION_TIMEOUT_SECONDS", "2"))
 
