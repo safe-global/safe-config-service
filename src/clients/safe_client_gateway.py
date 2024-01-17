@@ -40,15 +40,6 @@ def cgw_setup() -> tuple[str, str]:
     return (settings.CGW_URL, settings.CGW_FLUSH_TOKEN)
 
 
-def flush() -> None:
-    try:
-        (url, token) = cgw_setup()
-        url = urljoin(url, "/v2/flush")
-        post(url, token, json={"invalidate": "Chains"})
-    except Exception as error:
-        logger.error(error)
-
-
 def hook_event(event: HookEvent) -> None:
     try:
         (url, token) = cgw_setup()
