@@ -26,7 +26,7 @@ class ChainNetworkHookTestCaseSetupCheck(TestCase):
 
 
 @override_settings(CGW_URL="http://127.0.0.1", CGW_FLUSH_TOKEN="example-token")
-class ChainNetworkHookWithFFHookEventsTestCase(TestCase):
+class ChainNetworkHookTestCase(TestCase):
     @responses.activate
     def test_on_chain_create(self) -> None:
         chain_id = fake.pyint()
