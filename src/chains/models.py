@@ -69,6 +69,7 @@ class Chain(models.Model):
     )
     description = models.CharField(max_length=255, blank=True)
     l2 = models.BooleanField()
+    is_testnet = models.BooleanField(default=False)
     rpc_authentication = models.CharField(
         max_length=255, choices=RpcAuthentication.choices
     )
