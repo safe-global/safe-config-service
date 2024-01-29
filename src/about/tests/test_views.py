@@ -8,7 +8,7 @@ class AboutJsonPayloadFormatViewTests(APITestCase):
         url = reverse("v1:about:detail")
         expected_json_response = {
             "name": "Safe Config Service",
-            "version": "2.66.0",
+            "version": "2.69.0",
             "apiVersion": "v1",
             "secure": False,
         }
@@ -24,7 +24,7 @@ class AboutSecureRequestViewTests(APITestCase):
         url = reverse("v1:about:detail")
         expected_json_response = {
             "name": "Safe Config Service",
-            "version": "2.66.0",
+            "version": "2.69.0",
             "api_version": "v1",
             "secure": True,
         }
@@ -38,7 +38,7 @@ class AboutSecureRequestViewTests(APITestCase):
         url = reverse("v1:about:detail")
         expected_json_response = {
             "name": "Safe Config Service",
-            "version": "2.66.0",
+            "version": "2.69.0",
             "api_version": "v1",
             "secure": False,
         }
