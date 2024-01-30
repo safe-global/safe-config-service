@@ -135,3 +135,6 @@ data/
 docker-compose.override.yml
 .vscode/
 src/media/
+
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
