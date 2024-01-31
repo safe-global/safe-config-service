@@ -153,6 +153,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "short_name",
             "description",
             "l2",
+            "is_testnet",
             "rpc_uri",
             "safe_apps_rpc_uri",
             "public_rpc_uri",

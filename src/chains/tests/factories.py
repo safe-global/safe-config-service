@@ -17,6 +17,7 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     short_name = factory.Faker("pystr", max_chars=255)
     description = factory.Faker("pystr", max_chars=255)
     l2 = factory.Faker("pybool")
+    is_testnet = factory.Faker("pybool")
     rpc_authentication = factory.lazy_attribute(
         lambda o: random.choice(list(Chain.RpcAuthentication))
     )

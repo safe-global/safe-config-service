@@ -41,6 +41,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "shortName": chain.short_name,
                     "description": chain.description,
                     "l2": chain.l2,
+                    "isTestnet": chain.is_testnet,
                     "rpcUri": {
                         "authentication": chain.rpc_authentication,
                         "value": chain.rpc_uri,
@@ -156,6 +157,7 @@ class ChainDetailViewTests(APITestCase):
             "shortName": chain.short_name,
             "description": chain.description,
             "l2": chain.l2,
+            "isTestnet": chain.is_testnet,
             "rpcUri": {
                 "authentication": chain.rpc_authentication,
                 "value": chain.rpc_uri,
