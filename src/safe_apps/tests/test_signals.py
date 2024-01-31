@@ -522,7 +522,7 @@ class FeatureHookTestCase(TestCase):
             "utf-8"
         )
 
-    @responses.stop # otherwise fails when testing with all suites - above tests somehow leak
+    @responses.stop  # otherwise fails when testing with all suites - above tests somehow leak
     @responses.activate
     def test_on_feature_update_with_multiple_safe_apps(self) -> None:
         chain_id_1 = fake.pyint()
