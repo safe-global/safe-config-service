@@ -21,12 +21,15 @@ SEM_VER_REGEX = re.compile(
 
 sem_ver_validator = RegexValidator(SEM_VER_REGEX, "Invalid version (semver)", "invalid")
 
+
 def logo_path(instance: "Chain", filename: str, pathname: str) -> str:
     _, file_extension = os.path.splitext(filename)  # file_extension includes the dot
     return f"chains/{instance.id}/{pathname}{file_extension}"
 
+
 def chain_logo_path(instance: "Chain", filename: str) -> str:
     return logo_path(instance, filename, "chain_logo")
+
 
 def native_currency_path(instance: "Chain", filename: str) -> str:
     return logo_path(instance, filename, "currency_logo")
@@ -74,10 +77,12 @@ class Chain(models.Model):
     )
     description = models.CharField(max_length=255, blank=True)
     chain_logo_uri = models.ImageField(
-        validators=[validate_native_currency_size],  # not renamed as used in older migration
+        validators=[
+            validate_native_currency_size
+        ],  # not renamed as used in older migration
         upload_to=chain_logo_path,
         max_length=255,
-        default=""
+        default="",
     )
     l2 = models.BooleanField()
     is_testnet = models.BooleanField(default=False)

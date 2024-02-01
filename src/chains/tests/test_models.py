@@ -17,13 +17,12 @@ class ChainTestCase(TestCase):
             f"{chain.name} | chain_id={chain.id}",
         )
 
+
 class ChainLogoTestCase(TestCase):
     def test_chain_logo_upload_path(self) -> None:
         chain = ChainFactory.create(id=69)
 
-        self.assertEqual(
-            chain.chain_logo_uri.url, "/media/chains/69/chain_logo.jpg"
-        )
+        self.assertEqual(chain.chain_logo_uri.url, "/media/chains/69/chain_logo.jpg")
 
 
 class GasPriceTestCase(TestCase):

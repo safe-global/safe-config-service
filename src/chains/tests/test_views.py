@@ -297,7 +297,6 @@ class ChainsEnsRegistryTests(APITestCase):
         self.assertEqual(response.json()["ensRegistryAddress"], None)
 
 
-
 class ChainLogoTests(APITestCase):
     def test_image_max_size_validation(self) -> None:
         chain = ChainFactory.create(
