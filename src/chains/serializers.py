@@ -130,6 +130,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
     short_name = serializers.CharField()
+    chain_logo_uri = serializers.ImageField(use_url=True)
     rpc_uri = serializers.SerializerMethodField()
     safe_apps_rpc_uri = serializers.SerializerMethodField()
     public_rpc_uri = serializers.SerializerMethodField()
@@ -152,6 +153,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "chain_name",
             "short_name",
             "description",
+            "chain_logo_uri",
             "l2",
             "is_testnet",
             "rpc_uri",
