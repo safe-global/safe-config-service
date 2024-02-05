@@ -82,7 +82,7 @@ class Chain(models.Model):
         ],  # not renamed as used in older migration
         upload_to=chain_logo_path,
         max_length=255,
-        default="",
+        default=None,
     )
     l2 = models.BooleanField()
     is_testnet = models.BooleanField(default=False)

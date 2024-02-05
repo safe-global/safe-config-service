@@ -40,7 +40,9 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "chainName": chain.name,
                     "shortName": chain.short_name,
                     "description": chain.description,
-                    "chainLogoUri": chain.chain_logo_uri.url,
+                    # Absolute URL because chain_logo_uri is defined at top level and BASE_DIR
+                    # is folder structure dependent, see currency_logo_uri for relative URL
+                    "chainLogoUri": f"http://testserver{chain.chain_logo_uri.url}",
                     "l2": chain.l2,
                     "isTestnet": chain.is_testnet,
                     "rpcUri": {
@@ -157,7 +159,9 @@ class ChainDetailViewTests(APITestCase):
             "chainName": chain.name,
             "shortName": chain.short_name,
             "description": chain.description,
-            "chainLogoUri": chain.chain_logo_uri.url,
+            # Absolute URL because chain_logo_uri is defined at top level and BASE_DIR
+            # is folder structure dependent, see currency_logo_uri for relative URL
+            "chainLogoUri": f"http://testserver{chain.chain_logo_uri.url}",
             "l2": chain.l2,
             "isTestnet": chain.is_testnet,
             "rpcUri": {
