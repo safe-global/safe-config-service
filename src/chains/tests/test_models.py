@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import web3
+import factory
 from django.core.exceptions import ValidationError
 from django.db import DataError
 from django.test import TestCase, TransactionTestCase
@@ -20,9 +21,30 @@ class ChainTestCase(TestCase):
 
 class ChainLogoTestCase(TestCase):
     def test_chain_logo_upload_path(self) -> None:
-        chain = ChainFactory.create(id=69)
+        chain = ChainFactory.create()
 
-        self.assertEqual(chain.chain_logo_uri.url, "/media/chains/69/chain_logo.jpg")
+        self.assertEqual(chain.chain_logo_uri.url, f"/media/chains/{chain.id}/chain_logo.jpg")
+
+    def test_image_max_size_validation(self) -> None:
+        chain = ChainFactory.create(
+            chain_logo_uri=factory.django.ImageField(width=512, height=512)
+        )
+
+        chain.full_clean()  # should not rise any exception
+
+    def test_image_width_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                chain_logo_uri=factory.django.ImageField(width=513, height=50)
+            )
+            chain.full_clean()
+
+    def test_image_height_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                chain_logo_uri=factory.django.ImageField(width=50, height=513)
+            )
+            chain.full_clean()
 
 
 class GasPriceTestCase(TestCase):
@@ -310,11 +332,32 @@ class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
 
 class ChainCurrencyLogoTestCase(TestCase):
     def test_currency_logo_upload_path(self) -> None:
-        chain = ChainFactory.create(id=12)
+        chain = ChainFactory.create()
 
         self.assertEqual(
-            chain.currency_logo_uri.url, "/media/chains/12/currency_logo.jpg"
+            chain.currency_logo_uri.url, f"/media/chains/{chain.id}/currency_logo.jpg"
         )
+
+    def test_image_max_size_validation(self) -> None:
+        chain = ChainFactory.create(
+            currency_logo_uri=factory.django.ImageField(width=512, height=512)
+        )
+
+        chain.full_clean()  # should not rise any exception
+
+    def test_image_width_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                currency_logo_uri=factory.django.ImageField(width=513, height=50)
+            )
+            chain.full_clean()
+
+    def test_image_height_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                currency_logo_uri=factory.django.ImageField(width=50, height=513)
+            )
+            chain.full_clean()
 
 
 class WalletTestCase(TestCase):
