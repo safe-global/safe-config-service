@@ -1,7 +1,6 @@
 from decimal import Decimal
 from typing import Any
 
-from django.core.exceptions import ValidationError
 from django.urls import reverse
 from faker import Faker
 from rest_framework.test import APITestCase
