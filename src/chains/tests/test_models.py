@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-import web3
 import factory
+import web3
 from django.core.exceptions import ValidationError
 from django.db import DataError
 from django.test import TestCase, TransactionTestCase
@@ -23,7 +23,9 @@ class ChainLogoTestCase(TestCase):
     def test_chain_logo_upload_path(self) -> None:
         chain = ChainFactory.create()
 
-        self.assertEqual(chain.chain_logo_uri.url, f"/media/chains/{chain.id}/chain_logo.jpg")
+        self.assertEqual(
+            chain.chain_logo_uri.url, f"/media/chains/{chain.id}/chain_logo.jpg"
+        )
 
     def test_image_max_size_validation(self) -> None:
         chain = ChainFactory.create(
