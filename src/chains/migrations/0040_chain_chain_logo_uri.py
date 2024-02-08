@@ -16,6 +16,7 @@ class Migration(migrations.Migration):
             name="chain_logo_uri",
             field=models.ImageField(
                 default=None,
+                null=True,
                 max_length=255,
                 upload_to=chains.models.chain_logo_path,
                 validators=[chains.models.validate_native_currency_size],
