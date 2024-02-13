@@ -34,6 +34,8 @@ DEBUG = os.getenv("DEBUG", "true").lower() == "true"
 allowed_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", ".localhost,127.0.0.1,[::1]")
 ALLOWED_HOSTS = [allowed_host.strip() for allowed_host in allowed_hosts.split(",")]
 
+application_version = os.getenv("APPLICATION_VERSION")
+
 # Application definition
 
 REST_FRAMEWORK = {
