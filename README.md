@@ -7,7 +7,7 @@ The `safe-config-service` is a service that provides configuration information i
 ## Requirements
 
 - `docker-compose` – https://docs.docker.com/compose/install/
-- Python 3.12.1
+- Python 3.12.2
 
 ## Setup
 
