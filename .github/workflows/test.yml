@@ -27,7 +27,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.1'
+          python-version: '3.12.2'
       - name: Install dependencies
         run: |
           pip install -U wheel setuptools
@@ -52,7 +52,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.1'
+          python-version: '3.12.2'
       - name: Install dependencies
         run: |
           pip install -U wheel setuptools
@@ -77,7 +77,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.1'
+          python-version: '3.12.2'
       - name: Install dependencies
         run: |
           pip install -U wheel setuptools
@@ -120,7 +120,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.1'
+          python-version: '3.12.2'
       - name: Install dependencies
         run: |
           pip install -U wheel setuptools
