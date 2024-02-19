@@ -7,7 +7,7 @@ flake8==7.0.0
 isort==5.13.2
 pre-commit==3.6.0
 pytest-django==4.8.0
-responses==0.24.1
+responses==0.25.0
 
 # mypy and PEP 561 stubs
 mypy==1.8.0
