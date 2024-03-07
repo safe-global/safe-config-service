@@ -16,7 +16,7 @@ class IconTestCase(TestCase):
         safe_app = SafeAppFactory.create()
 
         self.assertEqual(
-            safe_app.icon_url.url, f"/media/safe_apps/{safe_app.id}/icon.jpg"
+            safe_app.icon_url.url, f"/media/safe_apps/{safe_app.app_id}/icon.jpg"
         )
 
     # def test_image_max_size_validation(self) -> None:
