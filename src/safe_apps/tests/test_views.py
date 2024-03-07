@@ -33,7 +33,7 @@ class JsonPayloadFormatViewTests(APITestCase):
                 "id": safe_app.app_id,
                 "url": safe_app.url,
                 "name": safe_app.name,
-                "iconUrl": safe_app.icon_url,
+                "iconUrl": f"http://testserver{safe_app.icon_url.url}",
                 "description": safe_app.description,
                 "chainIds": safe_app.chain_ids,
                 "provider": None,

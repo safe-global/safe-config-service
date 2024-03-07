@@ -11,6 +11,36 @@ from .factories import (
 )
 
 
+class IconTestCase(TestCase):
+    def test_icon_upload_path(self) -> None:
+        safe_app = SafeAppFactory.create()
+
+        self.assertEqual(
+            safe_app.icon_url.url, f"/media/safe_apps/{safe_app.id}/icon.jpg"
+        )
+
+    # def test_image_max_size_validation(self) -> None:
+    #     chain = ChainFactory.create(
+    #         icon_uri=factory.django.ImageField(width=512, height=512)
+    #     )
+
+    #     chain.full_clean()  # should not rise any exception
+
+    # def test_image_width_greater_than_512(self) -> None:
+    #     with self.assertRaises(ValidationError):
+    #         chain = ChainFactory.create(
+    #             icon_uri=factory.django.ImageField(width=513, height=50)
+    #         )
+    #         chain.full_clean()
+
+    # def test_image_height_greater_than_512(self) -> None:
+    #     with self.assertRaises(ValidationError):
+    #         chain = ChainFactory.create(
+    #             icon_uri=factory.django.ImageField(width=50, height=513)
+    #         )
+    #         chain.full_clean()
+
+
 class ProviderTestCase(TestCase):
     def test_str_method_outputs_name_url(self) -> None:
         provider = ProviderFactory.create()

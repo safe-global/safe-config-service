@@ -51,6 +51,7 @@ class SocialProfileSerializer(serializers.Serializer[SocialProfile]):
 
 class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
     id = serializers.IntegerField(source="app_id")
+    icon_url = serializers.ImageField(use_url=True)
     provider = ProviderSerializer()
     access_control = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
