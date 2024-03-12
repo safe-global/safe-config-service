@@ -410,6 +410,9 @@ class TagHookTestCase(TestCase):
             "utf-8"
         )
 
+    # Otherwise fails when testing with all suites
+    # TODO: above tests somehow leak
+    @responses.stop  # type: ignore
     @responses.activate
     def test_on_tag_update_with_multiple_safe_apps(self) -> None:
         chain_id_1 = fake.pyint()
@@ -522,7 +525,8 @@ class FeatureHookTestCase(TestCase):
             "utf-8"
         )
 
-    # Otherwise fails when testing with all suites - above tests somehow leak
+    # Otherwise fails when testing with all suites
+    # TODO: above tests somehow leak
     @responses.stop  # type: ignore
     @responses.activate
     def test_on_feature_update_with_multiple_safe_apps(self) -> None:

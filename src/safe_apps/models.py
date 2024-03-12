@@ -1,6 +1,10 @@
+import os
 from enum import Enum
+from typing import IO, Union
 
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
+from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -9,6 +13,21 @@ _HOSTNAME_VALIDATOR = RegexValidator(
     message="Enter a valid hostname (Without a resource path)",
     code="invalid_hostname",
 )
+
+
+def safe_app_icon_path(instance: "SafeApp", filename: str) -> str:
+    _, file_extension = os.path.splitext(filename)
+    return f"safe_apps/{instance.app_id}/icon{file_extension}"
+
+
+def validate_safe_app_icon_size(image: Union[str, IO[bytes]]) -> None:
+    width, height = get_image_dimensions(image)
+    if not width or not height:
+        raise ValidationError(
+            f"Could not get image dimensions. Width={width}, Height={height}"
+        )
+    if width > 512 or height > 512:
+        raise ValidationError("Image width and height need to be at most 512 pixels")
 
 
 class Provider(models.Model):
@@ -43,7 +62,13 @@ class SafeApp(models.Model):
     )  # True if this safe-app should be visible from the view. False otherwise
     url = models.URLField()
     name = models.CharField(max_length=200)
-    icon_url = models.URLField()
+    icon_url = models.ImageField(
+        validators=[validate_safe_app_icon_size],
+        upload_to=safe_app_icon_path,
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     description = models.CharField(max_length=200)
     chain_ids = ArrayField(models.PositiveBigIntegerField())
     provider = models.ForeignKey(

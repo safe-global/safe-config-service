@@ -47,7 +47,7 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
     visible = True
     url = factory.Faker("url")
     name = factory.Faker("company")
-    icon_url = factory.Faker("image_url")
+    icon_url = factory.django.ImageField(width=50, height=50)
     description = factory.Faker("catch_phrase")
     chain_ids = factory.Faker("pylist", nb_elements=2, value_types=(int,))
     provider = None
