@@ -36,6 +36,9 @@ ALLOWED_HOSTS = [allowed_host.strip() for allowed_host in allowed_hosts.split(",
 
 # Application definition
 
+APPLICATION_VERSION = os.getenv("APPLICATION_VERSION")
+APPLICATION_BUILD_NUMBER = os.getenv("APPLICATION_BUILD_NUMBER")
+
 REST_FRAMEWORK = {
     # https://www.django-rest-framework.org/api-guide/renderers/
     "DEFAULT_RENDERER_CLASSES": [
