@@ -235,3 +235,7 @@ if allowed_csrf_origins:
         allowed_csrf_origins.strip()
         for allowed_csrf_origins in allowed_csrf_origins.split(",")
     ]
+
+use_proxy_ssl_header = os.environ.get("USE_PROXY_SSL_HEADER", "false").lower() == "true"
+if use_proxy_ssl_header:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
