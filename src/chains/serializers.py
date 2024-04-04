@@ -171,10 +171,11 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "features",
         ]
 
-    @staticmethod
     @swagger_serializer_method(serializer_or_field=CurrencySerializer)  # type: ignore[misc]
-    def get_native_currency(obj: Chain) -> ReturnDict:
-        return CurrencySerializer(obj).data
+    def get_native_currency(self, obj: Chain) -> ReturnDict:
+        return CurrencySerializer(
+            obj, context={"request": self.context["request"]}
+        ).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=ThemeSerializer)  # type: ignore[misc]
