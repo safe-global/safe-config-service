@@ -13,7 +13,7 @@ class ProviderSerializer(serializers.ModelSerializer[Provider]):
 
 class ClientSerializer(serializers.Serializer[Client]):
     @staticmethod
-    def to_representation(instance: Client) -> str:
+    def to_representation(instance: Client) -> str: # type: ignore
         return instance.url
 
 
@@ -31,7 +31,7 @@ class NoRestrictionsAccessControlPolicySerializer(serializers.Serializer[SafeApp
 
 
 class TagSerializer(serializers.Serializer[Tag]):
-    def to_representation(self, instance: Tag) -> str:
+    def to_representation(self, instance: Tag) -> str: # type: ignore
         return instance.name
 
 
@@ -40,7 +40,7 @@ class FeatureSerializer(serializers.Serializer[Feature]):
         ref_name = "safe_apps.serializers.FeatureSerializer"
 
     @staticmethod
-    def to_representation(instance: Feature) -> str:
+    def to_representation(instance: Feature) -> str: # type: ignore
         return instance.key
 
 
@@ -76,7 +76,7 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
         ]
 
     @swagger_serializer_method(serializer_or_field=DomainAllowlistAccessControlPolicySerializer)  # type: ignore[misc]
-    def get_access_control(self, instance: SafeApp) -> ReturnDict:
+    def get_access_control(self, instance: SafeApp) -> ReturnDict: # type: ignore
         if (
             instance.get_access_control_type()
             == SafeApp.AccessControlPolicy.DOMAIN_ALLOWLIST
@@ -85,16 +85,16 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
         return NoRestrictionsAccessControlPolicySerializer(instance).data
 
     @swagger_serializer_method(serializer_or_field=TagSerializer)  # type: ignore[misc]
-    def get_tags(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
+    def get_tags(self, instance) -> ReturnDict:  # type: ignore
         queryset = instance.tag_set.all().order_by("name")
         return TagSerializer(queryset, many=True).data
 
     @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[misc]
-    def get_features(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
+    def get_features(self, instance) -> ReturnDict:  # type: ignore
         features = instance.feature_set.all().order_by("key")
         return FeatureSerializer(features, many=True).data
 
     @swagger_serializer_method(serializer_or_field=SocialProfileSerializer)  # type: ignore[misc]
-    def get_social_profiles(self, instance) -> ReturnDict:  # type: ignore[no-untyped-def]
+    def get_social_profiles(self, instance) -> ReturnDict:  # type: ignore
         profiles = instance.socialprofile_set.all().order_by("platform")
         return SocialProfileSerializer(profiles, many=True).data
