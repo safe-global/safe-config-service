@@ -28,7 +28,7 @@ class GasPriceFixed1559Serializer(serializers.Serializer[GasPrice]):
 
 
 class GasPriceSerializer(serializers.Serializer[GasPrice]):
-    def to_representation(self, instance: GasPrice) -> ReturnDict: # type: ignore
+    def to_representation(self, instance: GasPrice) -> ReturnDict:  # type: ignore
         if (
             instance.oracle_uri
             and instance.fixed_wei_value is None
@@ -116,13 +116,13 @@ class FeatureSerializer(serializers.Serializer[Feature]):
         ref_name = "chains.serializers.FeatureSerializer"
 
     @staticmethod
-    def to_representation(instance: Feature) -> str: # type: ignore
+    def to_representation(instance: Feature) -> str:  # type: ignore
         return instance.key
 
 
 class WalletSerializer(serializers.Serializer[Wallet]):
     @staticmethod
-    def to_representation(instance: Wallet) -> str: # type: ignore
+    def to_representation(instance: Wallet) -> str:  # type: ignore
         return instance.key
 
 
@@ -172,34 +172,34 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
         ]
 
     @swagger_serializer_method(serializer_or_field=CurrencySerializer)  # type: ignore[misc]
-    def get_native_currency(self, obj: Chain) -> ReturnDict: # type: ignore
+    def get_native_currency(self, obj: Chain) -> ReturnDict:  # type: ignore
         return CurrencySerializer(
             obj, context={"request": self.context["request"]}
         ).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=ThemeSerializer)  # type: ignore[misc]
-    def get_theme(obj: Chain) -> ReturnDict: # type: ignore
+    def get_theme(obj: Chain) -> ReturnDict:  # type: ignore
         return ThemeSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
-    def get_safe_apps_rpc_uri(obj: Chain) -> ReturnDict: # type: ignore
+    def get_safe_apps_rpc_uri(obj: Chain) -> ReturnDict:  # type: ignore
         return SafeAppsRpcUriSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
-    def get_rpc_uri(obj: Chain) -> ReturnDict: # type: ignore
+    def get_rpc_uri(obj: Chain) -> ReturnDict:  # type: ignore
         return RpcUriSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
-    def get_public_rpc_uri(obj: Chain) -> ReturnDict: # type: ignore
+    def get_public_rpc_uri(obj: Chain) -> ReturnDict:  # type: ignore
         return PublicRpcUriSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BlockExplorerUriTemplateSerializer)  # type: ignore[misc]
-    def get_block_explorer_uri_template(obj: Chain) -> ReturnDict: # type: ignore
+    def get_block_explorer_uri_template(obj: Chain) -> ReturnDict:  # type: ignore
         return BlockExplorerUriTemplateSerializer(obj).data
 
     @swagger_serializer_method(serializer_or_field=GasPriceSerializer)  # type: ignore[misc]
