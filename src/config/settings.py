@@ -9,8 +9,8 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+
 import os
-from distutils.util import strtobool
 from pathlib import Path
 
 import django_stubs_ext
@@ -28,13 +28,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "random-dev-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(strtobool(os.getenv("DEBUG", "true")))
+DEBUG = os.getenv("DEBUG", "true").lower() == "true"
 
 # https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-ALLOWED_HOSTS
 allowed_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", ".localhost,127.0.0.1,[::1]")
 ALLOWED_HOSTS = [allowed_host.strip() for allowed_host in allowed_hosts.split(",")]
 
 # Application definition
+
+APPLICATION_VERSION = os.getenv("APPLICATION_VERSION")
+APPLICATION_BUILD_NUMBER = os.getenv("APPLICATION_BUILD_NUMBER")
 
 REST_FRAMEWORK = {
     # https://www.django-rest-framework.org/api-guide/renderers/
@@ -200,7 +203,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_URLS_REGEX = r"^/api/.*$"
 
 CGW_URL = os.environ.get("CGW_URL")
-CGW_FLUSH_TOKEN = os.environ.get("CGW_FLUSH_TOKEN")
+CGW_AUTH_TOKEN = os.environ.get("CGW_AUTH_TOKEN")
 CGW_SESSION_MAX_RETRIES = int(os.environ.get("CGW_SESSION_MAX_RETRIES", "0"))
 CGW_SESSION_TIMEOUT_SECONDS = int(os.environ.get("CGW_SESSION_TIMEOUT_SECONDS", "2"))
 
@@ -233,4 +236,6 @@ if allowed_csrf_origins:
         for allowed_csrf_origins in allowed_csrf_origins.split(",")
     ]
 
-FF_HOOK_EVENTS = bool(strtobool(os.getenv("FF_HOOK_EVENTS", "false")))
+use_proxy_ssl_header = os.environ.get("USE_PROXY_SSL_HEADER", "false").lower() == "true"
+if use_proxy_ssl_header:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

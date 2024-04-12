@@ -130,6 +130,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
     short_name = serializers.CharField()
+    chain_logo_uri = serializers.ImageField(use_url=True)
     rpc_uri = serializers.SerializerMethodField()
     safe_apps_rpc_uri = serializers.SerializerMethodField()
     public_rpc_uri = serializers.SerializerMethodField()
@@ -152,7 +153,9 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "chain_name",
             "short_name",
             "description",
+            "chain_logo_uri",
             "l2",
+            "is_testnet",
             "rpc_uri",
             "safe_apps_rpc_uri",
             "public_rpc_uri",
@@ -168,10 +171,11 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "features",
         ]
 
-    @staticmethod
     @swagger_serializer_method(serializer_or_field=CurrencySerializer)  # type: ignore[misc]
-    def get_native_currency(obj: Chain) -> ReturnDict:
-        return CurrencySerializer(obj).data
+    def get_native_currency(self, obj: Chain) -> ReturnDict:
+        return CurrencySerializer(
+            obj, context={"request": self.context["request"]}
+        ).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=ThemeSerializer)  # type: ignore[misc]

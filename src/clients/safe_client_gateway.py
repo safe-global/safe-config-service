@@ -35,18 +35,9 @@ def setup_session() -> requests.Session:
 def cgw_setup() -> tuple[str, str]:
     if settings.CGW_URL is None:
         raise ValueError("CGW_URL is not set. Skipping hook call")
-    if settings.CGW_FLUSH_TOKEN is None:
-        raise ValueError("CGW_FLUSH_TOKEN is not set. Skipping hook call")
-    return (settings.CGW_URL, settings.CGW_FLUSH_TOKEN)
-
-
-def flush() -> None:
-    try:
-        (url, token) = cgw_setup()
-        url = urljoin(url, "/v2/flush")
-        post(url, token, json={"invalidate": "Chains"})
-    except Exception as error:
-        logger.error(error)
+    if settings.CGW_AUTH_TOKEN is None:
+        raise ValueError("CGW_AUTH_TOKEN is not set. Skipping hook call")
+    return (settings.CGW_URL, settings.CGW_AUTH_TOKEN)
 
 
 def hook_event(event: HookEvent) -> None:

@@ -22,9 +22,17 @@ SEM_VER_REGEX = re.compile(
 sem_ver_validator = RegexValidator(SEM_VER_REGEX, "Invalid version (semver)", "invalid")
 
 
-def native_currency_path(instance: "Chain", filename: str) -> str:
+def logo_path(instance: "Chain", filename: str, pathname: str) -> str:
     _, file_extension = os.path.splitext(filename)  # file_extension includes the dot
-    return f"chains/{instance.id}/currency_logo{file_extension}"
+    return f"chains/{instance.id}/{pathname}{file_extension}"
+
+
+def chain_logo_path(instance: "Chain", filename: str) -> str:
+    return logo_path(instance, filename, "chain_logo")
+
+
+def native_currency_path(instance: "Chain", filename: str) -> str:
+    return logo_path(instance, filename, "currency_logo")
 
 
 def validate_native_currency_size(image: Union[str, IO[bytes]]) -> None:
@@ -68,7 +76,17 @@ class Chain(models.Model):
         verbose_name="EIP-3770 short name", max_length=255, unique=True
     )
     description = models.CharField(max_length=255, blank=True)
+    chain_logo_uri = models.ImageField(
+        validators=[
+            validate_native_currency_size
+        ],  # not renamed as used in older migration
+        upload_to=chain_logo_path,
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     l2 = models.BooleanField()
+    is_testnet = models.BooleanField(default=False)
     rpc_authentication = models.CharField(
         max_length=255, choices=RpcAuthentication.choices
     )
