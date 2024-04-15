@@ -30,7 +30,7 @@ class GasPriceFixed1559Serializer(serializers.Serializer[GasPrice]):
 
 class GasPriceSerializer(serializers.ModelSerializer[GasPrice]):
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = GasPrice
         ref_name = "chains.serializers.GasPriceSerializer"
 
@@ -119,7 +119,7 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
 
 class FeatureSerializer(serializers.ModelSerializer[Feature]):
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Feature
         ref_name = "chains.serializers.FeatureSerializer"
 
@@ -130,7 +130,7 @@ class FeatureSerializer(serializers.ModelSerializer[Feature]):
 
 class WalletSerializer(serializers.ModelSerializer[Wallet]):
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Wallet
         ref_name = "chains.serializers.WalletSerializer"
 

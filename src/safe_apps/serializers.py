@@ -1,4 +1,5 @@
 from typing import Any
+
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import ReturnDict
@@ -33,7 +34,7 @@ class NoRestrictionsAccessControlPolicySerializer(serializers.Serializer[SafeApp
 
 class TagSerializer(serializers.ModelSerializer[Tag]):
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Tag
         ref_name = "safe_apps.serializers.TagSerializer"
 
@@ -43,7 +44,7 @@ class TagSerializer(serializers.ModelSerializer[Tag]):
 
 class FeatureSerializer(serializers.ModelSerializer[Feature]):
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Feature
         ref_name = "safe_apps.serializers.FeatureSerializer"
 
@@ -54,7 +55,7 @@ class FeatureSerializer(serializers.ModelSerializer[Feature]):
 
 class SocialProfileSerializer(serializers.ModelSerializer[SocialProfile]):
     class Meta:
-        fields = ['platform', 'url']
+        fields = ["platform", "url"]
         model = SocialProfile
         ref_name = "safe_apps.serializers.SocialProfileSerializer"
 
