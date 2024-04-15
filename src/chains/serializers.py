@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Any
 
 from drf_yasg.utils import swagger_serializer_method
 from gnosis.eth.django.serializers import EthereumAddressField
@@ -27,8 +28,13 @@ class GasPriceFixed1559Serializer(serializers.Serializer[GasPrice]):
     max_priority_fee_per_gas = serializers.CharField()
 
 
-class GasPriceSerializer(serializers.Serializer[GasPrice]):
-    def to_representation(self, instance: GasPrice) -> ReturnDict:  # type: ignore
+class GasPriceSerializer(serializers.ModelSerializer[GasPrice]):
+    class Meta:
+        fields = '__all__'
+        model = GasPrice
+        ref_name = "chains.serializers.GasPriceSerializer"
+
+    def to_representation(self, instance: GasPrice) -> ReturnDict[Any, Any]:
         if (
             instance.oracle_uri
             and instance.fixed_wei_value is None
@@ -111,18 +117,25 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
     api = serializers.URLField(source="block_explorer_uri_api_template")
 
 
-class FeatureSerializer(serializers.Serializer[Feature]):
+class FeatureSerializer(serializers.ModelSerializer[Feature]):
     class Meta:
+        fields = '__all__'
+        model = Feature
         ref_name = "chains.serializers.FeatureSerializer"
 
     @staticmethod
-    def to_representation(instance: Feature) -> str:  # type: ignore
+    def to_representation(instance: Feature) -> str:  # type: ignore[override]
         return instance.key
 
 
-class WalletSerializer(serializers.Serializer[Wallet]):
+class WalletSerializer(serializers.ModelSerializer[Wallet]):
+    class Meta:
+        fields = '__all__'
+        model = Wallet
+        ref_name = "chains.serializers.WalletSerializer"
+
     @staticmethod
-    def to_representation(instance: Wallet) -> str:  # type: ignore
+    def to_representation(instance: Wallet) -> str:  # type: ignore[override]
         return instance.key
 
 
@@ -172,47 +185,47 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
         ]
 
     @swagger_serializer_method(serializer_or_field=CurrencySerializer)  # type: ignore[misc]
-    def get_native_currency(self, obj: Chain) -> ReturnDict:  # type: ignore
+    def get_native_currency(self, obj: Chain) -> ReturnDict[Any, Any]:
         return CurrencySerializer(
             obj, context={"request": self.context["request"]}
         ).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=ThemeSerializer)  # type: ignore[misc]
-    def get_theme(obj: Chain) -> ReturnDict:  # type: ignore
+    def get_theme(obj: Chain) -> ReturnDict[Any, Any]:
         return ThemeSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
-    def get_safe_apps_rpc_uri(obj: Chain) -> ReturnDict:  # type: ignore
+    def get_safe_apps_rpc_uri(obj: Chain) -> ReturnDict[Any, Any]:
         return SafeAppsRpcUriSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
-    def get_rpc_uri(obj: Chain) -> ReturnDict:  # type: ignore
+    def get_rpc_uri(obj: Chain) -> ReturnDict[Any, Any]:
         return RpcUriSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
-    def get_public_rpc_uri(obj: Chain) -> ReturnDict:  # type: ignore
+    def get_public_rpc_uri(obj: Chain) -> ReturnDict[Any, Any]:
         return PublicRpcUriSerializer(obj).data
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BlockExplorerUriTemplateSerializer)  # type: ignore[misc]
-    def get_block_explorer_uri_template(obj: Chain) -> ReturnDict:  # type: ignore
+    def get_block_explorer_uri_template(obj: Chain) -> ReturnDict[Any, Any]:
         return BlockExplorerUriTemplateSerializer(obj).data
 
     @swagger_serializer_method(serializer_or_field=GasPriceSerializer)  # type: ignore[misc]
-    def get_gas_price(self, instance) -> ReturnDict:  # type: ignore
+    def get_gas_price(self, instance: Chain) -> ReturnDict[Any, Any]:
         ranked_gas_prices = instance.gasprice_set.all().order_by("rank")
         return GasPriceSerializer(ranked_gas_prices, many=True).data
 
     @swagger_serializer_method(serializer_or_field=WalletSerializer)  # type: ignore[misc]
-    def get_disabled_wallets(self, instance) -> ReturnDict:  # type: ignore
+    def get_disabled_wallets(self, instance: Chain) -> ReturnDict[Any, Any]:
         disabled_wallets = instance.get_disabled_wallets().order_by("key")
         return WalletSerializer(disabled_wallets, many=True).data
 
     @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[misc]
-    def get_features(self, instance) -> ReturnDict:  # type: ignore
+    def get_features(self, instance: Chain) -> ReturnDict[Any, Any]:
         enabled_features = instance.feature_set.all().order_by("key")
         return FeatureSerializer(enabled_features, many=True).data
