@@ -37,7 +37,7 @@ class GasPriceSerializer(serializers.Serializer[GasPrice]):
         ):
             return GasPriceOracleSerializer(instance).data
         elif (
-            instance.fixed_wei_value
+            instance.fixed_wei_value is not None
             and instance.oracle_uri is None
             and instance.max_fee_per_gas is None
             and instance.max_priority_fee_per_gas is None
