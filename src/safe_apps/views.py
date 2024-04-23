@@ -36,12 +36,20 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
         type=openapi.TYPE_STRING,
     )
 
+    _swagger_ignore_visibility_param = openapi.Parameter(
+        "ignoreVisibility",
+        openapi.IN_QUERY,
+        description="Ignore visibility flag, including both visible and not-visible Safe Apps",
+        type=openapi.TYPE_STRING,
+    )
+
     @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
     @swagger_auto_schema(
         manual_parameters=[
             _swagger_chain_id_param,
             _swagger_client_url_param,
             _swagger_url_param,
+            _swagger_ignore_visibility_param,
         ]
     )  # type: ignore[misc]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -52,7 +60,11 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[SafeApp]:
-        queryset = SafeApp.objects.filter(visible=True)
+        ignore_visibility = self.request.query_params.get("ignoreVisibility")
+        if ignore_visibility == "true":
+            queryset = SafeApp.objects.all()
+        else:
+            queryset = SafeApp.objects.filter(visible=True)
 
         chain_id = self.request.query_params.get("chainId")
         if chain_id is not None and chain_id.isdigit():
