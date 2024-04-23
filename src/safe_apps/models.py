@@ -1,4 +1,5 @@
 import os
+import uuid
 from enum import Enum
 from typing import IO, Union
 
@@ -17,12 +18,7 @@ _HOSTNAME_VALIDATOR = RegexValidator(
 
 def safe_app_icon_path(instance: "SafeApp", filename: str) -> str:
     _, file_extension = os.path.splitext(filename)
-    if instance.app_id is None:  # new SafeApp, app_id is not available at this point
-        safe_apps = SafeApp.objects.all().order_by("-app_id")
-        app_id = safe_apps[0].app_id + 1 if safe_apps else 1
-        return f"safe_apps/{app_id}/icon{file_extension}"
-    else:  # existing SafeApp, app_id is available
-        return f"safe_apps/{instance.app_id}/icon{file_extension}"
+    return f"safe_apps/{uuid.uuid4()}/icon{file_extension}"
 
 
 def validate_safe_app_icon_size(image: Union[str, IO[bytes]]) -> None:

@@ -16,9 +16,14 @@ class IconTestCase(TestCase):
     def test_icon_upload_path(self) -> None:
         safe_app = SafeAppFactory.create()
 
-        self.assertEqual(
-            safe_app.icon_url.url, f"/media/safe_apps/{safe_app.app_id}/icon.jpg"
+        path_regex = "|".join(
+            [
+                r"\/media\/safe_apps\/",
+                r"[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}",
+                r"\/icon.jpg",
+            ]
         )
+        self.assertRegex(safe_app.icon_url.url, path_regex)
 
     def test_icon_max_size_validation(self) -> None:
         safe_app = SafeAppFactory.create(
