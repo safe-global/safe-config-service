@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 
 from django.db.models import Q, QuerySet
 from django.utils.decorators import method_decorator
@@ -11,6 +11,10 @@ from rest_framework.response import Response
 
 from .models import SafeApp
 from .serializers import SafeAppsResponseSerializer
+
+
+def parse_boolean_query_param(value: Union[bool, str, int]) -> bool:
+    return value in (True, "True", "true", "1", 1)
 
 
 class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
@@ -60,8 +64,10 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[SafeApp]:
-        ignore_visibility = self.request.query_params.get("ignoreVisibility")
-        if ignore_visibility == "true":
+        ignore_visibility = parse_boolean_query_param(
+            self.request.query_params.get("ignoreVisibility", False)
+        )
+        if ignore_visibility is True:
             queryset = SafeApp.objects.all()
         else:
             queryset = SafeApp.objects.filter(visible=True)
