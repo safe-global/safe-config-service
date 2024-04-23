@@ -44,7 +44,7 @@ class TagSerializer(serializers.ModelSerializer[Tag]):
 
 class FeatureSerializer(serializers.ModelSerializer[Feature]):
     class Meta:
-        fields = ["name"]
+        fields = ["key"]
         model = Feature
         ref_name = "safe_apps.serializers.FeatureSerializer"
 
