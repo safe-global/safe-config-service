@@ -34,7 +34,7 @@ class NoRestrictionsAccessControlPolicySerializer(serializers.Serializer[SafeApp
 
 class TagSerializer(serializers.ModelSerializer[Tag]):
     class Meta:
-        fields = "__all__"
+        fields = ['name']
         model = Tag
         ref_name = "safe_apps.serializers.TagSerializer"
 
@@ -44,7 +44,7 @@ class TagSerializer(serializers.ModelSerializer[Tag]):
 
 class FeatureSerializer(serializers.ModelSerializer[Feature]):
     class Meta:
-        fields = "__all__"
+        fields = ['name']
         model = Feature
         ref_name = "safe_apps.serializers.FeatureSerializer"
 
