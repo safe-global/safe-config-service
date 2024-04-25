@@ -656,7 +656,7 @@ class SafeAppsVisibilityTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.json(), json_response)
 
-    def test_not_visible_safe_app_is_shown_if_visibility_is_ignored(self) -> None:
+    def test_not_visible_safe_app_is_shown_if_only_listed_is_true(self) -> None:
         not_visible_safe_app = SafeAppFactory.create(visible=False)
         visible_safe_app = SafeAppFactory.create(visible=True)
         json_response = [
@@ -693,7 +693,7 @@ class SafeAppsVisibilityTests(APITestCase):
                 "socialProfiles": [],
             },
         ]
-        url = reverse("v1:safe-apps:list") + f'{"?ignoreVisibility=true"}'
+        url = reverse("v1:safe-apps:list") + f'{"?onlyListed=false"}'
 
         response = self.client.get(path=url, data=None, format="json")
 

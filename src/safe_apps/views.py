@@ -40,11 +40,12 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
         type=openapi.TYPE_STRING,
     )
 
-    _swagger_ignore_visibility_param = openapi.Parameter(
-        "ignoreVisibility",
+    _swagger_only_listed_param = openapi.Parameter(
+        "onlyListed",
         openapi.IN_QUERY,
-        description="Ignore visibility flag, including both visible and not-visible Safe Apps",
+        description="If true, only listed/visible Safe Apps will be included. Else, all Safe Apps will be included",
         type=openapi.TYPE_BOOLEAN,
+        default=True,
     )
 
     @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
@@ -53,7 +54,7 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
             _swagger_chain_id_param,
             _swagger_client_url_param,
             _swagger_url_param,
-            _swagger_ignore_visibility_param,
+            _swagger_only_listed_param,
         ]
     )  # type: ignore[misc]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -64,10 +65,10 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[SafeApp]:
-        ignore_visibility = parse_boolean_query_param(
-            self.request.query_params.get("ignoreVisibility", False)
+        only_listed = parse_boolean_query_param(
+            self.request.query_params.get("onlyListed", True)
         )
-        if ignore_visibility:
+        if not only_listed:
             queryset = SafeApp.objects.all()
         else:
             queryset = SafeApp.objects.filter(visible=True)
