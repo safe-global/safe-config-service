@@ -45,7 +45,7 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
         openapi.IN_QUERY,
         description="If true, only listed/visible Safe Apps will be included. Else, all Safe Apps will be included",
         type=openapi.TYPE_BOOLEAN,
-        default=True,
+        default=False,
     )
 
     @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
@@ -66,12 +66,12 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
 
     def get_queryset(self) -> QuerySet[SafeApp]:
         only_listed = parse_boolean_query_param(
-            self.request.query_params.get("onlyListed", True)
+            self.request.query_params.get("onlyListed", False)
         )
-        if not only_listed:
-            queryset = SafeApp.objects.all()
-        else:
+        if only_listed:
             queryset = SafeApp.objects.filter(visible=True)
+        else:
+            queryset = SafeApp.objects.all()
 
         chain_id = self.request.query_params.get("chainId")
         if chain_id is not None and chain_id.isdigit():
