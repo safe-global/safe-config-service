@@ -67,7 +67,7 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
         ignore_visibility = parse_boolean_query_param(
             self.request.query_params.get("ignoreVisibility", False)
         )
-        if ignore_visibility is True:
+        if ignore_visibility:
             queryset = SafeApp.objects.all()
         else:
             queryset = SafeApp.objects.filter(visible=True)
