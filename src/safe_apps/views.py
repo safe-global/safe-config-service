@@ -44,7 +44,7 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
         "ignoreVisibility",
         openapi.IN_QUERY,
         description="Ignore visibility flag, including both visible and not-visible Safe Apps",
-        type=openapi.TYPE_STRING,
+        type=openapi.TYPE_BOOLEAN,
     )
 
     @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
