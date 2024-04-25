@@ -656,10 +656,54 @@ class SafeAppsVisibilityTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.json(), json_response)
 
-    def test_not_visible_safe_app_is_not_shown(self) -> None:
+    def test_not_visible_safe_app_is_shown_if_only_listed_is_not_set(self) -> None:
+        not_visible_safe_app = SafeAppFactory.create(visible=False)
+        visible_safe_app = SafeAppFactory.create(visible=True)
+        json_response = [
+            {
+                "id": not_visible_safe_app.app_id,
+                "url": not_visible_safe_app.url,
+                "name": not_visible_safe_app.name,
+                "iconUrl": f"http://testserver{not_visible_safe_app.icon_url.url}",
+                "description": not_visible_safe_app.description,
+                "chainIds": not_visible_safe_app.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": "NO_RESTRICTIONS",
+                },
+                "tags": [],
+                "features": [],
+                "developerWebsite": not_visible_safe_app.developer_website,
+                "socialProfiles": [],
+            },
+            {
+                "id": visible_safe_app.app_id,
+                "url": visible_safe_app.url,
+                "name": visible_safe_app.name,
+                "iconUrl": f"http://testserver{visible_safe_app.icon_url.url}",
+                "description": visible_safe_app.description,
+                "chainIds": visible_safe_app.chain_ids,
+                "provider": None,
+                "accessControl": {
+                    "type": "NO_RESTRICTIONS",
+                },
+                "tags": [],
+                "features": [],
+                "developerWebsite": visible_safe_app.developer_website,
+                "socialProfiles": [],
+            },
+        ]
+        url = reverse("v1:safe-apps:list")
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(response.json(), json_response)
+
+    def test_not_visible_safe_app_is_not_shown_if_only_listed_is_set(self) -> None:
         SafeAppFactory.create(visible=False)
         json_response: List[Dict[str, Any]] = []
-        url = reverse("v1:safe-apps:list")
+        url = reverse("v1:safe-apps:list") + f'{"?onlyListed=true"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
