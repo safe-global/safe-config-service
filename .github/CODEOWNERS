@@ -2,4 +2,4 @@
 # the repo. Unless a later match takes precedence,
 * @safe-global/safe-config-service-maintainers
 
-/src/safe_apps @mmv08 @safe-global/safe-config-service-maintainers
+/src/safe_apps @safe-global/safe-config-service-maintainers
