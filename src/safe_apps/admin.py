@@ -43,7 +43,7 @@ class SocialProfileInline(admin.TabularInline[Model, Model]):
 
 @admin.register(SafeApp)
 class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
-    list_display = ("name", "url", "chain_ids", "visible")
+    list_display = ("name", "url", "chain_ids", "listed")
     list_filter = (ChainIdFilter,)
     search_fields = ("name", "url")
     ordering = ("name",)

@@ -43,7 +43,7 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
     _swagger_only_listed_param = openapi.Parameter(
         "onlyListed",
         openapi.IN_QUERY,
-        description="If true, only listed/visible Safe Apps will be included. Else, all Safe Apps will be included",
+        description="If true, only listed Safe Apps will be included. Else, all Safe Apps will be included",
         type=openapi.TYPE_BOOLEAN,
         default=False,
     )
@@ -69,7 +69,7 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
             self.request.query_params.get("onlyListed", False)
         )
         if only_listed:
-            queryset = SafeApp.objects.filter(visible=True)
+            queryset = SafeApp.objects.filter(listed=True)
         else:
             queryset = SafeApp.objects.all()
 
