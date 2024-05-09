@@ -80,6 +80,8 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     ],
                     "ensRegistryAddress": chain.ens_registry_address,
                     "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
+                    "pricesProviderNativeCoin": chain.prices_provider_native_coin,
+                    "pricesProviderChainName": chain.prices_provider_chain_name,
                     "disabledWallets": [],
                     "features": [],
                 }
@@ -199,6 +201,8 @@ class ChainDetailViewTests(APITestCase):
             ],
             "ensRegistryAddress": chain.ens_registry_address,
             "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
+            "pricesProviderNativeCoin": chain.prices_provider_native_coin,
+            "pricesProviderChainName": chain.prices_provider_chain_name,
             "disabledWallets": [],
             "features": [],
         }

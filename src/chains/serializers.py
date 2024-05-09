@@ -188,6 +188,8 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "ens_registry_address",
             "recommended_master_copy_version",
             "disabled_wallets",
+            "prices_provider_native_coin",
+            "prices_provider_chain_name",
             "features",
         ]
 
