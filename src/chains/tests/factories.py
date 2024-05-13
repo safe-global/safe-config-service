@@ -46,6 +46,8 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
         lambda o: web3.Account.create().address
     )
     recommended_master_copy_version = "1.3.0"
+    prices_provider_native_coin = factory.Faker("cryptocurrency_code")
+    prices_provider_chain_name = factory.Faker("company")
     hidden = False
 
 

@@ -136,6 +136,10 @@ class Chain(models.Model):
     recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
+    prices_provider_native_coin = models.CharField(
+        max_length=255, null=True, blank=True
+    )
+    prices_provider_chain_name = models.CharField(max_length=255, null=True, blank=True)
     hidden = models.BooleanField(default=False)
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:

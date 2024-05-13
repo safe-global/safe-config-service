@@ -66,6 +66,10 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "decimals": chain.currency_decimals,
                         "logoUri": f"http://testserver{chain.currency_logo_uri.url}",
                     },
+                    "pricesProvider": {
+                        "nativeCoin": chain.prices_provider_native_coin,
+                        "chainName": chain.prices_provider_chain_name,
+                    },
                     "transactionService": chain.transaction_service_uri,
                     "vpcTransactionService": chain.vpc_transaction_service_uri,
                     "theme": {
@@ -184,6 +188,10 @@ class ChainDetailViewTests(APITestCase):
                 "symbol": chain.currency_symbol,
                 "decimals": chain.currency_decimals,
                 "logoUri": f"http://testserver{chain.currency_logo_uri.url}",
+            },
+            "pricesProvider": {
+                "nativeCoin": chain.prices_provider_native_coin,
+                "chainName": chain.prices_provider_chain_name,
             },
             "transactionService": chain.transaction_service_uri,
             "vpcTransactionService": chain.vpc_transaction_service_uri,

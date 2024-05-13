@@ -81,6 +81,11 @@ class CurrencySerializer(serializers.Serializer[Chain]):
     logo_uri = serializers.ImageField(use_url=True, source="currency_logo_uri")
 
 
+class PricesProviderSerializer(serializers.Serializer[Chain]):
+    native_coin = serializers.CharField(source="prices_provider_native_coin")
+    chain_name = serializers.CharField(source="prices_provider_chain_name")
+
+
 class BaseRpcUriSerializer(serializers.Serializer[Chain]):
     authentication = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField(method_name="get_rpc_value")
@@ -156,6 +161,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     public_rpc_uri = serializers.SerializerMethodField()
     block_explorer_uri_template = serializers.SerializerMethodField()
     native_currency = serializers.SerializerMethodField()
+    prices_provider = serializers.SerializerMethodField()
     transaction_service = serializers.URLField(
         source="transaction_service_uri", default=None
     )
@@ -181,6 +187,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "public_rpc_uri",
             "block_explorer_uri_template",
             "native_currency",
+            "prices_provider",
             "transaction_service",
             "vpc_transaction_service",
             "theme",
@@ -236,3 +243,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     def get_features(self, instance: Chain) -> ReturnDict[Any, Any]:
         enabled_features = instance.feature_set.all().order_by("key")
         return FeatureSerializer(enabled_features, many=True).data
+
+    @swagger_serializer_method(serializer_or_field=PricesProviderSerializer)  # type: ignore[misc]
+    def get_prices_provider(self, instance: Chain) -> ReturnDict[Any, Any]:
+        return PricesProviderSerializer(instance).data
