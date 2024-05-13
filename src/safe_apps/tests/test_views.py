@@ -629,23 +629,23 @@ class CacheSafeAppTests(APITestCase):
 
 
 class SafeAppsVisibilityTests(APITestCase):
-    def test_visible_safe_app_is_shown(self) -> None:
-        visible_safe_app = SafeAppFactory.create(visible=True)
+    def test_listed_safe_app_is_shown(self) -> None:
+        listed_safe_app = SafeAppFactory.create(listed=True)
         json_response = [
             {
-                "id": visible_safe_app.app_id,
-                "url": visible_safe_app.url,
-                "name": visible_safe_app.name,
-                "iconUrl": f"http://testserver{visible_safe_app.icon_url.url}",
-                "description": visible_safe_app.description,
-                "chainIds": visible_safe_app.chain_ids,
+                "id": listed_safe_app.app_id,
+                "url": listed_safe_app.url,
+                "name": listed_safe_app.name,
+                "iconUrl": f"http://testserver{listed_safe_app.icon_url.url}",
+                "description": listed_safe_app.description,
+                "chainIds": listed_safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
                 "features": [],
-                "developerWebsite": visible_safe_app.developer_website,
+                "developerWebsite": listed_safe_app.developer_website,
                 "socialProfiles": [],
             }
         ]
@@ -656,40 +656,40 @@ class SafeAppsVisibilityTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.json(), json_response)
 
-    def test_not_visible_safe_app_is_shown_if_only_listed_is_not_set(self) -> None:
-        not_visible_safe_app = SafeAppFactory.create(visible=False)
-        visible_safe_app = SafeAppFactory.create(visible=True)
+    def test_unlisted_safe_app_is_shown_if_only_listed_is_not_set(self) -> None:
+        unlisted_safe_app = SafeAppFactory.create(listed=False)
+        listed_safe_app = SafeAppFactory.create(listed=True)
         json_response = [
             {
-                "id": not_visible_safe_app.app_id,
-                "url": not_visible_safe_app.url,
-                "name": not_visible_safe_app.name,
-                "iconUrl": f"http://testserver{not_visible_safe_app.icon_url.url}",
-                "description": not_visible_safe_app.description,
-                "chainIds": not_visible_safe_app.chain_ids,
+                "id": unlisted_safe_app.app_id,
+                "url": unlisted_safe_app.url,
+                "name": unlisted_safe_app.name,
+                "iconUrl": f"http://testserver{unlisted_safe_app.icon_url.url}",
+                "description": unlisted_safe_app.description,
+                "chainIds": unlisted_safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
                 "features": [],
-                "developerWebsite": not_visible_safe_app.developer_website,
+                "developerWebsite": unlisted_safe_app.developer_website,
                 "socialProfiles": [],
             },
             {
-                "id": visible_safe_app.app_id,
-                "url": visible_safe_app.url,
-                "name": visible_safe_app.name,
-                "iconUrl": f"http://testserver{visible_safe_app.icon_url.url}",
-                "description": visible_safe_app.description,
-                "chainIds": visible_safe_app.chain_ids,
+                "id": listed_safe_app.app_id,
+                "url": listed_safe_app.url,
+                "name": listed_safe_app.name,
+                "iconUrl": f"http://testserver{listed_safe_app.icon_url.url}",
+                "description": listed_safe_app.description,
+                "chainIds": listed_safe_app.chain_ids,
                 "provider": None,
                 "accessControl": {
                     "type": "NO_RESTRICTIONS",
                 },
                 "tags": [],
                 "features": [],
-                "developerWebsite": visible_safe_app.developer_website,
+                "developerWebsite": listed_safe_app.developer_website,
                 "socialProfiles": [],
             },
         ]
@@ -700,8 +700,8 @@ class SafeAppsVisibilityTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.json(), json_response)
 
-    def test_not_visible_safe_app_is_not_shown_if_only_listed_is_set(self) -> None:
-        SafeAppFactory.create(visible=False)
+    def test_unlisted_safe_app_is_not_shown_if_only_listed_is_set(self) -> None:
+        SafeAppFactory.create(listed=False)
         json_response: List[Dict[str, Any]] = []
         url = reverse("v1:safe-apps:list") + f'{"?onlyListed=true"}'
 

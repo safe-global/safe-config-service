@@ -58,10 +58,9 @@ class SafeApp(models.Model):
         DOMAIN_ALLOWLIST = "DOMAIN_ALLOWLIST"
 
     app_id = models.BigAutoField(primary_key=True)
-    # TODO: rename "visible" to "listed" across the service
-    visible = models.BooleanField(
+    listed = models.BooleanField(
         default=True
-    )  # True if this safe-app should be visible from the view. False otherwise
+    )  # True if this safe-app should be listed in the view. False otherwise
     url = models.URLField()
     name = models.CharField(max_length=200)
     icon_url = models.ImageField(

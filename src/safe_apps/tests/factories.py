@@ -44,7 +44,7 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
         model = SafeApp
 
     app_id = factory.Sequence(lambda id: id)
-    visible = True
+    listed = True
     url = factory.Faker("url")
     name = factory.Faker("company")
     icon_url = factory.django.ImageField(width=50, height=50)
