@@ -3,8 +3,8 @@
 # non-nullable in the same migration otherwise causes an error.
 
 from django.db import migrations
-from django.db.migrations.state import StateApps
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
+from django.db.migrations.state import StateApps
 from django.db.models import Q
 
 
