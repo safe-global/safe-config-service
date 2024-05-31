@@ -3,9 +3,9 @@ from django.db.migrations.state import StateApps
 from chains.migrations.tests.utils import TestMigrations
 
 
-class Migration0014TestCase(TestMigrations):
-    migrate_from = "0013_alter_safeapp_icon_url"
-    migrate_to = "0014_alter_safeapp_icon_url"
+class Migration0013TestCase(TestMigrations):
+    migrate_from = "0012_rename_visible_safeapp_listed"
+    migrate_to = "0013_alter_safeapp_icon_url"
 
     def setUpBeforeMigration(self, apps: StateApps) -> None:
         SafeApp = apps.get_model("safe_apps", "SafeApp")
