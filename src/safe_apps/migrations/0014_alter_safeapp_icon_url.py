@@ -4,6 +4,7 @@ from django.db import migrations, models
 
 import safe_apps.models
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

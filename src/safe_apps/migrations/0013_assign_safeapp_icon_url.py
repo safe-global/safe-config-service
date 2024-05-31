@@ -14,7 +14,9 @@ def assign_missing_default_icon_url(
     SafeApp = apps.get_model("safe_apps", "SafeApp")
     default_icon_url = "safe_apps/icon_url.jpg"
 
-    SafeApp.objects.filter(Q(icon_url__isnull=True) | Q(icon_url="")).update(icon_url=default_icon_url)
+    SafeApp.objects.filter(Q(icon_url__isnull=True) | Q(icon_url="")).update(
+        icon_url=default_icon_url
+    )
 
 
 class Migration(migrations.Migration):
