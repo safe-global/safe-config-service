@@ -3,11 +3,14 @@
 
 from django.db import migrations, models
 from django.db.migrations.state import StateApps
+from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 
 import safe_apps.models
 
 
-def add_missing_default_icon_url(apps: StateApps, schema_editor):  # type: ignore[no-untyped-def] # decorator is untyped
+def add_missing_default_icon_url(
+    apps: StateApps, schema_editor: BaseDatabaseSchemaEditor
+) -> None:
     SafeApp = apps.get_model("safe_apps", "SafeApp")
     default_icon_url = "safe_apps/icon_url.jpg"
 
