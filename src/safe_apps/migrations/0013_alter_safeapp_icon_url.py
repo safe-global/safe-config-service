@@ -2,11 +2,12 @@
 # Modified to update existing entries with no icon_url
 
 from django.db import migrations, models
+from django.db.migrations.state import StateApps
 
 import safe_apps.models
 
 
-def add_missing_default_icon_url(apps, schema_editor):
+def add_missing_default_icon_url(apps: StateApps, schema_editor):  # type: ignore[no-untyped-def] # decorator is untyped
     SafeApp = apps.get_model("safe_apps", "SafeApp")
     default_icon_url = "safe_apps/icon_url.jpg"
 
