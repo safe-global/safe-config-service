@@ -134,4 +134,5 @@ dmypy.json
 data/
 docker-compose.override.yml
 .vscode/
-src/media/chains
+src/media/
+!src/media/safe-apps/icon_url.jpg
