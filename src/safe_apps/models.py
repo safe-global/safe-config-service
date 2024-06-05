@@ -67,8 +67,7 @@ class SafeApp(models.Model):
         validators=[validate_safe_app_icon_size],
         upload_to=safe_app_icon_path,
         max_length=255,
-        null=True,
-        blank=True,
+        default="safe_apps/icon_url.jpg",
     )
     description = models.CharField(max_length=200)
     chain_ids = ArrayField(models.PositiveBigIntegerField())

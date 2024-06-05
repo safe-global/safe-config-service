@@ -135,3 +135,4 @@ data/
 docker-compose.override.yml
 .vscode/
 src/media/
+!src/media/safe_apps/icon_url.jpg
