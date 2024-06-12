@@ -86,6 +86,15 @@ class PricesProviderSerializer(serializers.Serializer[Chain]):
     chain_name = serializers.CharField(source="prices_provider_chain_name")
 
 
+class CounterfactualBalancesProviderSerializer(serializers.Serializer[Chain]):
+    chain_name = serializers.CharField(
+        source="counterfactual_balances_provider_chain_name"
+    )
+    enabled = serializers.BooleanField(
+        source="counterfactual_balances_provider_enabled"
+    )
+
+
 class BaseRpcUriSerializer(serializers.Serializer[Chain]):
     authentication = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField(method_name="get_rpc_value")
@@ -162,6 +171,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     block_explorer_uri_template = serializers.SerializerMethodField()
     native_currency = serializers.SerializerMethodField()
     prices_provider = serializers.SerializerMethodField()
+    counterfactual_balances_provider = serializers.SerializerMethodField()
     transaction_service = serializers.URLField(
         source="transaction_service_uri", default=None
     )
@@ -188,6 +198,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "block_explorer_uri_template",
             "native_currency",
             "prices_provider",
+            "counterfactual_balances_provider",
             "transaction_service",
             "vpc_transaction_service",
             "theme",
@@ -247,3 +258,9 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     @swagger_serializer_method(serializer_or_field=PricesProviderSerializer)  # type: ignore[misc]
     def get_prices_provider(self, instance: Chain) -> ReturnDict[Any, Any]:
         return PricesProviderSerializer(instance).data
+
+    @swagger_serializer_method(serializer_or_field=CounterfactualBalancesProviderSerializer)  # type: ignore[misc]
+    def get_counterfactual_balances_provider(
+        self, instance: Chain
+    ) -> ReturnDict[Any, Any]:
+        return CounterfactualBalancesProviderSerializer(instance).data

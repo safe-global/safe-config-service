@@ -140,6 +140,10 @@ class Chain(models.Model):
         max_length=255, null=True, blank=True
     )
     prices_provider_chain_name = models.CharField(max_length=255, null=True, blank=True)
+    counterfactual_balances_provider_chain_name = models.CharField(
+        max_length=255, null=True, blank=True
+    )
+    counterfactual_balances_provider_enabled = models.BooleanField(default=False)
     hidden = models.BooleanField(default=False)
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:
