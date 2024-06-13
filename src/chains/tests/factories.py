@@ -48,6 +48,8 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     recommended_master_copy_version = "1.3.0"
     prices_provider_native_coin = factory.Faker("cryptocurrency_code")
     prices_provider_chain_name = factory.Faker("company")
+    balances_provider_chain_name = factory.Faker("company")
+    balances_provider_enabled = factory.Faker("pybool")
     hidden = False
 
 

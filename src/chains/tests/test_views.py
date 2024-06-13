@@ -70,6 +70,10 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "nativeCoin": chain.prices_provider_native_coin,
                         "chainName": chain.prices_provider_chain_name,
                     },
+                    "balancesProvider": {
+                        "chainName": chain.balances_provider_chain_name,
+                        "enabled": chain.balances_provider_enabled,
+                    },
                     "transactionService": chain.transaction_service_uri,
                     "vpcTransactionService": chain.vpc_transaction_service_uri,
                     "theme": {
@@ -192,6 +196,10 @@ class ChainDetailViewTests(APITestCase):
             "pricesProvider": {
                 "nativeCoin": chain.prices_provider_native_coin,
                 "chainName": chain.prices_provider_chain_name,
+            },
+            "balancesProvider": {
+                "chainName": chain.balances_provider_chain_name,
+                "enabled": chain.balances_provider_enabled,
             },
             "transactionService": chain.transaction_service_uri,
             "vpcTransactionService": chain.vpc_transaction_service_uri,

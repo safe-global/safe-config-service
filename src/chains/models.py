@@ -140,6 +140,13 @@ class Chain(models.Model):
         max_length=255, null=True, blank=True
     )
     prices_provider_chain_name = models.CharField(max_length=255, null=True, blank=True)
+    balances_provider_chain_name = models.CharField(
+        max_length=255, null=True, blank=True
+    )
+    balances_provider_enabled = models.BooleanField(
+        default=False,
+        help_text="This flag informs API clients whether the balances provider is enabled for the chain",
+    )
     hidden = models.BooleanField(default=False)
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:
