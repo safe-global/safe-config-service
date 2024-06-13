@@ -12,12 +12,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="chain",
-            name="counterfactual_balances_provider_chain_name",
+            name="balances_provider_chain_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name="chain",
-            name="counterfactual_balances_provider_enabled",
+            name="balances_provider_enabled",
             field=models.BooleanField(default=False),
         ),
     ]

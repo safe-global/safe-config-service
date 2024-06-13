@@ -70,9 +70,9 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "nativeCoin": chain.prices_provider_native_coin,
                         "chainName": chain.prices_provider_chain_name,
                     },
-                    "counterfactualBalancesProvider": {
-                        "chainName": chain.counterfactual_balances_provider_chain_name,
-                        "enabled": chain.counterfactual_balances_provider_enabled,
+                    "balancesProvider": {
+                        "chainName": chain.balances_provider_chain_name,
+                        "enabled": chain.balances_provider_enabled,
                     },
                     "transactionService": chain.transaction_service_uri,
                     "vpcTransactionService": chain.vpc_transaction_service_uri,
@@ -197,9 +197,9 @@ class ChainDetailViewTests(APITestCase):
                 "nativeCoin": chain.prices_provider_native_coin,
                 "chainName": chain.prices_provider_chain_name,
             },
-            "counterfactualBalancesProvider": {
-                "chainName": chain.counterfactual_balances_provider_chain_name,
-                "enabled": chain.counterfactual_balances_provider_enabled,
+            "balancesProvider": {
+                "chainName": chain.balances_provider_chain_name,
+                "enabled": chain.balances_provider_enabled,
             },
             "transactionService": chain.transaction_service_uri,
             "vpcTransactionService": chain.vpc_transaction_service_uri,

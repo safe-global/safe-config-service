@@ -5,7 +5,7 @@ from chains.migrations.tests.utils import TestMigrations
 
 class Migration0042TestCase(TestMigrations):
     migrate_from = "0041_chain_prices_provider_chain_name_and_more"
-    migrate_to = "0042_chain_counterfactual_balances_provider_chain_name_and_more"
+    migrate_to = "0042_chain_balances_provider_chain_name_and_more"
 
     def setUpBeforeMigration(self, apps: StateApps) -> None:
         Chain = apps.get_model("chains", "Chain")
@@ -41,5 +41,5 @@ class Migration0042TestCase(TestMigrations):
 
         chain = Chain.objects.get(id=1)
 
-        self.assertEqual(chain.counterfactual_balances_provider_chain_name, None)
-        self.assertEqual(chain.counterfactual_balances_provider_enabled, False)
+        self.assertEqual(chain.balances_provider_chain_name, None)
+        self.assertEqual(chain.balances_provider_enabled, False)
