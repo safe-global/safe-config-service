@@ -3,7 +3,7 @@ from django.db.migrations.state import StateApps
 from chains.migrations.tests.utils import TestMigrations
 
 
-class Migration0042TestCase(TestMigrations):
+class Migration0043TestCase(TestMigrations):
     migrate_from = "0042_chain_balances_provider_chain_name_and_more"
     migrate_to = "0043_chain_create_call_address_and_more"
 
