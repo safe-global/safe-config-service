@@ -14,41 +14,57 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="chain",
             name="create_call_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
         migrations.AddField(
             model_name="chain",
             name="fallback_handler_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
         migrations.AddField(
             model_name="chain",
             name="multi_send_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
         migrations.AddField(
             model_name="chain",
             name="multi_send_call_only_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
         migrations.AddField(
             model_name="chain",
             name="safe_proxy_factory_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
         migrations.AddField(
             model_name="chain",
             name="safe_singleton_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
         migrations.AddField(
             model_name="chain",
             name="sign_message_lib_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
         migrations.AddField(
             model_name="chain",
             name="simulate_tx_accessor_address",
-            field=gnosis.eth.django.models.EthereumAddressField(blank=True, null=True),
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
         ),
     ]
