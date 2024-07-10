@@ -148,6 +148,14 @@ class Chain(models.Model):
         help_text="This flag informs API clients whether the balances provider is enabled for the chain",
     )
     hidden = models.BooleanField(default=False)
+    safe_singleton_address = EthereumAddressField(null=True, blank=True)
+    safe_proxy_factory_address = EthereumAddressField(null=True, blank=True)
+    multi_send_address = EthereumAddressField(null=True, blank=True)
+    multi_send_call_only_address = EthereumAddressField(null=True, blank=True)
+    fallback_handler_address = EthereumAddressField(null=True, blank=True)
+    sign_message_lib_address = EthereumAddressField(null=True, blank=True)
+    create_call_address = EthereumAddressField(null=True, blank=True)
+    simulate_tx_accessor_address = EthereumAddressField(null=True, blank=True)
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:
         all_wallets = Wallet.objects.all()
