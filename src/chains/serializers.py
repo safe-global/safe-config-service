@@ -100,6 +100,7 @@ class ContractAddressesSerializer(serializers.Serializer[Chain]):
     sign_message_lib_address = serializers.CharField()
     create_call_address = serializers.CharField()
     simulate_tx_accessor_address = serializers.CharField()
+    safe_web_authn_signer_factory_address = serializers.CharField()
 
 
 class BaseRpcUriSerializer(serializers.Serializer[Chain]):

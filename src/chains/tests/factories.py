@@ -71,6 +71,9 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     simulate_tx_accessor_address = factory.LazyAttribute(
         lambda o: web3.Account.create().address
     )
+    safe_web_authn_signer_factory_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
 
 
 class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]

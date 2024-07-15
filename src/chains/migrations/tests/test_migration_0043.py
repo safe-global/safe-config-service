@@ -51,3 +51,4 @@ class Migration0043TestCase(TestMigrations):
         self.assertEqual(chain.sign_message_lib_address, None)
         self.assertEqual(chain.create_call_address, None)
         self.assertEqual(chain.simulate_tx_accessor_address, None)
+        self.assertEqual(chain.safe_web_authn_signer_factory_address, None)

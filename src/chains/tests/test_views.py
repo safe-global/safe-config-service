@@ -99,6 +99,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "signMessageLibAddress": chain.sign_message_lib_address,
                         "createCallAddress": chain.create_call_address,
                         "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
+                        "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
                     },
                 }
             ],
@@ -236,6 +237,7 @@ class ChainDetailViewTests(APITestCase):
                 "signMessageLibAddress": chain.sign_message_lib_address,
                 "createCallAddress": chain.create_call_address,
                 "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
+                "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
             },
         }
 

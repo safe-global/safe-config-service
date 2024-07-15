@@ -156,6 +156,9 @@ class Chain(models.Model):
     sign_message_lib_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
     create_call_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
     simulate_tx_accessor_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    safe_web_authn_signer_factory_address = EthereumAddressField(
+        null=True, blank=True
+    )  # type: ignore[no-untyped-call]
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:
         all_wallets = Wallet.objects.all()

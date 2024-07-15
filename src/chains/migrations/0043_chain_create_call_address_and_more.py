@@ -67,4 +67,11 @@ class Migration(migrations.Migration):
                 blank=True, null=True
             ),  # type: ignore[no-untyped-call]
         ),
+        migrations.AddField(
+            model_name="chain",
+            name="safe_web_authn_signer_factory_address",
+            field=gnosis.eth.django.models.EthereumAddressField(
+                blank=True, null=True
+            ),  # type: ignore[no-untyped-call]
+        ),
     ]
