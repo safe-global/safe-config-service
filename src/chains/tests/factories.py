@@ -51,6 +51,29 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     balances_provider_chain_name = factory.Faker("company")
     balances_provider_enabled = factory.Faker("pybool")
     hidden = False
+    safe_singleton_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    safe_proxy_factory_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    multi_send_address = factory.LazyAttribute(lambda o: web3.Account.create().address)
+    multi_send_call_only_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    fallback_handler_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    sign_message_lib_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    create_call_address = factory.LazyAttribute(lambda o: web3.Account.create().address)
+    simulate_tx_accessor_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    safe_web_authn_signer_factory_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
 
 
 class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]
