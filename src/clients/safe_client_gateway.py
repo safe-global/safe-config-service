@@ -43,7 +43,7 @@ def cgw_setup() -> tuple[str, str]:
 def hook_event(event: HookEvent) -> None:
     try:
         (url, token) = cgw_setup()
-        url = urljoin(url, "/v1/hooks/events")
+        url = urljoin(url.rstrip("/") + "/", "v1/hooks/events")
         post(url, token, json={"type": event.type, "chainId": str(event.chain_id)})
     except Exception as error:
         logger.error(error)
