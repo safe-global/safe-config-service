@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Iterable, Tuple, Union
 
 from django.contrib import admin
 from django.db.models import Model, QuerySet
@@ -10,7 +10,7 @@ class ChainIdFilter(admin.SimpleListFilter):
     title = "Chains"
     parameter_name = "chain_ids"
 
-    def lookups(self, request: Any, model_admin: Any) -> list[tuple[Any, str]]:
+    def lookups(self, request: Any, model_admin: Any) -> Any:
         values = SafeApp.objects.values_list("chain_ids", flat=True)
         # lookups requires a tuple to be returned – (value, verbose value)
         chains = [(chain, chain) for chains in values for chain in chains]
