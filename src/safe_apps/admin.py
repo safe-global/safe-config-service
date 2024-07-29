@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Tuple, Union
+from typing import Any
 
 from django.contrib import admin
 from django.db.models import Model, QuerySet
