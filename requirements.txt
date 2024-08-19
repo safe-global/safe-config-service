@@ -1,5 +1,5 @@
 boto3==1.35.0
-Django==5.0.8
+Django==5.1
 django-cors-headers==4.4.0
 djangorestframework==3.15.2
 djangorestframework-camel-case==1.4.2
