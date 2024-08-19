@@ -165,7 +165,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v6.6.1
+        uses: docker/build-push-action@v6.7.0
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -213,7 +213,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v6.6.1
+        uses: docker/build-push-action@v6.7.0
         with:
           context: .
           platforms: linux/amd64,linux/arm64
