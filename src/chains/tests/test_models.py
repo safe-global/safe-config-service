@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+import factory
 import web3
 from django.core.exceptions import ValidationError
 from django.db import DataError
@@ -18,13 +19,43 @@ class ChainTestCase(TestCase):
         )
 
 
+class ChainLogoTestCase(TestCase):
+    def test_chain_logo_upload_path(self) -> None:
+        chain = ChainFactory.create()
+
+        self.assertEqual(
+            chain.chain_logo_uri.url, f"/media/chains/{chain.id}/chain_logo.jpg"
+        )
+
+    def test_image_max_size_validation(self) -> None:
+        chain = ChainFactory.create(
+            chain_logo_uri=factory.django.ImageField(width=512, height=512)
+        )
+
+        chain.full_clean()  # should not rise any exception
+
+    def test_image_width_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                chain_logo_uri=factory.django.ImageField(width=513, height=50)
+            )
+            chain.full_clean()
+
+    def test_image_height_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                chain_logo_uri=factory.django.ImageField(width=50, height=513)
+            )
+            chain.full_clean()
+
+
 class GasPriceTestCase(TestCase):
     def test_str_method_output(self) -> None:
         gas_price = GasPriceFactory.create()
 
         self.assertEqual(
             str(gas_price),
-            f"Chain = {gas_price.chain.id} | uri={gas_price.oracle_uri} | fixed_wei_value={gas_price.fixed_wei_value}",
+            f"Chain = {gas_price.chain.id} | uri={gas_price.oracle_uri} | fixed_wei_value={gas_price.fixed_wei_value} | max_fee_per_gas={gas_price.max_fee_per_gas} | max_priority_fee_per-gas={gas_price.max_priority_fee_per_gas}",  # noqa E501
         )
 
 
@@ -57,6 +88,43 @@ class ChainGasPriceFixedTestCase(TestCase):
         gas_price.full_clean()
 
 
+class ChainGasPriceFixed1559TestCase(TestCase):
+    faker = Faker()
+
+    @staticmethod
+    def test_only_fixed1559_defined() -> None:
+        gas_price = GasPriceFactory.create(
+            oracle_uri=None,
+            fixed_wei_value=None,
+            max_fee_per_gas="100000",
+            max_priority_fee_per_gas="1000",
+        )
+
+        gas_price.full_clean()
+
+    def test_fixed_and_fixed1559_defined(self) -> None:
+        gas_price = GasPriceFactory.create(
+            fixed_wei_value="100000",
+            max_fee_per_gas="100000",
+            max_priority_fee_per_gas="1000",
+        )
+
+        with self.assertRaises(ValidationError):
+            gas_price.full_clean()
+
+    def test_fixed_and_fixed1559_and_oracle_defined(self) -> None:
+        gas_price = GasPriceFactory.create(
+            oracle_uri=self.faker.url(),
+            oracle_parameter="fake parameter",
+            fixed_wei_value="100000",
+            max_fee_per_gas="100000",
+            max_priority_fee_per_gas="1000",
+        )
+
+        with self.assertRaises(ValidationError):
+            gas_price.full_clean()
+
+
 class ChainGasPriceOracleTestCase(TestCase):
     faker = Faker()
 
@@ -79,6 +147,18 @@ class ChainGasPriceOracleTestCase(TestCase):
 
         with self.assertRaises(ValidationError):
             gas_price.full_clean()
+
+    def test_zero_oracle_gas_parameter_with_null_uri(self) -> None:
+        gas_price = GasPriceFactory.create(
+            fixed_wei_value=0,
+            oracle_uri=None,
+            oracle_parameter=None,
+            max_fee_per_gas=None,
+            max_priority_fee_per_gas=None,
+        )
+
+        # No validation exception should be thrown
+        gas_price.full_clean()
 
     def test_oracle_gas_parameter_with_uri(self) -> None:
         gas_price = GasPriceFactory.create(
@@ -266,11 +346,32 @@ class ChainMinMasterCopyVersionValidationTestCase(TransactionTestCase):
 
 class ChainCurrencyLogoTestCase(TestCase):
     def test_currency_logo_upload_path(self) -> None:
-        chain = ChainFactory.create(id=12)
+        chain = ChainFactory.create()
 
         self.assertEqual(
-            chain.currency_logo_uri.url, "/media/chains/12/currency_logo.jpg"
+            chain.currency_logo_uri.url, f"/media/chains/{chain.id}/currency_logo.jpg"
         )
+
+    def test_image_max_size_validation(self) -> None:
+        chain = ChainFactory.create(
+            currency_logo_uri=factory.django.ImageField(width=512, height=512)
+        )
+
+        chain.full_clean()  # should not rise any exception
+
+    def test_image_width_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                currency_logo_uri=factory.django.ImageField(width=513, height=50)
+            )
+            chain.full_clean()
+
+    def test_image_height_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            chain = ChainFactory.create(
+                currency_logo_uri=factory.django.ImageField(width=50, height=513)
+            )
+            chain.full_clean()
 
 
 class WalletTestCase(TestCase):

@@ -1,7 +1,50 @@
+import factory
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from .factories import ClientFactory, ProviderFactory, SafeAppFactory, TagFactory
+from .factories import (
+    ClientFactory,
+    FeatureFactory,
+    ProviderFactory,
+    SafeAppFactory,
+    SocialProfileFactory,
+    TagFactory,
+)
+
+
+class IconTestCase(TestCase):
+    def test_icon_upload_path(self) -> None:
+        safe_app = SafeAppFactory.create()
+
+        path_regex = "|".join(
+            [
+                r"\/media\/safe_apps\/",
+                r"[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}",
+                r"\/icon.jpg",
+            ]
+        )
+        self.assertRegex(safe_app.icon_url.url, path_regex)
+
+    def test_icon_max_size_validation(self) -> None:
+        safe_app = SafeAppFactory.create(
+            icon_url=factory.django.ImageField(width=512, height=512)
+        )
+
+        safe_app.full_clean()  # should not rise any exception
+
+    def test_icon_width_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            safe_app = SafeAppFactory.create(
+                icon_url=factory.django.ImageField(width=513, height=50)
+            )
+            safe_app.full_clean()
+
+    def test_icon_height_greater_than_512(self) -> None:
+        with self.assertRaises(ValidationError):
+            safe_app = SafeAppFactory.create(
+                icon_url=factory.django.ImageField(width=50, height=513)
+            )
+            safe_app.full_clean()
 
 
 class ProviderTestCase(TestCase):
@@ -58,3 +101,33 @@ class TagTestCase(TestCase):
     def test_str_method_outputs_tag_name(self) -> None:
         tag = TagFactory.create()
         self.assertEqual(str(tag), f"Tag: {tag.name}")
+
+
+class FeatureTestCase(TestCase):
+    def test_str_method_outputs_feature_key(self) -> None:
+        feature = FeatureFactory.create()
+        self.assertEqual(str(feature), f"Safe App Feature: {feature.key}")
+
+
+class SocialProfileTestCase(TestCase):
+    def test_str_method_outputs_social_profile_name(self) -> None:
+        social_profile = SocialProfileFactory.create()
+        self.assertEqual(
+            str(social_profile),
+            f"Social Profile: {social_profile.platform} | {social_profile.url}",
+        )
+
+    def test_doesnt_allow_create_social_profile_with_invalid_url(self) -> None:
+        social_profile = SocialProfileFactory.build(url="random")
+        with self.assertRaises(ValidationError):
+            social_profile.full_clean()
+
+    def test_doesnt_allow_create_social_profile_with_invalid_platform(self) -> None:
+        social_profile = SocialProfileFactory.build(platform="bereal")
+        with self.assertRaises(ValidationError):
+            social_profile.full_clean()
+
+    def test_cannot_exist_without_safe_app(self) -> None:
+        social_profile = SocialProfileFactory.build(safe_app=None)
+        with self.assertRaises(ValidationError):
+            social_profile.full_clean()

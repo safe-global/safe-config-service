@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("safe_apps", "0007_safeapp_access_policy"),
     ]

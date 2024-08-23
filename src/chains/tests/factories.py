@@ -16,7 +16,9 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     name = factory.Faker("company")
     short_name = factory.Faker("pystr", max_chars=255)
     description = factory.Faker("pystr", max_chars=255)
+    chain_logo_uri = factory.django.ImageField(width=50, height=50)
     l2 = factory.Faker("pybool")
+    is_testnet = factory.Faker("pybool")
     rpc_authentication = factory.lazy_attribute(
         lambda o: random.choice(list(Chain.RpcAuthentication))
     )
@@ -44,6 +46,34 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
         lambda o: web3.Account.create().address
     )
     recommended_master_copy_version = "1.3.0"
+    prices_provider_native_coin = factory.Faker("cryptocurrency_code")
+    prices_provider_chain_name = factory.Faker("company")
+    balances_provider_chain_name = factory.Faker("company")
+    balances_provider_enabled = factory.Faker("pybool")
+    hidden = False
+    safe_singleton_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    safe_proxy_factory_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    multi_send_address = factory.LazyAttribute(lambda o: web3.Account.create().address)
+    multi_send_call_only_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    fallback_handler_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    sign_message_lib_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    create_call_address = factory.LazyAttribute(lambda o: web3.Account.create().address)
+    simulate_tx_accessor_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
+    safe_web_authn_signer_factory_address = factory.LazyAttribute(
+        lambda o: web3.Account.create().address
+    )
 
 
 class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -57,6 +87,8 @@ class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]
         "pydecimal", positive=True, min_value=1, max_value=1_000_000_000, right_digits=9
     )
     fixed_wei_value = factory.Faker("pyint")
+    max_fee_per_gas = None
+    max_priority_fee_per_gas = None
     rank = factory.Faker("pyint")
 
 

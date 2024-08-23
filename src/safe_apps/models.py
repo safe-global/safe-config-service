@@ -1,6 +1,11 @@
+import os
+import uuid
 from enum import Enum
+from typing import IO, Union
 
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
+from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -9,6 +14,21 @@ _HOSTNAME_VALIDATOR = RegexValidator(
     message="Enter a valid hostname (Without a resource path)",
     code="invalid_hostname",
 )
+
+
+def safe_app_icon_path(instance: "SafeApp", filename: str) -> str:
+    _, file_extension = os.path.splitext(filename)
+    return f"safe_apps/{uuid.uuid4()}/icon{file_extension}"
+
+
+def validate_safe_app_icon_size(image: Union[str, IO[bytes]]) -> None:
+    width, height = get_image_dimensions(image)
+    if not width or not height:
+        raise ValidationError(
+            f"Could not get image dimensions. Width={width}, Height={height}"
+        )
+    if width > 512 or height > 512:
+        raise ValidationError("Image width and height need to be at most 512 pixels")
 
 
 class Provider(models.Model):
@@ -38,12 +58,17 @@ class SafeApp(models.Model):
         DOMAIN_ALLOWLIST = "DOMAIN_ALLOWLIST"
 
     app_id = models.BigAutoField(primary_key=True)
-    visible = models.BooleanField(
+    listed = models.BooleanField(
         default=True
-    )  # True if this safe-app should be visible from the view. False otherwise
+    )  # True if this safe-app should be listed in the view. False otherwise
     url = models.URLField()
     name = models.CharField(max_length=200)
-    icon_url = models.URLField()
+    icon_url = models.ImageField(
+        validators=[validate_safe_app_icon_size],
+        upload_to=safe_app_icon_path,
+        max_length=255,
+        default="safe_apps/icon_url.jpg",
+    )
     description = models.CharField(max_length=200)
     chain_ids = ArrayField(models.PositiveBigIntegerField())
     provider = models.ForeignKey(
@@ -54,6 +79,7 @@ class SafeApp(models.Model):
         blank=True,
         help_text="Clients that are only allowed to use this SafeApp",
     )
+    developer_website = models.URLField(null=True, blank=True)
 
     def get_access_control_type(self) -> AccessControlPolicy:
         if self.exclusive_clients.exists():
@@ -70,3 +96,32 @@ class Tag(models.Model):
 
     def __str__(self) -> str:
         return f"Tag: {self.name}"
+
+
+class Feature(models.Model):
+    # A feature can be enabled for multiple Safe Apps and a Safe App can have multiple features enabled
+    safe_apps = models.ManyToManyField(
+        SafeApp, blank=True, help_text="Safe Apps where this feature is enabled."
+    )
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The unique name/key that identifies this feature",
+    )
+
+    def __str__(self) -> str:
+        return f"Safe App Feature: {self.key}"
+
+
+class SocialProfile(models.Model):
+    class Platform(models.TextChoices):
+        DISCORD = "DISCORD"
+        GITHUB = "GITHUB"
+        TWITTER = "TWITTER"
+
+    safe_app = models.ForeignKey(SafeApp, on_delete=models.CASCADE)
+    platform = models.CharField(choices=Platform.choices, max_length=255)
+    url = models.URLField()
+
+    def __str__(self) -> str:
+        return f"Social Profile: {self.platform} | {self.url}"

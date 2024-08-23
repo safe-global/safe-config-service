@@ -9,14 +9,14 @@ on:
   push:
   pull_request:
   release:
-    types: [ released ]
+    types: [released]
 
 jobs:
   linting:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.12.2"]
 
     steps:
       - uses: actions/checkout@v3
@@ -46,25 +46,25 @@ jobs:
         ports:
           - 5432:5432
     env:
-      SECRET_KEY: 'insecure_key_for_dev'
+      SECRET_KEY: "insecure_key_for_dev"
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      AWS_ACCESS_KEY_ID: 'example-aws-access-key-id'
-      AWS_SECRET_ACCESS_KEY: 'example-aws-secret-access-key'
-      AWS_STORAGE_BUCKET_NAME: 'example-aws-storage-bucket-name'
+      AWS_ACCESS_KEY_ID: "example-aws-access-key-id"
+      AWS_SECRET_ACCESS_KEY: "example-aws-secret-access-key"
+      AWS_STORAGE_BUCKET_NAME: "example-aws-storage-bucket-name"
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
-      - uses: actions/cache@v3
+        uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.12.2"
       - name: Install dependencies
         run: |
           pip install -U wheel setuptools
@@ -79,39 +79,44 @@ jobs:
         run: python src/manage.py check
       - name: Run tests with coverage
         run: coverage run -m pytest src
-      - name: Upload coverage
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: coveralls --service=github
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
 
   docker-publish-staging:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    needs: [ linting, django-check ]
+    needs: [linting, django-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3.2.0
+        with:
+          platforms: arm64
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.2.1
+        uses: docker/setup-buildx-action@v3.6.1
       - name: Cache Docker layers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Login to DockerHub
-        uses: docker/login-action@v2.1.0
+        uses: docker/login-action@v3.3.0
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v6.7.0
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            BUILD_NUMBER=${{ env.BUILD_NUMBER }}
+            VERSION=${{ github.ref_name }}
           tags: safeglobal/safe-config-service:staging
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
@@ -127,31 +132,39 @@ jobs:
 
   docker-publish-release:
     if: (github.event_name == 'release' && github.event.action == 'released')
-    needs: [ linting, django-check ]
+    needs: [linting, django-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3.2.0
+        with:
+          platforms: arm64
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.2.1
+        uses: docker/setup-buildx-action@v3.6.1
       - name: Cache Docker layers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Login to DockerHub
-        uses: docker/login-action@v2.1.0
+        uses: docker/login-action@v3.3.0
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v6.7.0
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            BUILD_NUMBER=${{ env.BUILD_NUMBER }}
+            VERSION=${{ github.ref_name }}
           tags: |
             safeglobal/safe-config-service:${{ github.event.release.tag_name }}
             safeglobal/safe-config-service:latest
@@ -172,10 +185,10 @@ jobs:
     needs: [docker-publish-staging]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v2
-    - name: Deploy Staging
-      run: bash scripts/autodeploy.sh
-      env:
-        AUTODEPLOY_URL: ${{ secrets.AUTODEPLOY_URL }}
-        AUTODEPLOY_TOKEN: ${{ secrets.AUTODEPLOY_TOKEN }}
-        TARGET_ENV: "staging"
+      - uses: actions/checkout@v4
+      - name: Deploy Staging
+        run: bash scripts/autodeploy.sh
+        env:
+          AUTODEPLOY_URL: ${{ secrets.AUTODEPLOY_URL }}
+          AUTODEPLOY_TOKEN: ${{ secrets.AUTODEPLOY_TOKEN }}
+          TARGET_ENV: "staging"

@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("safe_apps", "0002_rename_networks_safeapp_chain_ids"),
     ]

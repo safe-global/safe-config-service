@@ -6,7 +6,6 @@ import chains.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0024_remove_gas_price_fields"),
     ]

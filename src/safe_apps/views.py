@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 
 from django.db.models import Q, QuerySet
 from django.utils.decorators import method_decorator
@@ -13,7 +13,11 @@ from .models import SafeApp
 from .serializers import SafeAppsResponseSerializer
 
 
-class SafeAppsListView(ListAPIView):
+def parse_boolean_query_param(value: Union[bool, str, int]) -> bool:
+    return value in (True, "True", "true", "1", 1)
+
+
+class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
     serializer_class = SafeAppsResponseSerializer
     pagination_class = None
 
@@ -36,12 +40,21 @@ class SafeAppsListView(ListAPIView):
         type=openapi.TYPE_STRING,
     )
 
+    _swagger_only_listed_param = openapi.Parameter(
+        "onlyListed",
+        openapi.IN_QUERY,
+        description="If true, only listed Safe Apps will be included. Else, all Safe Apps will be included",
+        type=openapi.TYPE_BOOLEAN,
+        default=False,
+    )
+
     @method_decorator(cache_page(60 * 10, cache="safe-apps"))  # Cache 10 minutes
     @swagger_auto_schema(
         manual_parameters=[
             _swagger_chain_id_param,
             _swagger_client_url_param,
             _swagger_url_param,
+            _swagger_only_listed_param,
         ]
     )  # type: ignore[misc]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -52,7 +65,13 @@ class SafeAppsListView(ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[SafeApp]:
-        queryset = SafeApp.objects.filter(visible=True)
+        only_listed = parse_boolean_query_param(
+            self.request.query_params.get("onlyListed", False)
+        )
+        if only_listed:
+            queryset = SafeApp.objects.filter(listed=True)
+        else:
+            queryset = SafeApp.objects.all()
 
         chain_id = self.request.query_params.get("chainId")
         if chain_id is not None and chain_id.isdigit():

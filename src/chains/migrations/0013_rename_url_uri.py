@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chains", "0012_chain_gas_price_fixed_wei"),
     ]
