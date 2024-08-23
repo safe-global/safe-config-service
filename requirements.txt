@@ -11,3 +11,4 @@ Pillow==10.4.0
 psycopg2-binary==2.9.9
 requests==2.32.3
 safe-eth-py[django]==5.8.0
+web3==6.9.0
