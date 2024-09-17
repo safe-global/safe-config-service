@@ -11,3 +11,9 @@ gunicorn==23.0.0
 Pillow==10.4.0
 psycopg2-binary==2.9.9
 requests==2.32.3
+
+# Without pin, safe-eth-py 5.8.0 installs >= 7 which breaks django-check job
+# >  ImportError: cannot import name 'geth_poa_middleware' from 'web3.middleware'
+# TODO: Remove when safe-eth-py updates web3 to >= 7
+# https://github.com/safe-global/safe-eth-py/pull/1315
+web3==6.20.2
