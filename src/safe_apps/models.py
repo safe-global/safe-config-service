@@ -52,6 +52,14 @@ class Client(models.Model):
         return f"Client: {self.url}"
 
 
+class Chain(models.Model):
+    chain_id = models.PositiveIntegerField(unique=True)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name} ({self.chain_id})"
+
+
 class SafeApp(models.Model):
     class AccessControlPolicy(str, Enum):
         NO_RESTRICTIONS = "NO_RESTRICTIONS"
@@ -70,7 +78,7 @@ class SafeApp(models.Model):
         default="safe_apps/icon_url.jpg",
     )
     description = models.CharField(max_length=200)
-    chain_ids = ArrayField(models.PositiveBigIntegerField())
+    chains = models.ManyToManyField(Chain, related_name='safe_apps')
     provider = models.ForeignKey(
         Provider, null=True, blank=True, on_delete=models.SET_NULL
     )

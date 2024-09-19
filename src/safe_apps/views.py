@@ -9,7 +9,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from .models import SafeApp
+from .models import SafeApp, Chain
 from .serializers import SafeAppsResponseSerializer
 
 
@@ -75,7 +75,11 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
 
         chain_id = self.request.query_params.get("chainId")
         if chain_id is not None and chain_id.isdigit():
-            queryset = queryset.filter(chain_ids__contains=[chain_id])
+            chain = Chain.objects.filter(chain_id=chain_id).first()
+            if chain:
+                queryset = queryset.filter(chains=chain)
+            else:
+                queryset = queryset.none()
 
         client_url = self.request.query_params.get("clientUrl")
         if client_url and "\0" not in client_url:

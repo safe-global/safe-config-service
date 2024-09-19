@@ -2,24 +2,21 @@ from typing import Any
 
 from django.contrib import admin
 from django.db.models import Model, QuerySet
+from django.forms import ModelForm
 
-from .models import Client, Feature, Provider, SafeApp, SocialProfile, Tag
+from .models import Chain, Client, Feature, Provider, SafeApp, SocialProfile, Tag
 
 
-class ChainIdFilter(admin.SimpleListFilter):
+class ChainFilter(admin.SimpleListFilter):
     title = "Chains"
-    parameter_name = "chain_ids"
+    parameter_name = "chains"
 
     def lookups(self, request: Any, model_admin: Any) -> Any:
-        values = SafeApp.objects.values_list("chain_ids", flat=True)
-        # lookups requires a tuple to be returned – (value, verbose value)
-        chains = [(chain, chain) for chains in values for chain in chains]
-        chains = sorted(set(chains))
-        return chains
+        return Chain.objects.values_list('id', 'name')
 
     def queryset(self, request: Any, queryset: QuerySet[SafeApp]) -> QuerySet[SafeApp]:
         if value := self.value():
-            queryset = queryset.filter(chain_ids__contains=[value])
+            queryset = queryset.filter(chains__id=value)
         return queryset
 
 
@@ -41,10 +38,20 @@ class SocialProfileInline(admin.TabularInline[Model, Model]):
     verbose_name_plural = "Social profiles set for this Safe App"
 
 
+class SafeAppAdminForm(ModelForm):
+    class Meta:
+        model = SafeApp
+        fields = '__all__'
+        widgets = {
+            'chains': admin.widgets.FilteredSelectMultiple('Chains', False),
+        }
+
+
 @admin.register(SafeApp)
 class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
-    list_display = ("name", "url", "chain_ids", "listed")
-    list_filter = (ChainIdFilter,)
+    form = SafeAppAdminForm
+    list_display = ("name", "url", "get_chains", "listed")
+    list_filter = (ChainFilter,)
     search_fields = ("name", "url")
     ordering = ("name",)
     inlines = [
@@ -52,6 +59,10 @@ class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
         FeatureInline,
         SocialProfileInline,
     ]
+
+    def get_chains(self, obj):
+        return ", ".join([chain.name for chain in obj.chains.all()])
+    get_chains.short_description = "Chains"
 
 
 @admin.register(Provider)
@@ -87,3 +98,8 @@ class SocialProfileAdmin(admin.ModelAdmin[SocialProfile]):
     list_display = ("safe_app", "url", "platform")
     search_fields = ("name", "url")
     ordering = ("platform",)
+
+@admin.register(Chain)
+class ChainAdmin(admin.ModelAdmin):
+    list_display = ('chain_id', 'name')
+    search_fields = ('chain_id', 'name')
