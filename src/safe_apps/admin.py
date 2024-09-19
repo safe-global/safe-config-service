@@ -1,24 +1,9 @@
-from typing import Any
-
 from django import forms
 from django.contrib import admin
 from django.contrib.admin import widgets as admin_widgets
-from django.db.models import Model, QuerySet
+from django.db.models import Model
 
 from .models import Chain, Client, Feature, Provider, SafeApp, SocialProfile, Tag
-
-
-class ChainFilter(admin.SimpleListFilter):
-    title = "Chains"
-    parameter_name = "chains"
-
-    def lookups(self, request: Any, model_admin: Any) -> Any:
-        return Chain.objects.values_list("id", "name")
-
-    def queryset(self, request: Any, queryset: QuerySet[SafeApp]) -> QuerySet[SafeApp]:
-        if value := self.value():
-            queryset = queryset.filter(chains__id=value)
-        return queryset
 
 
 class FeatureInline(admin.TabularInline[Model, Model]):
@@ -53,9 +38,15 @@ class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
     form = SafeAppForm
     list_display = ("name", "url", "get_chains")
     search_fields = ("name", "url")
+    ordering = ("name",)
+    inlines = [
+        TagInline,
+        FeatureInline,
+        SocialProfileInline,
+    ]
 
     def get_chains(self, obj: SafeApp) -> str:
-        return ", ".join([chain.name for chain in obj.chains.all()])
+        return ", ".join([str(chain.chain_id) for chain in obj.chains.all()])
 
     get_chains.short_description = "Chains"  # type: ignore[attr-defined]
 
@@ -99,3 +90,4 @@ class SocialProfileAdmin(admin.ModelAdmin[SocialProfile]):
 class ChainAdmin(admin.ModelAdmin[Chain]):
     list_display = ("chain_id", "name")
     search_fields = ("chain_id", "name")
+    ordering = ("chain_id",)
