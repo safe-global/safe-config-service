@@ -78,7 +78,7 @@ class SafeApp(models.Model):
         default="safe_apps/icon_url.jpg",
     )
     description = models.CharField(max_length=200)
-    chains = models.ManyToManyField(Chain, related_name='safe_apps')
+    chains = models.ManyToManyField(Chain, related_name="safe_apps")
     provider = models.ForeignKey(
         Provider, null=True, blank=True, on_delete=models.SET_NULL
     )

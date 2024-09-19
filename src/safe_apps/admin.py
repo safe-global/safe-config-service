@@ -12,7 +12,7 @@ class ChainFilter(admin.SimpleListFilter):
     parameter_name = "chains"
 
     def lookups(self, request: Any, model_admin: Any) -> Any:
-        return Chain.objects.values_list('id', 'name')
+        return Chain.objects.values_list("id", "name")
 
     def queryset(self, request: Any, queryset: QuerySet[SafeApp]) -> QuerySet[SafeApp]:
         if value := self.value():
@@ -41,9 +41,9 @@ class SocialProfileInline(admin.TabularInline[Model, Model]):
 class SafeAppAdminForm(ModelForm):
     class Meta:
         model = SafeApp
-        fields = '__all__'
+        fields = "__all__"
         widgets = {
-            'chains': admin.widgets.FilteredSelectMultiple('Chains', False),
+            "chains": admin.widgets.FilteredSelectMultiple("Chains", False),
         }
 
 
@@ -62,6 +62,7 @@ class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
 
     def get_chains(self, obj):
         return ", ".join([chain.name for chain in obj.chains.all()])
+
     get_chains.short_description = "Chains"
 
 
@@ -99,7 +100,8 @@ class SocialProfileAdmin(admin.ModelAdmin[SocialProfile]):
     search_fields = ("name", "url")
     ordering = ("platform",)
 
+
 @admin.register(Chain)
 class ChainAdmin(admin.ModelAdmin):
-    list_display = ('chain_id', 'name')
-    search_fields = ('chain_id', 'name')
+    list_display = ("chain_id", "name")
+    search_fields = ("chain_id", "name")
