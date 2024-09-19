@@ -32,4 +32,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(copy_chain_ids_to_chains, reverse_copy_chain_ids),
+        migrations.RemoveField(
+            model_name="safeapp",
+            name="chain_ids",
+        ),
     ]

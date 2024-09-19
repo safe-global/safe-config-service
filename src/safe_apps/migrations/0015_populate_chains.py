@@ -59,5 +59,12 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=100)),
             ],
         ),
+        migrations.AddField(
+            model_name="safeapp",
+            name="chains",
+            field=models.ManyToManyField(
+                related_name="safe_apps", to="safe_apps.chain"
+            ),
+        ),
         migrations.RunPython(populate_chains, reverse_populate_chains),
     ]
