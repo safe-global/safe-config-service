@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from django import forms
 from django.contrib import admin
@@ -10,16 +10,16 @@ from .models import Client, Feature, Provider, SafeApp, SocialProfile, Tag
 
 
 # Custom form for SafeApp to use Chain model in a multi-select field
-class SafeAppForm(forms.ModelForm):
+class SafeAppForm(forms.ModelForm[SafeApp]):
     chain_ids = forms.ModelMultipleChoiceField(
-        queryset=Chain.objects.all(), widget=forms.SelectMultiple, required=False
+        queryset=Chain.objects.all(), widget=forms.SelectMultiple, required=True
     )
 
     class Meta:
         model = SafeApp
         fields = "__all__"
 
-    def clean_chain_ids(self):
+    def clean_chain_ids(self) -> List[int]:
         """
         Override clean_chain_ids to store the selected Chain IDs as a list of integers.
         """
