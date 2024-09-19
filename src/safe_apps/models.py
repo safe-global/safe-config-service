@@ -3,7 +3,6 @@ import uuid
 from enum import Enum
 from typing import IO, Union
 
-from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator

@@ -9,7 +9,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from .models import SafeApp, Chain
+from .models import Chain, SafeApp
 from .serializers import SafeAppsResponseSerializer
 
 
