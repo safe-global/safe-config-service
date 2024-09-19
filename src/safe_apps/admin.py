@@ -1,8 +1,9 @@
 from typing import Any
 
+from django import forms
 from django.contrib import admin
+from django.contrib.admin import widgets as admin_widgets
 from django.db.models import Model, QuerySet
-from django.forms import ModelForm
 
 from .models import Chain, Client, Feature, Provider, SafeApp, SocialProfile, Tag
 
@@ -38,32 +39,25 @@ class SocialProfileInline(admin.TabularInline[Model, Model]):
     verbose_name_plural = "Social profiles set for this Safe App"
 
 
-class SafeAppAdminForm(ModelForm):
+class SafeAppForm(forms.ModelForm[SafeApp]):
     class Meta:
         model = SafeApp
         fields = "__all__"
         widgets = {
-            "chains": admin.widgets.FilteredSelectMultiple("Chains", False),
+            "chains": admin_widgets.FilteredSelectMultiple("Chains", False),
         }
 
 
 @admin.register(SafeApp)
 class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
-    form = SafeAppAdminForm
-    list_display = ("name", "url", "get_chains", "listed")
-    list_filter = (ChainFilter,)
+    form = SafeAppForm
+    list_display = ("name", "url", "get_chains")
     search_fields = ("name", "url")
-    ordering = ("name",)
-    inlines = [
-        TagInline,
-        FeatureInline,
-        SocialProfileInline,
-    ]
 
-    def get_chains(self, obj):
+    def get_chains(self, obj: SafeApp) -> str:
         return ", ".join([chain.name for chain in obj.chains.all()])
 
-    get_chains.short_description = "Chains"
+    get_chains.short_description = "Chains"  # type: ignore[attr-defined]
 
 
 @admin.register(Provider)
@@ -102,6 +96,6 @@ class SocialProfileAdmin(admin.ModelAdmin[SocialProfile]):
 
 
 @admin.register(Chain)
-class ChainAdmin(admin.ModelAdmin):
+class ChainAdmin(admin.ModelAdmin[Chain]):
     list_display = ("chain_id", "name")
     search_fields = ("chain_id", "name")

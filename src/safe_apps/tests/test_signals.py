@@ -27,7 +27,7 @@ class SafeAppHookTestCase(TestCase):
             ],
         )
 
-        SafeApp(app_id=1, chain_ids=[1]).save()
+        SafeApp(app_id=1, chains=[1]).save()
 
         assert len(responses.calls) == 1
         assert isinstance(responses.calls[0], responses.Call)
@@ -57,7 +57,7 @@ class SafeAppHookTestCase(TestCase):
             ],
         )
 
-        safe_app = SafeApp(app_id=1, chain_ids=[1])
+        safe_app = SafeApp(app_id=1, chains=[1])
         safe_app.save()  # create
         safe_app.name = "Test app"
         safe_app.save()  # update
@@ -75,7 +75,7 @@ class SafeAppHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_safe_app_update_by_adding_chain_ids(self) -> None:
+    def test_on_safe_app_update_by_adding_chains(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/hooks/events",
@@ -90,9 +90,9 @@ class SafeAppHookTestCase(TestCase):
             ],
         )
 
-        safe_app = SafeApp(app_id=1, chain_ids=[1])
+        safe_app = SafeApp(app_id=1, chains=[1])
         safe_app.save()  # create
-        safe_app.chain_ids = [1, 2, 3]
+        safe_app.chains.add(2, 3)
         safe_app.save()  # update
 
         assert len(responses.calls) == 4
@@ -138,7 +138,7 @@ class SafeAppHookTestCase(TestCase):
         )
 
     @responses.activate
-    def test_on_safe_app_update_by_removing_chain_ids(self) -> None:
+    def test_on_safe_app_update_by_removing_chains(self) -> None:
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/hooks/events",
@@ -153,9 +153,9 @@ class SafeAppHookTestCase(TestCase):
             ],
         )
 
-        safe_app = SafeApp(app_id=1, chain_ids=[1, 2, 3])
+        safe_app = SafeApp(app_id=1, chains=[1, 2, 3])
         safe_app.save()  # create
-        safe_app.chain_ids = [1]
+        safe_app.chains.remove(2, 3)
         safe_app.save()  # update
 
         assert len(responses.calls) == 6
@@ -204,7 +204,7 @@ class SafeAppHookTestCase(TestCase):
             responses.calls[4].request.body
             == b'{"type": "SAFE_APPS_UPDATE", "chainId": "2"}'
         )
-        assert responses.calls[4].request.url == "http://127.0.0.1/v1/hooks/events"
+        assert responses.calls[4].request.url == "http://127.0.0.0.1/v1/hooks/events"
         assert (
             responses.calls[4].request.headers.get("Authorization")
             == "Basic example-token"
@@ -236,7 +236,7 @@ class SafeAppHookTestCase(TestCase):
             ],
         )
 
-        safe_app = SafeApp(app_id=1, chain_ids=[1])
+        safe_app = SafeApp(app_id=1, chains=[1])
         safe_app.save()  # create
         safe_app.delete()  # delete
 
@@ -265,7 +265,7 @@ class ProviderHookTestCase(TestCase):
     def test_on_provider_create_with_safe_app(self) -> None:
         chain_id = fake.pyint()
         provider = ProviderFactory.create()
-        SafeAppFactory.create(chain_ids=[chain_id], provider=provider)
+        SafeAppFactory.create(chains=[chain_id], provider=provider)
 
         # Safe App Creation, Safe App Update
         assert len(responses.calls) == 2
@@ -285,7 +285,7 @@ class ProviderHookTestCase(TestCase):
     def test_on_provider_update_with_safe_app(self) -> None:
         chain_id = fake.pyint()
         provider = ProviderFactory.create()
-        SafeAppFactory.create(chain_ids=[chain_id], provider=provider)
+        SafeAppFactory.create(chains=[chain_id], provider=provider)
 
         provider.name = "New name"
         provider.save()
@@ -315,7 +315,7 @@ class ProviderHookTestCase(TestCase):
     def test_on_provider_delete_with_safe_app(self) -> None:
         chain_id = fake.pyint()
         provider = ProviderFactory.create()
-        SafeAppFactory.create(chain_ids=[chain_id], provider=provider)
+        SafeAppFactory.create(chains=[chain_id], provider=provider)
 
         provider.delete()
 
@@ -345,7 +345,7 @@ class TagHookTestCase(TestCase):
     @responses.activate
     def test_on_tag_create_with_safe_app(self) -> None:
         chain_id = fake.pyint()
-        safe_app = SafeAppFactory.create(chain_ids=[chain_id])
+        safe_app = SafeAppFactory.create(chains=[chain_id])
 
         TagFactory.create(safe_apps=(safe_app,))
 
@@ -370,7 +370,7 @@ class TagHookTestCase(TestCase):
     @responses.activate
     def test_on_tag_update_with_safe_app(self) -> None:
         chain_id = fake.pyint()
-        safe_app = SafeAppFactory.create(chain_ids=[chain_id])
+        safe_app = SafeAppFactory.create(chains=[chain_id])
         tag = TagFactory.create(safe_apps=(safe_app,))
 
         tag.name = "test"
@@ -396,7 +396,7 @@ class TagHookTestCase(TestCase):
     @responses.activate
     def test_on_tag_delete_with_safe_app(self) -> None:
         chain_id = fake.pyint()
-        safe_app = SafeAppFactory.create(chain_ids=[chain_id])
+        safe_app = SafeAppFactory.create(chains=[chain_id])
         tag = TagFactory.create(safe_apps=(safe_app,))
 
         tag.delete()
@@ -417,7 +417,7 @@ class TagHookTestCase(TestCase):
     def test_on_tag_update_with_multiple_safe_apps(self) -> None:
         chain_id_1 = fake.pyint()
         chain_id_2 = fake.pyint()
-        safe_app = SafeAppFactory.create(chain_ids=[chain_id_1, chain_id_2])
+        safe_app = SafeAppFactory.create(chains=[chain_id_1, chain_id_2])
 
         TagFactory.create(safe_apps=(safe_app,))
 
@@ -460,7 +460,7 @@ class FeatureHookTestCase(TestCase):
     @responses.activate
     def test_on_feature_create_with_safe_app(self) -> None:
         chain_id = fake.pyint()
-        safe_app = SafeAppFactory.create(chain_ids=[chain_id])
+        safe_app = SafeAppFactory.create(chains=[chain_id])
 
         FeatureFactory.create(safe_apps=(safe_app,))
 
@@ -485,7 +485,7 @@ class FeatureHookTestCase(TestCase):
     @responses.activate
     def test_on_feature_update_with_safe_app(self) -> None:
         chain_id = fake.pyint()
-        safe_app = SafeAppFactory.create(chain_ids=[chain_id])
+        safe_app = SafeAppFactory.create(chains=[chain_id])
         feature = FeatureFactory.create(safe_apps=(safe_app,))
 
         feature.name = "test"
@@ -511,7 +511,7 @@ class FeatureHookTestCase(TestCase):
     @responses.activate
     def test_on_feature_delete_with_safe_app(self) -> None:
         chain_id = fake.pyint()
-        safe_app = SafeAppFactory.create(chain_ids=[chain_id])
+        safe_app = SafeAppFactory.create(chains=[chain_id])
         feature = FeatureFactory.create(safe_apps=(safe_app,))
 
         feature.delete()
@@ -532,7 +532,7 @@ class FeatureHookTestCase(TestCase):
     def test_on_feature_update_with_multiple_safe_apps(self) -> None:
         chain_id_1 = fake.pyint()
         chain_id_2 = fake.pyint()
-        safe_app = SafeAppFactory.create(chain_ids=[chain_id_1, chain_id_2])
+        safe_app = SafeAppFactory.create(chains=[chain_id_1, chain_id_2])
 
         FeatureFactory.create(safe_apps=(safe_app,))
 

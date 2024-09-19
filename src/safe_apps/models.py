@@ -1,12 +1,13 @@
 import os
 import uuid
 from enum import Enum
-from typing import IO, Union
+from typing import IO, Any, List, Union
 
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models.manager import Manager
 
 _HOSTNAME_VALIDATOR = RegexValidator(
     r"^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\/?$",
@@ -55,8 +56,12 @@ class Chain(models.Model):
     chain_id = models.PositiveIntegerField(unique=True)
     name = models.CharField(max_length=100)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.chain_id})"
+
+
+class ChainManager(Manager["Chain"]):
+    pass
 
 
 class SafeApp(models.Model):
@@ -77,7 +82,8 @@ class SafeApp(models.Model):
         default="safe_apps/icon_url.jpg",
     )
     description = models.CharField(max_length=200)
-    chains = models.ManyToManyField(Chain, related_name="safe_apps")
+    # Using Any for type annotation due to mypy limitations with ManyToManyField
+    chains: Any = models.ManyToManyField(Chain, related_name="safe_apps")
     provider = models.ForeignKey(
         Provider, null=True, blank=True, on_delete=models.SET_NULL
     )
@@ -94,7 +100,19 @@ class SafeApp(models.Model):
         return SafeApp.AccessControlPolicy.NO_RESTRICTIONS
 
     def __str__(self) -> str:
-        return f"{self.name} | {self.url} | chain_ids={self.chain_ids}"
+        return f"{self.name} | {self.url} | chain_ids={[chain.chain_id for chain in self.chains.all()]}"
+
+    @property
+    def chain_ids(self) -> List[int]:
+        return list(self.chains.values_list("chain_id", flat=True))
+
+    def add_chains(self, *chains: Union[Chain, int]) -> None:
+        for chain in chains:
+            if isinstance(chain, int):
+                chain_obj, _ = Chain.objects.get_or_create(chain_id=chain)
+                self.chains.add(chain_obj)
+            else:
+                self.chains.add(chain)
 
 
 class Tag(models.Model):
