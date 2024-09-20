@@ -1,9 +1,30 @@
-from typing import Any
+from typing import Any, List
 
+from django import forms
 from django.contrib import admin
 from django.db.models import Model, QuerySet
 
+from chains.models import Chain
+
 from .models import Client, Feature, Provider, SafeApp, SocialProfile, Tag
+
+
+# Custom form for SafeApp to use Chain model in a multi-select field
+class SafeAppForm(forms.ModelForm[SafeApp]):
+    chain_ids = forms.ModelMultipleChoiceField(
+        queryset=Chain.objects.all(), widget=forms.SelectMultiple, required=True
+    )
+
+    class Meta:
+        model = SafeApp
+        fields = "__all__"
+
+    def clean_chain_ids(self) -> List[int]:
+        """
+        Override clean_chain_ids to store the selected Chain IDs as a list of integers.
+        """
+        chain_ids = self.cleaned_data["chain_ids"]
+        return [chain.id for chain in chain_ids]
 
 
 class ChainIdFilter(admin.SimpleListFilter):
@@ -43,6 +64,7 @@ class SocialProfileInline(admin.TabularInline[Model, Model]):
 
 @admin.register(SafeApp)
 class SafeAppAdmin(admin.ModelAdmin[SafeApp]):
+    form = SafeAppForm  # Use the custom form for SafeApp
     list_display = ("name", "url", "chain_ids", "listed")
     list_filter = (ChainIdFilter,)
     search_fields = ("name", "url")
