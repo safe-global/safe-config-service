@@ -147,7 +147,9 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
 
 
 class BeaconChainExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
-    public_key = serializers.URLField(source="beacon_chain_explorer_uri_public_key_template")
+    public_key = serializers.URLField(
+        source="beacon_chain_explorer_uri_public_key_template"
+    )
 
 
 class FeatureSerializer(serializers.ModelSerializer[Feature]):
@@ -250,7 +252,6 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     @swagger_serializer_method(serializer_or_field=BaseRpcUriSerializer)  # type: ignore[misc]
     def get_public_rpc_uri(obj: Chain) -> ReturnDict[Any, Any]:
         return PublicRpcUriSerializer(obj).data
-    
 
     @staticmethod
     @swagger_serializer_method(serializer_or_field=BlockExplorerUriTemplateSerializer)  # type: ignore[misc]
