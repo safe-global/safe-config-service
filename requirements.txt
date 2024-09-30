@@ -16,4 +16,4 @@ requests==2.32.3
 # > ImportError: cannot import name 'geth_poa_middleware' from 'web3.middleware'
 # TODO: Remove when safe-eth-py updates web3 to >= 7
 # https://github.com/safe-global/safe-eth-py/pull/1315
-web3==6.20.2
+web3==7.3.0
