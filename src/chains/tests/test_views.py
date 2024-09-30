@@ -60,6 +60,9 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "txHash": chain.block_explorer_uri_tx_hash_template,
                         "api": chain.block_explorer_uri_api_template,
                     },
+                    "beaconChainExplorerUriTemplate": {
+                        "publicKey": chain.beacon_chain_explorer_uri_public_key_template,
+                    },
                     "nativeCurrency": {
                         "name": chain.currency_name,
                         "symbol": chain.currency_symbol,
@@ -197,6 +200,9 @@ class ChainDetailViewTests(APITestCase):
                 "address": chain.block_explorer_uri_address_template,
                 "txHash": chain.block_explorer_uri_tx_hash_template,
                 "api": chain.block_explorer_uri_api_template,
+            },
+            "beaconChainExplorerUriTemplate": {
+                "publicKey": chain.beacon_chain_explorer_uri_public_key_template,
             },
             "nativeCurrency": {
                 "name": chain.currency_name,
