@@ -234,7 +234,7 @@ STORAGES = {
     },
     "staticfiles": {
         # Following is default but must explicitly set if "default" is
-        "BACKEND": "django.core.files.storage.FileSystemStorage"
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
     },
 }
 
