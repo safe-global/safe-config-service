@@ -19,6 +19,7 @@ In order to start the server application:
 python -m venv venv # creates a virtual environment venv in the local directory
 source venv/bin/activate
 pip install -r requirements-dev.txt
+pip install setuptools
 ```
 
 #### 2. Launch the Postgres database image
