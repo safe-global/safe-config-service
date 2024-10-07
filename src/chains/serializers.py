@@ -146,6 +146,12 @@ class BlockExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
     api = serializers.URLField(source="block_explorer_uri_api_template")
 
 
+class BeaconChainExplorerUriTemplateSerializer(serializers.Serializer[Chain]):
+    public_key = serializers.URLField(
+        source="beacon_chain_explorer_uri_public_key_template"
+    )
+
+
 class FeatureSerializer(serializers.ModelSerializer[Feature]):
     class Meta:
         fields = ["key"]
@@ -177,6 +183,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     safe_apps_rpc_uri = serializers.SerializerMethodField()
     public_rpc_uri = serializers.SerializerMethodField()
     block_explorer_uri_template = serializers.SerializerMethodField()
+    beacon_chain_explorer_uri_template = serializers.SerializerMethodField()
     native_currency = serializers.SerializerMethodField()
     prices_provider = serializers.SerializerMethodField()
     contract_addresses = serializers.SerializerMethodField()
@@ -205,6 +212,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "safe_apps_rpc_uri",
             "public_rpc_uri",
             "block_explorer_uri_template",
+            "beacon_chain_explorer_uri_template",
             "native_currency",
             "prices_provider",
             "balances_provider",
@@ -249,6 +257,11 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     @swagger_serializer_method(serializer_or_field=BlockExplorerUriTemplateSerializer)  # type: ignore[misc]
     def get_block_explorer_uri_template(obj: Chain) -> ReturnDict[Any, Any]:
         return BlockExplorerUriTemplateSerializer(obj).data
+
+    @staticmethod
+    @swagger_serializer_method(serializer_or_field=BeaconChainExplorerUriTemplateSerializer)  # type: ignore[misc]
+    def get_beacon_chain_explorer_uri_template(obj: Chain) -> ReturnDict[Any, Any]:
+        return BeaconChainExplorerUriTemplateSerializer(obj).data
 
     @swagger_serializer_method(serializer_or_field=GasPriceSerializer)  # type: ignore[misc]
     def get_gas_price(self, instance: Chain) -> ReturnDict[Any, Any]:

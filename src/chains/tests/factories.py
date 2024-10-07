@@ -34,6 +34,7 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     block_explorer_uri_address_template = factory.Faker("url")
     block_explorer_uri_tx_hash_template = factory.Faker("url")
     block_explorer_uri_api_template = factory.Faker("url")
+    beacon_chain_explorer_uri_public_key_template = factory.Faker("url")
     currency_name = factory.Faker("cryptocurrency_name")
     currency_symbol = factory.Faker("cryptocurrency_code")
     currency_decimals = factory.Faker("pyint")
