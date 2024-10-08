@@ -13,7 +13,7 @@ from .serializers import ChainSerializer
 
 class ChainsPagination(LimitOffsetPagination):
     default_limit = 20
-    max_limit = 20
+    max_limit = 40
 
 
 class ChainsListView(ListAPIView):  # type: ignore[type-arg]
