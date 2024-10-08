@@ -117,26 +117,8 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
 
 class ChainPaginationViewTests(APITestCase):
     def test_pagination_next_page(self) -> None:
-        ChainFactory.create_batch(21)
-        url = reverse("v1:chains:list")
-
-        response = self.client.get(path=url, data=None, format="json")
-
-        self.assertEqual(response.status_code, 200)
-        # number of items should be equal to the number of total items
-        self.assertEqual(response.json()["count"], 21)
-        self.assertEqual(
-            response.json()["next"],
-            "http://testserver/api/v1/chains/?limit=20&offset=20",
-        )
-        self.assertEqual(response.json()["previous"], None)
-        # returned items should be equal to max_limit
-        self.assertEqual(len(response.json()["results"]), 20)
-
-    def test_request_more_than_max_limit_should_return_max_limit(self) -> None:
         ChainFactory.create_batch(41)
-        # requesting limit > max_limit
-        url = reverse("v1:chains:list") + f'{"?limit=41"}'
+        url = reverse("v1:chains:list")
 
         response = self.client.get(path=url, data=None, format="json")
 
@@ -148,22 +130,40 @@ class ChainPaginationViewTests(APITestCase):
             "http://testserver/api/v1/chains/?limit=40&offset=40",
         )
         self.assertEqual(response.json()["previous"], None)
-        # returned items should still be equal to max_limit
+        # returned items should be equal to max_limit
         self.assertEqual(len(response.json()["results"]), 40)
 
-    def test_offset_greater_than_count(self) -> None:
-        ChainFactory.create_batch(21)
-        # requesting offset of number of chains
-        url = reverse("v1:chains:list") + f'{"?offset=21"}'
+    def test_request_more_than_max_limit_should_return_max_limit(self) -> None:
+        ChainFactory.create_batch(101)
+        # requesting limit > max_limit
+        url = reverse("v1:chains:list") + f'{"?limit=101"}'
 
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["count"], 21)
+        # number of items should be equal to the number of total items
+        self.assertEqual(response.json()["count"], 101)
+        self.assertEqual(
+            response.json()["next"],
+            "http://testserver/api/v1/chains/?limit=40&offset=40",
+        )
+        self.assertEqual(response.json()["previous"], None)
+        # returned items should still be equal to max_limit
+        self.assertEqual(len(response.json()["results"]), 40)
+
+    def test_offset_greater_than_count(self) -> None:
+        ChainFactory.create_batch(41)
+        # requesting offset of number of chains
+        url = reverse("v1:chains:list") + f'{"?offset=41"}'
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 41)
         self.assertEqual(response.json()["next"], None)
         self.assertEqual(
             response.json()["previous"],
-            "http://testserver/api/v1/chains/?limit=20&offset=1",
+            "http://testserver/api/v1/chains/?limit=40&offset=1",
         )
         # returned items should still be zero
         self.assertEqual(len(response.json()["results"]), 0)
