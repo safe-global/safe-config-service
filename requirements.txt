@@ -9,7 +9,7 @@ drf-yasg[validation]==1.21.7
 safe-eth-py[django]==5.8.0
 gunicorn==23.0.0
 Pillow==10.4.0
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 requests==2.32.3
 
 # Without pin, safe-eth-py 5.8.0 installs >= 7 which breaks django-check job
