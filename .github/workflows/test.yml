@@ -9,81 +9,25 @@ on:
   push:
   pull_request:
   release:
-    types: [ released ]
+    types: [released]
 
 jobs:
-  flake8:
-    name: flake8
+  linting:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.2'
-      - name: Install dependencies
-        run: |
-          pip install -U wheel setuptools
-          pip install -r requirements-dev.txt
-      - name: flake8
-        uses: liskin/gh-problem-matcher-wrap@v3
-        with:
-          linters: flake8
-          run: flake8
+    strategy:
+      matrix:
+        python-version: ["3.12"]
 
-  isort:
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - uses: actions/cache@v4
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.2'
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: |
-          pip install -U wheel setuptools
-          pip install -r requirements-dev.txt
-      - name: isort
-        uses: liskin/gh-problem-matcher-wrap@v3
-        with:
-          linters: isort
-          run: isort --check --profile black src/
-
-  black:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.2'
-      - name: Install dependencies
-        run: |
-          pip install -U wheel setuptools
-          pip install -r requirements-dev.txt
-      - name: black
-        run: black --check src/
+        run: pip install pre-commit
+      - name: Run pre-commit
+        run: pre-commit run --all-files
 
   django-check:
     runs-on: ubuntu-latest
@@ -102,12 +46,12 @@ jobs:
         ports:
           - 5432:5432
     env:
-      SECRET_KEY: 'insecure_key_for_dev'
+      SECRET_KEY: "insecure_key_for_dev"
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      AWS_ACCESS_KEY_ID: 'example-aws-access-key-id'
-      AWS_SECRET_ACCESS_KEY: 'example-aws-secret-access-key'
-      AWS_STORAGE_BUCKET_NAME: 'example-aws-storage-bucket-name'
+      AWS_ACCESS_KEY_ID: "example-aws-access-key-id"
+      AWS_SECRET_ACCESS_KEY: "example-aws-secret-access-key"
+      AWS_STORAGE_BUCKET_NAME: "example-aws-storage-bucket-name"
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -120,7 +64,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.2'
+          python-version: "3.12.2"
       - name: Install dependencies
         run: |
           pip install -U wheel setuptools
@@ -140,7 +84,7 @@ jobs:
 
   docker-publish-staging:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    needs: [ flake8, isort, black, django-check ]
+    needs: [linting, django-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -188,7 +132,7 @@ jobs:
 
   docker-publish-release:
     if: (github.event_name == 'release' && github.event.action == 'released')
-    needs: [ flake8, isort, black, django-check ]
+    needs: [linting, django-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -241,10 +185,10 @@ jobs:
     needs: [docker-publish-staging]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v4
-    - name: Deploy Staging
-      run: bash scripts/autodeploy.sh
-      env:
-        AUTODEPLOY_URL: ${{ secrets.AUTODEPLOY_URL }}
-        AUTODEPLOY_TOKEN: ${{ secrets.AUTODEPLOY_TOKEN }}
-        TARGET_ENV: "staging"
+      - uses: actions/checkout@v4
+      - name: Deploy Staging
+        run: bash scripts/autodeploy.sh
+        env:
+          AUTODEPLOY_URL: ${{ secrets.AUTODEPLOY_URL }}
+          AUTODEPLOY_TOKEN: ${{ secrets.AUTODEPLOY_TOKEN }}
+          TARGET_ENV: "staging"

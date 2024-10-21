@@ -73,19 +73,10 @@ pytest src
 
 ## Code Style Formatter and Linter
 
-[Black](https://black.readthedocs.io/en/stable/), [Flake8](https://flake8.pycqa.org/en/latest/) and [isort](https://pycqa.github.io/isort/) are the tools used to validate the style of the changes
-being pushed. You can refer to the documentation
-of these tools to check how to integrate them with your editor/IDE.
+Code formatting and linting are enforced before every commit using `pre-commit`.
+
+To manually trigger the checks, run:
 
 ```shell
-isort --profile black src # sorts imports according to the isort spec with a profile compatible with Black
-black src # formats the files in the src folder using Black
-flake8 src # runs flake8 Linter in the src folder
-```
-
-There's also a pre-commit hook that you can install locally via `pre-commit` so that it formats the files changed on each commit automatically:
-
-```shell
-pre-commit install # installs commit hook under .git/hooks/pre-commit
-git commit # Initially this can take a couple minutes to setup the environment (which will be reused in following commits)
+pre-commit run --all-files
 ```
