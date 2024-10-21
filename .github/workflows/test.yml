@@ -9,14 +9,14 @@ on:
   push:
   pull_request:
   release:
-    types: [ released ]
+    types: [released]
 
 jobs:
   linting:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12.2"]
+        python-version: ["3.12"]
 
     steps:
       - uses: actions/checkout@v3
@@ -46,12 +46,12 @@ jobs:
         ports:
           - 5432:5432
     env:
-      SECRET_KEY: 'insecure_key_for_dev'
+      SECRET_KEY: "insecure_key_for_dev"
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      AWS_ACCESS_KEY_ID: 'example-aws-access-key-id'
-      AWS_SECRET_ACCESS_KEY: 'example-aws-secret-access-key'
-      AWS_STORAGE_BUCKET_NAME: 'example-aws-storage-bucket-name'
+      AWS_ACCESS_KEY_ID: "example-aws-access-key-id"
+      AWS_SECRET_ACCESS_KEY: "example-aws-secret-access-key"
+      AWS_STORAGE_BUCKET_NAME: "example-aws-storage-bucket-name"
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.2'
+          python-version: "3.12.2"
       - name: Install dependencies
         run: |
           pip install -U wheel setuptools
@@ -84,7 +84,7 @@ jobs:
 
   docker-publish-staging:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    needs: [ linting, django-check ]
+    needs: [linting, django-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -132,7 +132,7 @@ jobs:
 
   docker-publish-release:
     if: (github.event_name == 'release' && github.event.action == 'released')
-    needs: [ linting, django-check ]
+    needs: [linting, django-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -185,10 +185,10 @@ jobs:
     needs: [docker-publish-staging]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v4
-    - name: Deploy Staging
-      run: bash scripts/autodeploy.sh
-      env:
-        AUTODEPLOY_URL: ${{ secrets.AUTODEPLOY_URL }}
-        AUTODEPLOY_TOKEN: ${{ secrets.AUTODEPLOY_TOKEN }}
-        TARGET_ENV: "staging"
+      - uses: actions/checkout@v4
+      - name: Deploy Staging
+        run: bash scripts/autodeploy.sh
+        env:
+          AUTODEPLOY_URL: ${{ secrets.AUTODEPLOY_URL }}
+          AUTODEPLOY_TOKEN: ${{ secrets.AUTODEPLOY_TOKEN }}
+          TARGET_ENV: "staging"
