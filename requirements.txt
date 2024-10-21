@@ -1,4 +1,4 @@
-boto3==1.35.39
+boto3==1.35.44
 Django==5.1.2
 django-cors-headers==4.4.0
 django-storages==1.14.4
@@ -10,7 +10,7 @@ eth-typing==4.1.0
 eth-utils==4.1.1
 gunicorn==23.0.0
 Pillow==10.4.0
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 requests==2.32.3
 safe-eth-py[django]==5.8.0
 
