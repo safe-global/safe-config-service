@@ -80,6 +80,7 @@ class SafeApp(models.Model):
         help_text="Clients that are only allowed to use this SafeApp",
     )
     developer_website = models.URLField(null=True, blank=True)
+    featured = models.BooleanField(default=False)
 
     def get_access_control_type(self) -> AccessControlPolicy:
         if self.exclusive_clients.exists():
