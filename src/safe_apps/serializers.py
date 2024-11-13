@@ -87,6 +87,7 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
             "features",
             "developer_website",
             "social_profiles",
+            "featured",
         ]
 
     @swagger_serializer_method(serializer_or_field=DomainAllowlistAccessControlPolicySerializer)  # type: ignore[misc]

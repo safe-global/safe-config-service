@@ -52,6 +52,7 @@ class SafeAppFactory(DjangoModelFactory):  # type: ignore[misc]
     chain_ids = factory.Faker("pylist", nb_elements=2, value_types=(int,))
     provider = None
     developer_website = factory.Faker("url")
+    featured = factory.Faker("boolean")
 
     @factory.post_generation
     def exclusive_clients(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
