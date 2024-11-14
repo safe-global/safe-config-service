@@ -1,4 +1,4 @@
-boto3==1.35.57
+boto3==1.35.60
 Django==5.1.2
 django-cors-headers==4.6.0
 djangorestframework==3.15.2
