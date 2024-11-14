@@ -1,16 +1,18 @@
 boto3==1.35.57
 Django==5.1.2
 django-cors-headers==4.6.0
-djangorestframework==3.15.2
-djangorestframework-camel-case==1.4.2
 django-storages==1.14.4
 django-stubs-ext==5.1.1
+djangorestframework==3.15.2
+djangorestframework-camel-case==1.4.2
 drf-yasg[validation]==1.21.7
-safe-eth-py[django]==5.8.0
+eth-typing==4.1.0
+eth-utils==4.1.1
 gunicorn==23.0.0
 Pillow==11.0.0
 psycopg2-binary==2.9.10
 requests==2.32.3
+safe-eth-py[django]==5.8.0
 
 # Without pin, safe-eth-py 5.8.0 installs >= 7 which breaks django-check job
 # > ImportError: cannot import name 'geth_poa_middleware' from 'web3.middleware'

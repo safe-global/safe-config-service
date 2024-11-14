@@ -10,7 +10,6 @@ venv/
 .coverage*
 htmlcov/
 data/
-.flake8
 .pre-commit-config.yaml
 docker-compose.override.yml
 docker-compose.override.yml.example
