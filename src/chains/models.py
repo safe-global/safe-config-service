@@ -254,6 +254,8 @@ class Feature(models.Model):
         max_length=255,
         help_text="The unique name/key that identifies this feature",
     )
+    description = models.CharField(max_length=255, default="")
+
 
     def __str__(self) -> str:
         return f"Chain Feature: {self.key}"
