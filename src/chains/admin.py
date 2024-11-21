@@ -58,4 +58,4 @@ class WalletAdmin(admin.ModelAdmin[Wallet]):
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin[Feature]):
-    list_display = ("key",)
+    list_display = ("key", "description")
