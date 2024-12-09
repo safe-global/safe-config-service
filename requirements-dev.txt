@@ -3,7 +3,7 @@ coverage==7.6.8
 django-stubs==5.1.1
 djangorestframework-stubs==3.15.1
 factory-boy==3.3.1
-Faker==33.0.0
+Faker==33.1.0
 mypy==1.13.0
 pre-commit==4.0.1
 pytest-django==4.9.0
