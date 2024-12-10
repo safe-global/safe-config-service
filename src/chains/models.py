@@ -8,7 +8,7 @@ from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import QuerySet
-from gnosis.eth.django.models import EthereumAddressField, Uint256Field
+from safe_eth.eth.django.models import EthereumAddressBinaryField, Uint256Field
 
 HEX_ARGB_REGEX = re.compile("^#[0-9a-fA-F]{6}$")
 
@@ -135,7 +135,7 @@ class Chain(models.Model):
         default="#000000",
         help_text="Please use the following format: <em>#RRGGBB</em>.",
     )
-    ens_registry_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    ens_registry_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
     recommended_master_copy_version = models.CharField(
         max_length=255, validators=[sem_ver_validator]
     )
@@ -151,15 +151,15 @@ class Chain(models.Model):
         help_text="This flag informs API clients whether the balances provider is enabled for the chain",
     )
     hidden = models.BooleanField(default=False)
-    safe_singleton_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-    safe_proxy_factory_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-    multi_send_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-    multi_send_call_only_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-    fallback_handler_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-    sign_message_lib_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-    create_call_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-    simulate_tx_accessor_address = EthereumAddressField(null=True, blank=True)  # type: ignore[no-untyped-call]
-    safe_web_authn_signer_factory_address = EthereumAddressField(
+    safe_singleton_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    safe_proxy_factory_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    multi_send_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    multi_send_call_only_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    fallback_handler_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    sign_message_lib_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    create_call_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    simulate_tx_accessor_address = EthereumAddressBinaryField(null=True, blank=True)  # type: ignore[no-untyped-call]
+    safe_web_authn_signer_factory_address = EthereumAddressBinaryField(
         null=True, blank=True
     )  # type: ignore[no-untyped-call]
 

@@ -82,7 +82,7 @@ class ChainGasPriceFixedTestCase(TestCase):
     def test_big_number() -> None:
         gas_price = GasPriceFactory.create(
             oracle_uri=None,
-            fixed_wei_value="115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            fixed_wei_value=115792089237316195423570985008687907853269984665640564039457584007913129639935,
         )
 
         gas_price.full_clean()
@@ -96,17 +96,17 @@ class ChainGasPriceFixed1559TestCase(TestCase):
         gas_price = GasPriceFactory.create(
             oracle_uri=None,
             fixed_wei_value=None,
-            max_fee_per_gas="100000",
-            max_priority_fee_per_gas="1000",
+            max_fee_per_gas=100000,
+            max_priority_fee_per_gas=1000,
         )
 
         gas_price.full_clean()
 
     def test_fixed_and_fixed1559_defined(self) -> None:
         gas_price = GasPriceFactory.create(
-            fixed_wei_value="100000",
-            max_fee_per_gas="100000",
-            max_priority_fee_per_gas="1000",
+            fixed_wei_value=100000,
+            max_fee_per_gas=100000,
+            max_priority_fee_per_gas=1000,
         )
 
         with self.assertRaises(ValidationError):
@@ -116,9 +116,9 @@ class ChainGasPriceFixed1559TestCase(TestCase):
         gas_price = GasPriceFactory.create(
             oracle_uri=self.faker.url(),
             oracle_parameter="fake parameter",
-            fixed_wei_value="100000",
-            max_fee_per_gas="100000",
-            max_priority_fee_per_gas="1000",
+            fixed_wei_value=100000,
+            max_fee_per_gas=100000,
+            max_priority_fee_per_gas=1000,
         )
 
         with self.assertRaises(ValidationError):
@@ -217,12 +217,8 @@ class ChainEnsRegistryAddressValidationTestCase(TransactionTestCase):
 
         for invalid_address in param_list:
             with self.subTest(msg=f"Invalid address {invalid_address} should throw"):
-                with self.assertRaises(
-                    (
-                        # normalize_address from gnosis-py throws a generic Exception if the address is not valid
-                        Exception,
-                    )
-                ):
+                with self.assertRaises(ValidationError):
+                    print(invalid_address)
                     chain = ChainFactory.create(ens_registry_address=invalid_address)
                     # run validators
                     chain.full_clean()
