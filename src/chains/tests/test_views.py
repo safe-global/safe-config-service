@@ -459,7 +459,7 @@ class ChainGasPriceTests(APITestCase):
         chain = ChainFactory.create(id=1)
         GasPriceFactory.create(
             chain=chain,
-            fixed_wei_value="115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            fixed_wei_value=115792089237316195423570985008687907853269984665640564039457584007913129639935,
         )
         url = reverse("v1:chains:detail", args=[1])
         expected_oracle_json_payload = [
