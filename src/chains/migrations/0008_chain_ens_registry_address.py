@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
             name="ens_registry_address",
             field=safe_eth.eth.django.models.EthereumAddressField(
                 blank=True, null=True
-            ),  # type: ignore[no-untyped-call]
+            ),
         ),
     ]
