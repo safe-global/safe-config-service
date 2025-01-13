@@ -7,5 +7,5 @@ Faker==33.3.0
 mypy==1.13.0
 pre-commit==4.0.1
 pytest-django==4.9.0
-responses==0.25.3
+responses==0.25.5
 types-requests==2.32.0.20241016
