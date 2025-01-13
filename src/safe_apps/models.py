@@ -119,6 +119,7 @@ class SocialProfile(models.Model):
         DISCORD = "DISCORD"
         GITHUB = "GITHUB"
         TWITTER = "TWITTER"
+        TELEGRAM = "TELEGRAM"
 
     safe_app = models.ForeignKey(SafeApp, on_delete=models.CASCADE)
     platform = models.CharField(choices=Platform.choices, max_length=255)
