@@ -866,6 +866,9 @@ class SafeAppsSocialProfilesTests(APITestCase):
         social_profile_3 = SocialProfileFactory.create(
             platform=SocialProfile.Platform.TWITTER, safe_app=safe_app
         )
+        social_profile_4 = SocialProfileFactory.create(
+            platform=SocialProfile.Platform.TELEGRAM, safe_app=safe_app
+        )
         url = reverse("v1:safe-apps:list")
 
         response = self.client.get(path=url, data=None, format="json")
@@ -882,6 +885,10 @@ class SafeAppsSocialProfilesTests(APITestCase):
                 {
                     "platform": "GITHUB",
                     "url": social_profile_2.url,
+                },
+                {
+                    "platform": "TELEGRAM",
+                    "url": social_profile_4.url,
                 },
                 {
                     "platform": "TWITTER",
