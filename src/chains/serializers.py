@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import Any
 
 from drf_yasg.utils import swagger_serializer_method
-from gnosis.eth.django.serializers import EthereumAddressField
+from safe_eth.eth.django.serializers import EthereumAddressField
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.utils.serializer_helpers import ReturnDict
