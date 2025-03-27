@@ -223,7 +223,7 @@ AWS_S3_FILE_OVERWRITE = True
 # Setting AWS_QUERYSTRING_AUTH to False to remove query parameter authentication from generated URLs.
 # This can be useful if your S3 buckets are public.
 AWS_QUERYSTRING_AUTH = False
-# In Django 4.2, STORAGES replaced DEFAULT_FILE_STORAGE. It was later removed removed in Django 5.1.
+# In Django 4.2, STORAGES replaced DEFAULT_FILE_STORAGE. It was later removed in Django 5.1.
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#configuration-settings
 # https://docs.djangoproject.com/en/5.1/releases/5.1/
 STORAGES = {
