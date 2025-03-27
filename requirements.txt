@@ -9,7 +9,7 @@ drf-yasg[validation]==1.21.8
 eth-typing==4.1.0
 eth-utils==4.1.1
 gunicorn==23.0.0
-Pillow==11.0.0
+Pillow==11.1.0
 psycopg2-binary==2.9.10
 requests==2.32.3
 safe-eth-py[django]==5.8.0
