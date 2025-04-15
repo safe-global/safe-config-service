@@ -17,7 +17,7 @@ FIELDS = [
     "simulate_tx_accessor_address",
 ]
 
-def sql_cast_fields_to_bytea():
+def sql_cast_fields_to_bytea() -> str:
     return "\n".join(
         f"""ALTER TABLE chains_chain
             ALTER COLUMN "{field}" TYPE bytea
