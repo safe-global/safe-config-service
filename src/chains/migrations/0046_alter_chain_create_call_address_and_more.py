@@ -4,6 +4,27 @@ import safe_eth.eth.django.models
 from django.db import migrations
 
 
+FIELDS = [
+    "create_call_address",
+    "ens_registry_address",
+    "fallback_handler_address",
+    "multi_send_address",
+    "multi_send_call_only_address",
+    "safe_proxy_factory_address",
+    "safe_singleton_address",
+    "safe_web_authn_signer_factory_address",
+    "sign_message_lib_address",
+    "simulate_tx_accessor_address",
+]
+
+def sql_cast_fields_to_bytea():
+    return "\n".join(
+        f"""ALTER TABLE chains_chain
+            ALTER COLUMN "{field}" TYPE bytea
+            USING DECODE(SUBSTRING("{field}", 3), 'hex');"""
+        for field in FIELDS
+    )
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -11,6 +32,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL(
+            sql_cast_fields_to_bytea(),
+            reverse_sql=migrations.RunSQL.noop,
+        ),
         migrations.AlterField(
             model_name='chain',
             name='create_call_address',
