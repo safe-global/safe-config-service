@@ -43,6 +43,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "chainLogoUri": f"http://testserver{chain.chain_logo_uri.url}",
                     "l2": chain.l2,
                     "isTestnet": chain.is_testnet,
+                    "zk": chain.zk,
                     "rpcUri": {
                         "authentication": chain.rpc_authentication,
                         "value": chain.rpc_uri,
@@ -184,6 +185,7 @@ class ChainDetailViewTests(APITestCase):
             "chainLogoUri": f"http://testserver{chain.chain_logo_uri.url}",
             "l2": chain.l2,
             "isTestnet": chain.is_testnet,
+            "zk": chain.zk,
             "rpcUri": {
                 "authentication": chain.rpc_authentication,
                 "value": chain.rpc_uri,

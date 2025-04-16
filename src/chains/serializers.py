@@ -208,6 +208,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "chain_logo_uri",
             "l2",
             "is_testnet",
+            "zk",
             "rpc_uri",
             "safe_apps_rpc_uri",
             "public_rpc_uri",
