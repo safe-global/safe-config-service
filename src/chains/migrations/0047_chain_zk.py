@@ -15,17 +15,4 @@ class Migration(migrations.Migration):
             name='zk',
             field=models.BooleanField(default=False),
         ),
-        migrations.RunSQL(
-            """
-            UPDATE chains_chain
-            SET zk = TRUE
-            WHERE id IN (
-                -- Lens
-                232,
-                -- zkSync
-                324
-            );
-            """,
-            reverse_sql=migrations.RunSQL.noop,
-        ),
     ]
