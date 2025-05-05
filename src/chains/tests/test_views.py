@@ -43,6 +43,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "chainLogoUri": f"http://testserver{chain.chain_logo_uri.url}",
                     "l2": chain.l2,
                     "isTestnet": chain.is_testnet,
+                    "zk": chain.zk,
                     "rpcUri": {
                         "authentication": chain.rpc_authentication,
                         "value": chain.rpc_uri,
@@ -184,6 +185,7 @@ class ChainDetailViewTests(APITestCase):
             "chainLogoUri": f"http://testserver{chain.chain_logo_uri.url}",
             "l2": chain.l2,
             "isTestnet": chain.is_testnet,
+            "zk": chain.zk,
             "rpcUri": {
                 "authentication": chain.rpc_authentication,
                 "value": chain.rpc_uri,
@@ -459,7 +461,7 @@ class ChainGasPriceTests(APITestCase):
         chain = ChainFactory.create(id=1)
         GasPriceFactory.create(
             chain=chain,
-            fixed_wei_value="115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            fixed_wei_value=115792089237316195423570985008687907853269984665640564039457584007913129639935,
         )
         url = reverse("v1:chains:detail", args=[1])
         expected_oracle_json_payload = [
