@@ -19,6 +19,7 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     chain_logo_uri = factory.django.ImageField(width=50, height=50)
     l2 = factory.Faker("pybool")
     is_testnet = factory.Faker("pybool")
+    zk = factory.Faker("pybool")
     rpc_authentication = factory.lazy_attribute(
         lambda o: random.choice(list(Chain.RpcAuthentication))
     )
