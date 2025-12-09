@@ -2,13 +2,15 @@
 
 import django.contrib.postgres.fields
 import django.db.models.deletion
+from typing import ClassVar, List, Tuple
+
 from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies: list[tuple[str, str]] = []
+    dependencies: ClassVar[List[Tuple[str, str]]] = []
 
     operations = [
         migrations.CreateModel(
