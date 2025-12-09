@@ -34,7 +34,7 @@ class ChainsDetailView(RetrieveAPIView):  # type: ignore[type-arg]
 
     @swagger_auto_schema(
         operation_id="Get chain by id"
-    )  # type: ignore[misc] # Untyped decorator makes function "get" untyped
+    )  # type: ignore[untyped-decorator]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         return super().get(request, *args, **kwargs)
 
@@ -47,6 +47,6 @@ class ChainsDetailViewByShortName(RetrieveAPIView):  # type: ignore[type-arg]
     @swagger_auto_schema(
         operation_id="Get chain by shortName",
         operation_description="Warning: `shortNames` may contain characters that need to be URL encoded (i.e.: whitespaces)",  # noqa E501
-    )  # type: ignore[misc] # Untyped decorator makes function "get" untyped
+    )  # type: ignore[untyped-decorator]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         return super().get(request, *args, **kwargs)

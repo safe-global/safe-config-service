@@ -56,7 +56,7 @@ class SafeAppsListView(ListAPIView):  # type: ignore[type-arg]
             _swagger_url_param,
             _swagger_only_listed_param,
         ]
-    )  # type: ignore[misc]
+    )  # type: ignore[untyped-decorator]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Returns a collection of Safe Apps (across different chains).

@@ -90,7 +90,7 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
             "featured",
         ]
 
-    @swagger_serializer_method(serializer_or_field=DomainAllowlistAccessControlPolicySerializer)  # type: ignore[misc]
+    @swagger_serializer_method(serializer_or_field=DomainAllowlistAccessControlPolicySerializer)  # type: ignore[untyped-decorator]
     def get_access_control(self, instance: SafeApp) -> ReturnDict[Any, Any]:
         if (
             instance.get_access_control_type()
@@ -99,17 +99,17 @@ class SafeAppsResponseSerializer(serializers.ModelSerializer[SafeApp]):
             return DomainAllowlistAccessControlPolicySerializer(instance).data
         return NoRestrictionsAccessControlPolicySerializer(instance).data
 
-    @swagger_serializer_method(serializer_or_field=TagSerializer)  # type: ignore[misc]
+    @swagger_serializer_method(serializer_or_field=TagSerializer)  # type: ignore[untyped-decorator]
     def get_tags(self, instance: SafeApp) -> ReturnDict[Any, Any]:
         queryset = instance.tag_set.all().order_by("name")
         return TagSerializer(queryset, many=True).data
 
-    @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[misc]
+    @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[untyped-decorator]
     def get_features(self, instance: SafeApp) -> ReturnDict[Any, Any]:
         features = instance.feature_set.all().order_by("key")
         return FeatureSerializer(features, many=True).data
 
-    @swagger_serializer_method(serializer_or_field=SocialProfileSerializer)  # type: ignore[misc]
+    @swagger_serializer_method(serializer_or_field=SocialProfileSerializer)  # type: ignore[untyped-decorator]
     def get_social_profiles(self, instance: SafeApp) -> ReturnDict[Any, Any]:
         profiles = instance.socialprofile_set.all().order_by("platform")
         return SocialProfileSerializer(profiles, many=True).data
