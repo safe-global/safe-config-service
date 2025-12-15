@@ -55,7 +55,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v6
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
@@ -96,7 +96,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.11.1
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
@@ -144,7 +144,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.11.1
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
