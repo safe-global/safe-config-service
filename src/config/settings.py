@@ -211,7 +211,7 @@ CGW_SESSION_TIMEOUT_SECONDS = int(os.environ.get("CGW_SESSION_TIMEOUT_SECONDS", 
 # By default, Django stores files locally, using the MEDIA_ROOT and MEDIA_URL settings.
 # (using the default the default FileSystemStorage)
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
-MEDIA_ROOT = f"{BASE_DIR}/media/"
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", f"{BASE_DIR}/media/")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = os.getenv("MEDIA_URL", "/media/")
 
