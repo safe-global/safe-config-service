@@ -8,4 +8,4 @@ mypy==1.19.1
 pre-commit==4.5.1
 pytest-django==4.11.1
 responses==0.25.8
-types-requests==2.32.4.20250913
+types-requests==2.32.4.20260107
