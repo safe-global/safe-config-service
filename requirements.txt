@@ -5,7 +5,7 @@ django-storages==1.14.6
 django-stubs-ext==5.2.8
 djangorestframework==3.16.1
 djangorestframework-camel-case==1.4.2
-drf-yasg[validation]==1.21.11
+drf-yasg[validation]==1.21.14
 eth-typing==5.2.1
 eth-utils==5.3.1
 gunicorn==23.0.0
