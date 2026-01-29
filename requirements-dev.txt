@@ -1,5 +1,5 @@
 -r requirements.txt
-coverage==7.13.1
+coverage==7.13.2
 django-stubs==5.2.8
 djangorestframework-stubs==3.16.7
 factory-boy==3.3.3
