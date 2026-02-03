@@ -275,9 +275,14 @@ class Service(models.Model):
 
 
 class Feature(models.Model):
-    # A feature can be enabled for multiple Chains and a Chain can have multiple features enabled
+    class Scope(models.TextChoices):
+        GLOBAL = "GLOBAL", "Global (applies to all chains)"
+        PER_CHAIN = "PER_CHAIN", "Per-chain (applies only to selected chains)"
+
     chains = models.ManyToManyField(
-        Chain, blank=True, help_text="Chains where this feature is enabled."
+        Chain,
+        blank=True,
+        help_text="Chains where this feature is enabled. Used only when scope is per-chain.",
     )
     key = models.CharField(
         unique=True,
@@ -289,6 +294,24 @@ class Feature(models.Model):
         default=False,
         help_text="If checked, this feature will be automatically enabled when creating a chain.",
     )
+    scope = models.CharField(
+        max_length=10,
+        choices=Scope.choices,
+        default=Scope.PER_CHAIN,
+        help_text="Global applies to all chains. Per-chain limits the feature to selected chains.",
+    )
+    services = models.ManyToManyField(
+        Service,
+        blank=True,
+        help_text="Services that have access to this feature.",
+    )
+
+    def clean(self) -> None:
+        super().clean()
+        if self.scope == self.Scope.GLOBAL and self.pk and self.chains.exists():
+            raise ValidationError(
+                {"chains": "Global scope features cannot have chains selected."}
+            )
 
     def __str__(self) -> str:
         return f"Chain Feature: {self.key}"
