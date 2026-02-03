@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.db.models import Model
 from django.forms import BaseInlineFormSet, ModelForm
 
-from .models import Chain, Feature, GasPrice, Wallet
+from .models import Chain, Feature, GasPrice, Service, Wallet
 
 
 class FeatureInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
@@ -80,7 +80,26 @@ class WalletAdmin(admin.ModelAdmin[Wallet]):
     list_editable = ("enable_by_default",)
 
 
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin[Service]):
+    list_display = ("key", "name", "description")
+    search_fields = ("key", "name")
+    ordering = ("name",)
+
+
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin[Feature]):
-    list_display = ("key", "description", "enable_by_default")
+    list_display = ("key", "scope", "description", "enable_by_default")
     list_editable = ("enable_by_default",)
+    list_filter = ("scope", "services")
+    filter_horizontal = ("chains", "services")
+    fieldsets = (
+        (None, {"fields": ("key", "description")}),
+        (
+            "Scope Configuration",
+            {
+                "fields": ("scope", "chains", "services"),
+                "description": "Configure which chains and services have access to this feature.",
+            },
+        ),
+    )
