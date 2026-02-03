@@ -4,7 +4,7 @@ import factory
 import web3
 from factory.django import DjangoModelFactory
 
-from ..models import Chain, Feature, GasPrice, Wallet
+from ..models import Chain, Feature, GasPrice, Service, Wallet
 
 
 class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -112,11 +112,21 @@ class WalletFactory(DjangoModelFactory):  # type: ignore[misc]
                 self.chains.add(chain)
 
 
+class ServiceFactory(DjangoModelFactory):  # type: ignore[misc]
+    class Meta:
+        model = Service
+
+    key = factory.Faker("slug")
+    name = factory.Faker("company")
+    description = factory.Faker("sentence")
+
+
 class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]
     class Meta:
         model = Feature
 
     key = factory.Faker("company")
+    scope = Feature.Scope.PER_CHAIN
 
     @factory.post_generation
     def chains(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
@@ -126,3 +136,12 @@ class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]
         if extracted:
             for chain in extracted:
                 self.chains.add(chain)
+
+    @factory.post_generation
+    def services(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def] # decorator is untyped
+        if not create:
+            return
+
+        if extracted:
+            for service in extracted:
+                self.services.add(service)
