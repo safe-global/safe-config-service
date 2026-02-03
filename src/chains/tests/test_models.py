@@ -7,7 +7,14 @@ from django.db import DataError
 from django.test import TestCase, TransactionTestCase
 from faker import Faker
 
-from .factories import ChainFactory, FeatureFactory, GasPriceFactory, WalletFactory
+from ..models import Feature
+from .factories import (
+    ChainFactory,
+    FeatureFactory,
+    GasPriceFactory,
+    ServiceFactory,
+    WalletFactory,
+)
 
 
 class ChainTestCase(TestCase):
@@ -381,3 +388,42 @@ class FeatureTestCase(TestCase):
         feature = FeatureFactory.create()
 
         self.assertEqual(str(feature), f"Chain Feature: {feature.key}")
+
+
+class ServiceTestCase(TestCase):
+    def test_str_method_outputs_name_and_key(self) -> None:
+        service = ServiceFactory.create(key="cgw", name="Client Gateway")
+
+        self.assertEqual(str(service), "Service: Client Gateway (cgw)")
+
+
+class FeatureScopeValidationTestCase(TestCase):
+    def test_global_scope_with_chains_raises_validation_error(self) -> None:
+        chain = ChainFactory.create()
+        feature = FeatureFactory.create(scope=Feature.Scope.GLOBAL, chains=(chain,))
+
+        with self.assertRaises(ValidationError) as context:
+            feature.full_clean()
+
+        self.assertIn("chains", context.exception.message_dict)
+
+    def test_global_scope_without_chains_is_valid(self) -> None:
+        feature = FeatureFactory.create(scope=Feature.Scope.GLOBAL, chains=())
+
+        feature.full_clean()
+
+    def test_per_chain_scope_with_chains_is_valid(self) -> None:
+        chain = ChainFactory.create()
+        feature = FeatureFactory.create(scope=Feature.Scope.PER_CHAIN, chains=(chain,))
+
+        feature.full_clean()
+
+    def test_per_chain_scope_without_chains_is_valid(self) -> None:
+        feature = FeatureFactory.create(scope=Feature.Scope.PER_CHAIN, chains=())
+
+        feature.full_clean()
+
+    def test_default_scope_is_per_chain(self) -> None:
+        feature = FeatureFactory.create()
+
+        self.assertEqual(feature.scope, Feature.Scope.PER_CHAIN)
