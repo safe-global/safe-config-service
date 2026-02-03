@@ -261,6 +261,19 @@ class Wallet(models.Model):
         return f"Wallet: {self.key}"
 
 
+class Service(models.Model):
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The unique key that identifies this service (e.g., 'cgw', 'frontend')",
+    )
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, default="")
+
+    def __str__(self) -> str:
+        return f"Service: {self.name} ({self.key})"
+
+
 class Feature(models.Model):
     # A feature can be enabled for multiple Chains and a Chain can have multiple features enabled
     chains = models.ManyToManyField(
