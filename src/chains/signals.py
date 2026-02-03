@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 from clients.safe_client_gateway import HookEvent, hook_event
 
-from .models import Chain, Feature, GasPrice, Wallet
+from .models import Chain, Feature, GasPrice, Service, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +31,14 @@ def on_gas_price_update(sender: GasPrice, instance: GasPrice, **kwargs: Any) -> 
 @receiver(pre_delete, sender=Feature)
 def on_feature_changed(sender: Feature, instance: Feature, **kwargs: Any) -> None:
     logger.info("Feature update. Triggering CGW webhook")
-    # A Feature change affects all the chains that have this feature
-    for chain in instance.chains.all():
-        hook_event(HookEvent(type=HookEvent.Type.CHAIN_UPDATE, chain_id=chain.id))
+    if instance.scope == Feature.Scope.GLOBAL:
+        # GLOBAL features affect all chains
+        for chain in Chain.objects.all():
+            hook_event(HookEvent(type=HookEvent.Type.CHAIN_UPDATE, chain_id=chain.id))
+    else:
+        # PER_CHAIN features only affect their assigned chains
+        for chain in instance.chains.all():
+            hook_event(HookEvent(type=HookEvent.Type.CHAIN_UPDATE, chain_id=chain.id))
 
 
 @receiver(m2m_changed, sender=Feature.chains.through)
@@ -44,6 +49,21 @@ def on_feature_chains_changed(
     if action == "post_add" or action == "post_remove":
         for chain_id in pk_set:
             hook_event(HookEvent(type=HookEvent.Type.CHAIN_UPDATE, chain_id=chain_id))
+
+
+@receiver(m2m_changed, sender=Feature.services.through)
+def on_feature_services_changed(
+    sender: Feature, instance: Feature, action: str, pk_set: set[int], **kwargs: Any
+) -> None:
+    logger.info("FeatureServices update. Triggering CGW webhook")
+    if action == "post_add" or action == "post_remove":
+        # Service assignment changes affect all chains the feature applies to
+        if instance.scope == Feature.Scope.GLOBAL:
+            for chain in Chain.objects.all():
+                hook_event(HookEvent(type=HookEvent.Type.CHAIN_UPDATE, chain_id=chain.id))
+        else:
+            for chain in instance.chains.all():
+                hook_event(HookEvent(type=HookEvent.Type.CHAIN_UPDATE, chain_id=chain.id))
 
 
 # pre_delete is used because on pre_delete the model still has chains
