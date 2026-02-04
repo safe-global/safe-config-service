@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="feature",
+            model_name="Feature",
             name="scope",
             field=models.CharField(
                 choices=[
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="feature",
+            model_name="Feature",
             name="services",
             field=models.ManyToManyField(
                 blank=True,
@@ -31,12 +31,12 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
-            model_name="feature",
+            model_name="Feature",
             name="chains",
             field=models.ManyToManyField(
                 blank=True,
                 help_text="Chains where this feature is enabled. Used only when scope is per-chain.",
-                to="chains.chain",
+                to="chains.Chain",
             ),
         ),
     ]
