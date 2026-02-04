@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.CharField(default="", max_length=255),
+                    models.CharField(blank=True, default="", max_length=255),
                 ),
             ],
         ),
