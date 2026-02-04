@@ -63,6 +63,12 @@ class WalletInline(admin.TabularInline[Model, Model]):
     verbose_name_plural = "Wallets enabled for this chain"
 
 
+class FeatureServiceInline(admin.TabularInline[Model, Model]):
+    model = Feature.services.through
+    extra = 0
+    verbose_name_plural = "Features enabled for this service"
+
+
 @admin.register(Chain)
 class ChainAdmin(admin.ModelAdmin[Chain]):
     list_display = (
@@ -103,6 +109,7 @@ class ServiceAdmin(admin.ModelAdmin[Service]):
     list_display = ("key", "name", "description")
     search_fields = ("key", "name")
     ordering = ("name",)
+    inlines = [FeatureServiceInline]
 
 
 @admin.register(Feature)
