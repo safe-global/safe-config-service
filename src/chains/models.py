@@ -271,7 +271,7 @@ class Service(models.Model):
     description = models.CharField(max_length=255, blank=True, default="")
 
     def __str__(self) -> str:
-        return f"Service: {self.name} ({self.key})"
+        return f"{self.name} | {self.key}"
 
 
 class Feature(models.Model):
@@ -305,13 +305,6 @@ class Feature(models.Model):
         blank=True,
         help_text="Services that have access to this feature.",
     )
-
-    def clean(self) -> None:
-        super().clean()
-        if self.scope == self.Scope.GLOBAL and self.pk and self.chains.exists():
-            raise ValidationError(
-                {"chains": "Global scope features cannot have chains selected."}
-            )
 
     def __str__(self) -> str:
         return f"Chain Feature: {self.key}"

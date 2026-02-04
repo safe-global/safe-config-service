@@ -1,5 +1,6 @@
 from typing import Any
 
+from django import forms
 from django.contrib import admin
 from django.db.models import Model
 from django.forms import BaseInlineFormSet, ModelForm
@@ -23,6 +24,23 @@ class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
             default_wallets = list(Wallet.objects.filter(enable_by_default=True))
             self.initial = [{"wallet": wallet.id} for wallet in default_wallets]
             self.extra = len(default_wallets)
+
+
+class FeatureAdminForm(forms.ModelForm[Feature]):
+    class Meta:
+        model = Feature
+        fields = "__all__"
+
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
+        scope = cleaned_data.get("scope")
+        chains = cleaned_data.get("chains")
+
+        if scope == Feature.Scope.GLOBAL and chains:
+            raise forms.ValidationError(
+                {"chains": "Global scope features cannot have chains selected."}
+            )
+        return cleaned_data
 
 
 class GasPriceInline(admin.TabularInline[Model, Model]):
@@ -89,6 +107,7 @@ class ServiceAdmin(admin.ModelAdmin[Service]):
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin[Feature]):
+    form = FeatureAdminForm
     list_display = ("key", "scope", "description", "enable_by_default")
     list_editable = ("enable_by_default",)
     list_filter = ("scope", "services")
