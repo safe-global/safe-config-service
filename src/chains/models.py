@@ -104,9 +104,18 @@ class Chain(models.Model):
         default=RpcAuthentication.NO_AUTHENTICATION,
     )
     public_rpc_uri = models.URLField()
-    block_explorer_uri_address_template = models.URLField()
-    block_explorer_uri_tx_hash_template = models.URLField()
-    block_explorer_uri_api_template = models.URLField()
+    block_explorer_uri_address_template = models.URLField(
+        default="https://placeholderURL/address/{{address}}",
+        help_text="Please replace placeholderURL by the block explorer base URL",
+    )
+    block_explorer_uri_tx_hash_template = models.URLField(
+        default="https://placeholderURL/tx/{{txHash}}",
+        help_text="Please replace placeholderURL by the block explorer base URL",
+    )
+    block_explorer_uri_api_template = models.URLField(
+        default="https://placeholderURL/api?module={{module}}&action={{action}}&address={{address}}&apiKey={{apiKey}}",
+        help_text="Please replace placeholderURL by the block explorer base URL",
+    )
     beacon_chain_explorer_uri_public_key_template = models.URLField(
         blank=True, null=True
     )
@@ -122,7 +131,10 @@ class Chain(models.Model):
         max_length=255, validators=[validate_tx_service_url]
     )
     vpc_transaction_service_uri = models.CharField(
-        max_length=255, validators=[validate_tx_service_url]
+        max_length=255,
+        validators=[validate_tx_service_url],
+        default="http://staging-chain-safe-transaction-web.safe-transaction-chain.svc.cluster.local",
+        help_text="Please replace chain by chain name and delete staging if production environment",
     )
     theme_text_color = models.CharField(
         validators=[color_validator],
@@ -138,7 +150,7 @@ class Chain(models.Model):
     )
     ens_registry_address = EthereumAddressBinaryField(null=True, blank=True)
     recommended_master_copy_version = models.CharField(
-        max_length=255, validators=[sem_ver_validator]
+        max_length=255, validators=[sem_ver_validator], default="1.4.1"
     )
     prices_provider_native_coin = models.CharField(
         max_length=255, null=True, blank=True
