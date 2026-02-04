@@ -276,8 +276,8 @@ class Service(models.Model):
 
 class Feature(models.Model):
     class Scope(models.TextChoices):
-        GLOBAL = "GLOBAL", "Global (applies to all chains)"
-        PER_CHAIN = "PER_CHAIN", "Per-chain (applies only to selected chains)"
+        GLOBAL = "GLOBAL", "Global"
+        PER_CHAIN = "PER_CHAIN", "Per-chain"
 
     chains = models.ManyToManyField(
         Chain,
@@ -307,4 +307,4 @@ class Feature(models.Model):
     )
 
     def __str__(self) -> str:
-        return f"Chain Feature: {self.key}"
+        return f"Feature: {self.key}"
