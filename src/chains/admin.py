@@ -92,7 +92,6 @@ class FeatureAdmin(admin.ModelAdmin[Feature]):
     list_display = ("key", "scope", "description", "enable_by_default")
     list_editable = ("enable_by_default",)
     list_filter = ("scope", "services")
-    filter_horizontal = ("chains", "services")
     fieldsets = (
         (None, {"fields": ("key", "description")}),
         (
