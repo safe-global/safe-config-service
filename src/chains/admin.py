@@ -31,8 +31,8 @@ class FeatureAdminForm(forms.ModelForm[Feature]):
         model = Feature
         fields = "__all__"
 
-    def clean(self) -> dict:
-        cleaned_data = super().clean()
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean() or {}
         scope = cleaned_data.get("scope")
         chains = cleaned_data.get("chains")
 
