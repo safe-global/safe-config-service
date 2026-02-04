@@ -126,6 +126,7 @@ class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]
         model = Feature
 
     key = factory.Faker("company")
+    description = factory.Faker("sentence")
     scope = Feature.Scope.PER_CHAIN
 
     @factory.post_generation
