@@ -13,8 +13,8 @@ class Migration(migrations.Migration):
             name="scope",
             field=models.CharField(
                 choices=[
-                    ("GLOBAL", "Global (applies to all chains)"),
-                    ("PER_CHAIN", "Per-chain (applies only to selected chains)"),
+                    ("GLOBAL", "Global"),
+                    ("PER_CHAIN", "Per-chain"),
                 ],
                 default="PER_CHAIN",
                 help_text="Global applies to all chains. Per-chain limits the feature to selected chains.",
