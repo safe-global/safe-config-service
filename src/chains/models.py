@@ -256,7 +256,10 @@ class Feature(models.Model):
         help_text="The unique name/key that identifies this feature",
     )
     description = models.CharField(max_length=255, default="")
-
+    enable_by_default = models.BooleanField(
+        default=False,
+        help_text="If checked, this feature will be automatically enabled when creating a chain.",
+    )
 
     def __str__(self) -> str:
         return f"Chain Feature: {self.key}"

@@ -58,4 +58,5 @@ class WalletAdmin(admin.ModelAdmin[Wallet]):
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin[Feature]):
-    list_display = ("key", "description")
+    list_display = ("key", "description", "enable_by_default")
+    list_editable = ("enable_by_default",)
