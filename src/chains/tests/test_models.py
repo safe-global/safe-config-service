@@ -387,7 +387,7 @@ class FeatureTestCase(TestCase):
     def test_str_method_outputs_name(self) -> None:
         feature = FeatureFactory.create()
 
-        self.assertEqual(str(feature), f"Chain Feature: {feature.key}")
+        self.assertEqual(str(feature), f"Feature: {feature.key}")
 
 
 class ServiceTestCase(TestCase):
