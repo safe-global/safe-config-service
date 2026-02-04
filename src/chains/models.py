@@ -268,7 +268,7 @@ class Service(models.Model):
         help_text="The unique key that identifies this service (e.g., 'cgw', 'frontend')",
     )
     name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, default="")
+    description = models.CharField(max_length=255, blank=True, default="")
 
     def __str__(self) -> str:
         return f"Service: {self.name} ({self.key})"
