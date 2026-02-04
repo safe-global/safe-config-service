@@ -240,6 +240,10 @@ class Wallet(models.Model):
         max_length=255,
         help_text="The unique name/key that identifies this wallet",
     )
+    enable_by_default = models.BooleanField(
+        default=False,
+        help_text="If checked, this wallet will be automatically enabled when creating a new chain.",
+    )
 
     def __str__(self) -> str:
         return f"Wallet: {self.key}"

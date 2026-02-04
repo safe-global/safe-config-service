@@ -53,7 +53,8 @@ class GasPriceAdmin(admin.ModelAdmin[GasPrice]):
 
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin[Wallet]):
-    list_display = ("key",)
+    list_display = ("key", "enable_by_default")
+    list_editable = ("enable_by_default",)
 
 
 @admin.register(Feature)
