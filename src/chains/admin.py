@@ -7,7 +7,7 @@ from django.forms import BaseInlineFormSet
 from .models import Chain, Feature, GasPrice, Wallet
 
 
-class FeatureInlineFormSet(BaseInlineFormSet[Model, Model]):
+class FeatureInlineFormSet(BaseInlineFormSet[Chain, Model, Model]):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         if self.instance.pk is None:
@@ -16,7 +16,7 @@ class FeatureInlineFormSet(BaseInlineFormSet[Model, Model]):
             self.extra = len(default_features)
 
 
-class WalletInlineFormSet(BaseInlineFormSet[Model, Model]):
+class WalletInlineFormSet(BaseInlineFormSet[Chain, Model, Model]):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         if self.instance.pk is None:
