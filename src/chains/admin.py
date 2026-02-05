@@ -2,12 +2,12 @@ from typing import Any
 
 from django.contrib import admin
 from django.db.models import Model
-from django.forms import BaseInlineFormSet
+from django.forms import BaseInlineFormSet, ModelForm
 
 from .models import Chain, Feature, GasPrice, Wallet
 
 
-class FeatureInlineFormSet(BaseInlineFormSet[Chain, Model, Model]):
+class FeatureInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         if self.instance.pk is None:
@@ -16,7 +16,7 @@ class FeatureInlineFormSet(BaseInlineFormSet[Chain, Model, Model]):
             self.extra = len(default_features)
 
 
-class WalletInlineFormSet(BaseInlineFormSet[Chain, Model, Model]):
+class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         if self.instance.pk is None:
