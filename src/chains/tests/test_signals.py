@@ -242,6 +242,156 @@ class FeatureHookTestCase(TestCase):
             == "Basic example-token"
         )
 
+    @responses.activate
+    def test_on_feature_scope_change_per_chain_to_global(self) -> None:
+        chain_1 = ChainFactory.create()
+        chain_2 = ChainFactory.create()
+
+        # Add mock responses for all expected webhook calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=(chain_1,)
+        )
+
+        # Clear previous calls from feature creation
+        responses.reset()
+
+        # Re-add the mock for scope change calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        # Change scope from PER_CHAIN to GLOBAL
+        feature.scope = Feature.Scope.GLOBAL
+        feature.save()
+
+        # With the updated logic, scope changes trigger webhooks for ALL chains
+        # Only the scope change handler should be triggered (not the regular feature update handler)
+        assert len(responses.calls) == 2  # Exactly one for each chain
+
+        # Verify the webhook calls contain the correct chain IDs
+        chain_ids_called = set()
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            if f'"chainId": "{chain_1.id}"' in body:
+                chain_ids_called.add(chain_1.id)
+            elif f'"chainId": "{chain_2.id}"' in body:
+                chain_ids_called.add(chain_2.id)
+
+        # Both chains should be called due to the scope change to GLOBAL
+        assert chain_1.id in chain_ids_called
+        assert chain_2.id in chain_ids_called
+
+    @responses.activate
+    def test_on_feature_scope_change_global_to_per_chain(self) -> None:
+        chain_1 = ChainFactory.create()
+        chain_2 = ChainFactory.create()
+
+        # Add mock responses for all expected webhook calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.GLOBAL,
+            chains=()  # Global features don't have specific chains
+        )
+
+        # Clear previous calls
+        responses.reset()
+
+        # Re-add the mock for scope change calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        # Change scope from GLOBAL to PER_CHAIN
+        feature.scope = Feature.Scope.PER_CHAIN
+        feature.save()
+
+        # With the updated logic, scope changes trigger webhooks for ALL chains
+        # Only the scope change handler should be triggered
+        assert len(responses.calls) == 2  # Exactly one for each chain
+
+        # Verify both chains are called
+        chain_ids_called = set()
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            if f'"chainId": "{chain_1.id}"' in body:
+                chain_ids_called.add(chain_1.id)
+            elif f'"chainId": "{chain_2.id}"' in body:
+                chain_ids_called.add(chain_2.id)
+
+        assert chain_1.id in chain_ids_called
+        assert chain_2.id in chain_ids_called
+
+        # Now assign specific chains - this should trigger M2M change hooks
+        responses.reset()
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        feature.chains.set([chain_1])
+
+        # This should trigger the M2M change hook for chain_1
+        # The M2M handler should work normally since the scope change is already complete
+        assert len(responses.calls) == 1
+        body = responses.calls[0].request.body.decode("utf-8")
+        assert f'"chainId": "{chain_1.id}"' in body
+
+    @responses.activate
+    def test_on_feature_scope_no_change(self) -> None:
+        chain = ChainFactory.create()
+
+        # Add mock responses for all expected webhook calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=(chain,)
+        )
+
+        # Clear previous calls
+        responses.reset()
+
+        # Re-add the mock for feature update calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        # Update feature without changing scope
+        feature.key = "Updated Test Feature"
+        feature.save()
+
+        # Should trigger normal feature update webhook, not scope change webhook
+        # Since there's no scope change, the regular feature update handler should work
+        assert len(responses.calls) == 1
+        body = responses.calls[0].request.body.decode("utf-8")
+        assert f'"chainId": "{chain.id}"' in body
+
 
 @override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class WalletHookTestCase(TestCase):
