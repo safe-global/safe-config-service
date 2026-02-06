@@ -19,6 +19,7 @@ class HookEvent:
 
     type: Type
     chain_id: int
+    service: str | None = None
 
 
 @cache
@@ -44,7 +45,10 @@ def hook_event(event: HookEvent) -> None:
     try:
         (url, token) = cgw_setup()
         url = urljoin(url.rstrip("/") + "/", "v1/hooks/events")
-        post(url, token, json={"type": event.type, "chainId": str(event.chain_id)})
+        payload: Dict[str, Any] = {"type": event.type, "chainId": str(event.chain_id)}
+        if event.service is not None:
+            payload["service"] = event.service
+        post(url, token, json=payload)
     except Exception as error:
         logger.error(error)
 
