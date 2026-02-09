@@ -32,11 +32,11 @@ def on_feature_scope_change_pre_save(sender: Feature, instance: Feature, **kwarg
     if instance.pk:
         try:
             old_instance = Feature.objects.get(pk=instance.pk)
-            instance._old_scope = old_instance.scope
+            instance._old_scope = old_instance.scope  # type: ignore[attr-defined]
         except Feature.DoesNotExist:
-            instance._old_scope = None
+            instance._old_scope = None  # type: ignore[attr-defined]
     else:
-        instance._old_scope = None
+        instance._old_scope = None  # type: ignore[attr-defined]
 
 
 # pre_delete is used because on pre_delete the model still has chains
@@ -99,7 +99,7 @@ def on_feature_scope_change_post_save(sender: Feature, instance: Feature, **kwar
                 hook_event(HookEvent(type=HookEvent.Type.CHAIN_UPDATE, chain_id=chain.id))
 
         # Clear the old scope to avoid interfering with subsequent operations
-        instance._old_scope = None
+        instance._old_scope = None  # type: ignore[attr-defined]
 
 
 @receiver(m2m_changed, sender=Feature.chains.through)
