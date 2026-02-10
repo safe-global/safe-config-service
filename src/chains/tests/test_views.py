@@ -131,7 +131,7 @@ class ChainPaginationViewTests(APITestCase):
             "http://testserver/api/v1/chains/?limit=40&offset=40",
         )
         self.assertEqual(response.json()["previous"], None)
-        # returned items should be equal to max_limit
+        # returned items should be equal to default_limit
         self.assertEqual(len(response.json()["results"]), 40)
 
     def test_request_more_than_max_limit_should_return_max_limit(self) -> None:
@@ -146,11 +146,11 @@ class ChainPaginationViewTests(APITestCase):
         self.assertEqual(response.json()["count"], 101)
         self.assertEqual(
             response.json()["next"],
-            "http://testserver/api/v1/chains/?limit=40&offset=40",
+            "http://testserver/api/v1/chains/?limit=100&offset=100",
         )
         self.assertEqual(response.json()["previous"], None)
         # returned items should still be equal to max_limit
-        self.assertEqual(len(response.json()["results"]), 40)
+        self.assertEqual(len(response.json()["results"]), 100)
 
     def test_offset_greater_than_count(self) -> None:
         ChainFactory.create_batch(41)
