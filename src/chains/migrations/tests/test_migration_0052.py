@@ -3,9 +3,9 @@ from django.db.migrations.state import StateApps
 from chains.migrations.tests.utils import TestMigrations
 
 
-class Migration0049TestCase(TestMigrations):
-    migrate_from = "0048_service"
-    migrate_to = "0049_feature_scope_services"
+class Migration0052TestCase(TestMigrations):
+    migrate_from = "0051_service"
+    migrate_to = "0052_feature_scope_services"
 
     def setUpBeforeMigration(self, apps: StateApps) -> None:
         """Set up test data before the migration"""
