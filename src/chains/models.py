@@ -1,6 +1,6 @@
 import os
 import re
-from typing import IO, Union
+from typing import IO, Any, Union
 from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
@@ -306,7 +306,7 @@ class Feature(models.Model):
         help_text="Services that have access to this feature.",
     )
 
-    def save(self, *args: object, **kwargs: object) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         super().save(*args, **kwargs)
         if self.scope == self.Scope.GLOBAL:
             self.chains.clear()
