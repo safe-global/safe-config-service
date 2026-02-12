@@ -145,11 +145,6 @@ def on_feature_services_changed(
 
         for chain in chains:
             for service_key in affected_service_keys:
-                logger.info(
-                    "======================= FeatureServices update. Triggering CGW webhook for chain: %s, service: %s",
-                    chain.id,
-                    service_key,
-                )
                 hook_event(
                     HookEvent(
                         type=HookEvent.Type.CHAIN_UPDATE,
