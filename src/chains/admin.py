@@ -116,14 +116,14 @@ class ServiceAdmin(admin.ModelAdmin[Service]):
 class FeatureAdmin(admin.ModelAdmin[Feature]):
     form = FeatureAdminForm
     list_display = ("key", "scope", "description", "enable_by_default")
-    list_editable = ("enable_by_default",)
+    list_editable = ("enable_by_default", "scope")
     list_filter = ("scope", "services")
     fieldsets = (
         (None, {"fields": ("key", "description")}),
         (
             "Scope Configuration",
             {
-                "fields": ("scope", "chains", "services"),
+                "fields": ("scope", "chains", "enable_by_default", "services"),
                 "description": "Configure which chains and services have access to this feature.",
             },
         ),
