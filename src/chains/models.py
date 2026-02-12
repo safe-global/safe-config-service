@@ -306,5 +306,10 @@ class Feature(models.Model):
         help_text="Services that have access to this feature.",
     )
 
+    def save(self, *args: object, **kwargs: object) -> None:
+        super().save(*args, **kwargs)
+        if self.scope == self.Scope.GLOBAL:
+            self.chains.clear()
+
     def __str__(self) -> str:
         return f"Feature: {self.key}"
