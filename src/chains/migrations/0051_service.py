@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("chains", "0047_chain_zk"),
+        ("chains", "0050_alter_chain_block_explorer_uri_address_template_and_more"),
     ]
 
     operations = [

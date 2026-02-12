@@ -3,9 +3,9 @@ from django.db.migrations.state import StateApps
 from chains.migrations.tests.utils import TestMigrations
 
 
-class Migration0048TestCase(TestMigrations):
-    migrate_from = "0047_chain_zk"
-    migrate_to = "0048_service"
+class Migration0051TestCase(TestMigrations):
+    migrate_from = "0050_alter_chain_block_explorer_uri_address_template_and_more"
+    migrate_to = "0051_service"
 
     def setUpBeforeMigration(self, apps: StateApps) -> None:
         # No setup needed as we're testing the creation of a new model
