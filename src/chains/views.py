@@ -111,20 +111,13 @@ class ChainsDetailViewV2(RetrieveAPIView):  # type: ignore[type-arg]
     serializer_class = ChainSerializer
     queryset = Chain.objects.filter(hidden=False)
 
-    def get_queryset(self) -> Any:
-        self.service = get_object_or_404(Service, key=self.kwargs["service_key"])
-        return Chain.objects.filter(hidden=False).prefetch_related(
-            Prefetch(
-                "feature_set",
-                queryset=Feature.objects.filter(
-                    services=self.service, scope=Feature.Scope.PER_CHAIN
-                ).order_by("key"),
-            )
-        )
-
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
-        service = getattr(self, "service", None)
+        service = (
+            get_object_or_404(Service, key=self.kwargs["service_key"])
+            if self.kwargs.get("service_key")
+            else None
+        )
         context["service"] = service
         if service:
             context["_service_global_features"] = list(
