@@ -1,6 +1,8 @@
 import logging
+import threading
 from typing import Any
 
+from django.core.signals import request_finished
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
@@ -9,6 +11,25 @@ from .services import ChainUpdateWebhookService
 
 logger = logging.getLogger(__name__)
 webhook_service = ChainUpdateWebhookService()
+
+_feature_scope_storage = threading.local()
+
+
+def _get_feature_old_scope(instance: Feature) -> str | None:
+    cache = getattr(_feature_scope_storage, "cache", None)
+    return cache.get(id(instance)) if cache else None
+
+
+def _set_feature_old_scope(instance: Feature, scope: str | None) -> None:
+    if not hasattr(_feature_scope_storage, "cache"):
+        _feature_scope_storage.cache = {}
+    _feature_scope_storage.cache[id(instance)] = scope
+
+
+@receiver(request_finished)
+def _clear_feature_scope_cache(**kwargs: Any) -> None:
+    if hasattr(_feature_scope_storage, "cache"):
+        _feature_scope_storage.cache.clear()
 
 
 @receiver(post_save, sender=Chain)
@@ -32,11 +53,11 @@ def on_feature_scope_change_pre_save(sender: Feature, instance: Feature, **kwarg
     if instance.pk:
         try:
             old_instance = Feature.objects.get(pk=instance.pk)
-            instance._old_scope = old_instance.scope  # type: ignore[attr-defined]
+            _set_feature_old_scope(instance, old_instance.scope)
         except Feature.DoesNotExist:
-            instance._old_scope = None  # type: ignore[attr-defined]
+            _set_feature_old_scope(instance, None)
     else:
-        instance._old_scope = None  # type: ignore[attr-defined]
+        _set_feature_old_scope(instance, None)
 
 
 # pre_delete is used because on pre_delete the model still has chains
@@ -45,7 +66,7 @@ def on_feature_scope_change_pre_save(sender: Feature, instance: Feature, **kwarg
 @receiver(pre_delete, sender=Feature)
 def on_feature_changed(sender: Feature, instance: Feature, **kwargs: Any) -> None:
     logger.info("Feature update. Triggering CGW webhook")
-    old_scope = getattr(instance, "_old_scope", None)
+    old_scope = _get_feature_old_scope(instance)
     if old_scope and old_scope != instance.scope:
         return
 
@@ -60,7 +81,7 @@ def on_feature_changed(sender: Feature, instance: Feature, **kwargs: Any) -> Non
 
 @receiver(post_save, sender=Feature)
 def on_feature_scope_change_post_save(sender: Feature, instance: Feature, **kwargs: Any) -> None:
-    old_scope = getattr(instance, "_old_scope", None)
+    old_scope = _get_feature_old_scope(instance)
     if not old_scope or old_scope == instance.scope:
         return
 
@@ -72,7 +93,6 @@ def on_feature_scope_change_post_save(sender: Feature, instance: Feature, **kwar
     service_keys = list(instance.services.values_list("key", flat=True)) or None
     chain_ids = Chain.objects.values_list("id", flat=True)
     webhook_service.notify(chain_ids, service_keys)
-    instance._old_scope = None  # type: ignore[attr-defined]
 
 
 @receiver(m2m_changed, sender=Feature.chains.through)
@@ -80,7 +100,7 @@ def on_feature_chains_changed(
     sender: Feature, instance: Feature, action: str, pk_set: set[int], **kwargs: Any
 ) -> None:
     logger.info("FeatureChains update. Triggering CGW webhook")
-    old_scope = getattr(instance, "_old_scope", None)
+    old_scope = _get_feature_old_scope(instance)
     if old_scope and old_scope != instance.scope:
         return
 
