@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
@@ -8,7 +9,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from .models import Chain, Service
+from .models import Chain, Feature, Service
 from .serializers import ChainSerializer
 
 
@@ -20,7 +21,7 @@ class ChainsPagination(LimitOffsetPagination):
 class ChainsListView(ListAPIView):  # type: ignore[type-arg]
     serializer_class = ChainSerializer
     pagination_class = ChainsPagination
-    queryset = Chain.objects.filter(hidden=False)
+    queryset = Chain.objects.filter(hidden=False).prefetch_related("feature_set")
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["relevance", "name"]
     ordering = [
@@ -31,7 +32,7 @@ class ChainsListView(ListAPIView):  # type: ignore[type-arg]
 
 class ChainsDetailView(RetrieveAPIView):  # type: ignore[type-arg]
     serializer_class = ChainSerializer
-    queryset = Chain.objects.filter(hidden=False)
+    queryset = Chain.objects.filter(hidden=False).prefetch_related("feature_set")
 
     @swagger_auto_schema(
         operation_id="Get chain by id"
@@ -43,7 +44,7 @@ class ChainsDetailView(RetrieveAPIView):  # type: ignore[type-arg]
 class ChainsDetailViewByShortName(RetrieveAPIView):  # type: ignore[type-arg]
     lookup_field = "short_name"
     serializer_class = ChainSerializer
-    queryset = Chain.objects.filter(hidden=False)
+    queryset = Chain.objects.filter(hidden=False).prefetch_related("feature_set")
 
     @swagger_auto_schema(
         operation_id="Get chain by shortName",
@@ -70,11 +71,25 @@ class ChainsListViewV2(ListAPIView):  # type: ignore[type-arg]
 
     def get_queryset(self) -> Any:
         self.service = get_object_or_404(Service, key=self.kwargs["service_key"])
-        return Chain.objects.filter(hidden=False)
+        return Chain.objects.filter(hidden=False).prefetch_related(
+            Prefetch(
+                "feature_set",
+                queryset=Feature.objects.filter(
+                    services=self.service, scope=Feature.Scope.PER_CHAIN
+                ).order_by("key"),
+            )
+        )
 
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
-        context["service"] = getattr(self, "service", None)
+        service = getattr(self, "service", None)
+        context["service"] = service
+        if service:
+            context["_service_global_features"] = list(
+                Feature.objects.filter(
+                    services=service, scope=Feature.Scope.GLOBAL
+                ).order_by("key")
+            )
         return context
 
     @swagger_auto_schema(
@@ -98,11 +113,25 @@ class ChainsDetailViewV2(RetrieveAPIView):  # type: ignore[type-arg]
 
     def get_queryset(self) -> Any:
         self.service = get_object_or_404(Service, key=self.kwargs["service_key"])
-        return Chain.objects.filter(hidden=False)
+        return Chain.objects.filter(hidden=False).prefetch_related(
+            Prefetch(
+                "feature_set",
+                queryset=Feature.objects.filter(
+                    services=self.service, scope=Feature.Scope.PER_CHAIN
+                ).order_by("key"),
+            )
+        )
 
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
-        context["service"] = getattr(self, "service", None)
+        service = getattr(self, "service", None)
+        context["service"] = service
+        if service:
+            context["_service_global_features"] = list(
+                Feature.objects.filter(
+                    services=service, scope=Feature.Scope.GLOBAL
+                ).order_by("key")
+            )
         return context
 
     @swagger_auto_schema(
