@@ -18,7 +18,7 @@ class ChainsPagination(LimitOffsetPagination):
     max_limit = 100
 
 
-class ChainsListView(ListAPIView):  # type: ignore[type-arg]
+class ChainsListView(ListAPIView[Chain]):
     serializer_class = ChainSerializer
     pagination_class = ChainsPagination
     queryset = Chain.objects.filter(hidden=False).prefetch_related("feature_set")
@@ -30,7 +30,7 @@ class ChainsListView(ListAPIView):  # type: ignore[type-arg]
     ]
 
 
-class ChainsDetailView(RetrieveAPIView):  # type: ignore[type-arg]
+class ChainsDetailView(RetrieveAPIView[Chain]):
     serializer_class = ChainSerializer
     queryset = Chain.objects.filter(hidden=False).prefetch_related("feature_set")
 
@@ -41,7 +41,7 @@ class ChainsDetailView(RetrieveAPIView):  # type: ignore[type-arg]
         return super().get(request, *args, **kwargs)
 
 
-class ChainsDetailViewByShortName(RetrieveAPIView):  # type: ignore[type-arg]
+class ChainsDetailViewByShortName(RetrieveAPIView[Chain]):
     lookup_field = "short_name"
     serializer_class = ChainSerializer
     queryset = Chain.objects.filter(hidden=False).prefetch_related("feature_set")
@@ -54,7 +54,7 @@ class ChainsDetailViewByShortName(RetrieveAPIView):  # type: ignore[type-arg]
         return super().get(request, *args, **kwargs)
 
 
-class ChainsListViewV2(ListAPIView):  # type: ignore[type-arg]
+class ChainsListViewV2(ListAPIView[Chain]):
     """
     v2 endpoint that returns chain configs filtered by service.
 
@@ -99,7 +99,7 @@ class ChainsListViewV2(ListAPIView):  # type: ignore[type-arg]
         return super().get(request, *args, **kwargs)
 
 
-class ChainsDetailViewV2(RetrieveAPIView):  # type: ignore[type-arg]
+class ChainsDetailViewV2(RetrieveAPIView[Chain]):
     """
     v2 endpoint that returns a single chain config filtered by service.
 
