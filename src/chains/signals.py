@@ -74,6 +74,7 @@ def on_feature_changed(sender: Feature, instance: Feature, **kwargs: Any) -> Non
     logger.info("Feature update. Triggering CGW webhook")
     old_scope = _get_feature_old_scope(instance)
     if old_scope and old_scope != instance.scope:
+        # Scope changes are handled by the on_feature_scope_change_post_save signal
         return
 
     service_keys = list(instance.services.values_list("key", flat=True)) or None
