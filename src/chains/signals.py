@@ -26,6 +26,12 @@ def _set_feature_old_scope(instance: Feature, scope: str | None) -> None:
     _feature_scope_storage.cache[id(instance)] = scope
 
 
+def _clear_feature_old_scope(instance: Feature) -> None:
+    cache = getattr(_feature_scope_storage, "cache", None)
+    if cache is not None and id(instance) in cache:
+        del cache[id(instance)]
+
+
 @receiver(request_finished)
 def _clear_feature_scope_cache(**kwargs: Any) -> None:
     if hasattr(_feature_scope_storage, "cache"):
@@ -93,6 +99,7 @@ def on_feature_scope_change_post_save(sender: Feature, instance: Feature, **kwar
     service_keys = list(instance.services.values_list("key", flat=True)) or None
     chain_ids = Chain.objects.values_list("id", flat=True)
     webhook_service.notify(chain_ids, service_keys)
+    _clear_feature_old_scope(instance)
 
 
 @receiver(m2m_changed, sender=Feature.chains.through)
