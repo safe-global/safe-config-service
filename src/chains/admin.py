@@ -1,10 +1,11 @@
 from typing import Any
 
+from django import forms
 from django.contrib import admin
 from django.db.models import Model
 from django.forms import BaseInlineFormSet, ModelForm
 
-from .models import Chain, Feature, GasPrice, Wallet
+from .models import Chain, Feature, GasPrice, Service, Wallet
 
 
 class FeatureInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
@@ -25,6 +26,23 @@ class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
             self.extra = len(default_wallets)
 
 
+class FeatureAdminForm(forms.ModelForm[Feature]):
+    class Meta:
+        model = Feature
+        fields = "__all__"
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean() or {}
+        scope = cleaned_data.get("scope")
+        chains = cleaned_data.get("chains")
+
+        if scope == Feature.Scope.GLOBAL and chains:
+            raise forms.ValidationError(
+                {"chains": "Global scope features cannot have chains selected."}
+            )
+        return cleaned_data
+
+
 class GasPriceInline(admin.TabularInline[Model, Model]):
     model = GasPrice
     extra = 0
@@ -43,6 +61,12 @@ class WalletInline(admin.TabularInline[Model, Model]):
     formset = WalletInlineFormSet
     extra = 0
     verbose_name_plural = "Wallets enabled for this chain"
+
+
+class FeatureServiceInline(admin.TabularInline[Model, Model]):
+    model = Feature.services.through
+    extra = 0
+    verbose_name_plural = "Features enabled for this service"
 
 
 @admin.register(Chain)
@@ -80,7 +104,27 @@ class WalletAdmin(admin.ModelAdmin[Wallet]):
     list_editable = ("enable_by_default",)
 
 
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin[Service]):
+    list_display = ("key", "name", "description")
+    search_fields = ("key", "name")
+    ordering = ("name",)
+    inlines = [FeatureServiceInline]
+
+
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin[Feature]):
-    list_display = ("key", "description", "enable_by_default")
-    list_editable = ("enable_by_default",)
+    form = FeatureAdminForm
+    list_display = ("key", "scope", "description", "enable_by_default")
+    list_editable = ("enable_by_default", "scope")
+    list_filter = ("scope", "services")
+    fieldsets = (
+        (None, {"fields": ("key", "description")}),
+        (
+            "Scope Configuration",
+            {
+                "fields": ("scope", "chains", "enable_by_default", "services"),
+                "description": "Configure which chains and services have access to this feature.",
+            },
+        ),
+    )

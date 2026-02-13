@@ -1,9 +1,13 @@
+from unittest.mock import patch
+
 import responses
+from django.core.signals import request_finished
 from django.test import TestCase, override_settings
 from faker import Faker
 
-from ..models import Feature, Wallet
-from .factories import ChainFactory, FeatureFactory, GasPriceFactory, WalletFactory
+from ..models import Feature, Service, Wallet
+from ..signals import _clear_feature_old_scope, _feature_scope_storage, _set_feature_old_scope
+from .factories import ChainFactory, FeatureFactory, GasPriceFactory, ServiceFactory, WalletFactory
 
 fake = Faker()
 Faker.seed(0)
@@ -241,6 +245,282 @@ class FeatureHookTestCase(TestCase):
             responses.calls[4].request.headers.get("Authorization")
             == "Basic example-token"
         )
+
+    @responses.activate
+    def test_on_feature_scope_change_per_chain_to_global(self) -> None:
+        chain_1 = ChainFactory.create()
+        chain_2 = ChainFactory.create()
+
+        # Add mock responses for all expected webhook calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=(chain_1,)
+        )
+
+        # Clear previous calls from feature creation
+        responses.reset()
+
+        # Re-add the mock for scope change calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        # Change scope from PER_CHAIN to GLOBAL
+        feature.scope = Feature.Scope.GLOBAL
+        feature.save()
+
+        # With the updated logic, scope changes trigger webhooks for ALL chains
+        # Only the scope change handler should be triggered (not the regular feature update handler)
+        assert len(responses.calls) == 2  # Exactly one for each chain
+
+        # Verify the webhook calls contain the correct chain IDs
+        chain_ids_called = set()
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            if f'"chainId": "{chain_1.id}"' in body:
+                chain_ids_called.add(chain_1.id)
+            elif f'"chainId": "{chain_2.id}"' in body:
+                chain_ids_called.add(chain_2.id)
+
+        # Both chains should be called due to the scope change to GLOBAL
+        assert chain_1.id in chain_ids_called
+        assert chain_2.id in chain_ids_called
+
+    @responses.activate
+    def test_on_feature_scope_change_global_to_per_chain(self) -> None:
+        chain_1 = ChainFactory.create()
+        chain_2 = ChainFactory.create()
+
+        # Add mock responses for all expected webhook calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.GLOBAL,
+            chains=()  # Global features don't have specific chains
+        )
+
+        # Clear previous calls
+        responses.reset()
+
+        # Re-add the mock for scope change calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        # Change scope from GLOBAL to PER_CHAIN
+        feature.scope = Feature.Scope.PER_CHAIN
+        feature.save()
+
+        # With the updated logic, scope changes trigger webhooks for ALL chains
+        # Only the scope change handler should be triggered
+        assert len(responses.calls) == 2  # Exactly one for each chain
+
+        # Verify both chains are called
+        chain_ids_called = set()
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            if f'"chainId": "{chain_1.id}"' in body:
+                chain_ids_called.add(chain_1.id)
+            elif f'"chainId": "{chain_2.id}"' in body:
+                chain_ids_called.add(chain_2.id)
+
+        assert chain_1.id in chain_ids_called
+        assert chain_2.id in chain_ids_called
+
+        # Now assign specific chains - this should trigger M2M change hooks
+        responses.reset()
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        feature.chains.set([chain_1])
+
+        # This should trigger the M2M change hook for chain_1
+        # The M2M handler should work normally since the scope change is already complete
+        assert len(responses.calls) == 1
+        body = responses.calls[0].request.body.decode("utf-8")
+        assert f'"chainId": "{chain_1.id}"' in body
+
+    @responses.activate
+    def test_on_feature_scope_no_change(self) -> None:
+        chain = ChainFactory.create()
+
+        # Add mock responses for all expected webhook calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=(chain,)
+        )
+
+        # Clear previous calls
+        responses.reset()
+
+        # Re-add the mock for feature update calls
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+        )
+
+        # Update feature without changing scope
+        feature.key = "Updated Test Feature"
+        feature.save()
+
+        # Should trigger normal feature update webhook, not scope change webhook
+        # Since there's no scope change, the regular feature update handler should work
+        assert len(responses.calls) == 1
+        body = responses.calls[0].request.body.decode("utf-8")
+        assert f'"chainId": "{chain.id}"' in body
+
+    @responses.activate
+    def test_on_feature_chains_changed_skipped_during_scope_change(self) -> None:
+        chain_1 = ChainFactory.create()
+        chain_2 = ChainFactory.create()
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=(chain_1,),
+        )
+        responses.reset()
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        _set_feature_old_scope(feature, Feature.Scope.GLOBAL)
+        feature.scope = Feature.Scope.PER_CHAIN
+        feature.chains.add(chain_2)
+
+        assert len(responses.calls) == 0
+
+    @responses.activate
+    def test_on_feature_services_add_triggers_webhook(self) -> None:
+        service = ServiceFactory.create(key="cgw")
+        chain = ChainFactory.create()
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=(chain,),
+            services=(),
+        )
+        responses.reset()
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        feature.services.add(service)
+
+        assert len(responses.calls) == 1
+        body = responses.calls[0].request.body.decode("utf-8")
+        assert f'"chainId": "{chain.id}"' in body
+        assert '"service": "cgw"' in body
+
+    @responses.activate
+    def test_on_feature_services_remove_triggers_webhook(self) -> None:
+        service = ServiceFactory.create(key="cgw")
+        chain = ChainFactory.create()
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=(chain,),
+            services=(service,),
+        )
+        responses.reset()
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        feature.services.remove(service)
+
+        assert len(responses.calls) == 1
+        body = responses.calls[0].request.body.decode("utf-8")
+        assert f'"chainId": "{chain.id}"' in body
+        assert '"service": "cgw"' in body
+
+    @responses.activate
+    def test_on_feature_services_global_feature_notifies_all_chains(self) -> None:
+        service = ServiceFactory.create(key="cgw")
+        chain_1 = ChainFactory.create()
+        chain_2 = ChainFactory.create()
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.GLOBAL,
+            chains=(),
+            services=(),
+        )
+        responses.reset()
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        feature.services.add(service)
+
+        assert len(responses.calls) == 2
+        chain_ids = set()
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            if f'"chainId": "{chain_1.id}"' in body:
+                chain_ids.add(chain_1.id)
+            elif f'"chainId": "{chain_2.id}"' in body:
+                chain_ids.add(chain_2.id)
+        assert chain_ids == {chain_1.id, chain_2.id}
+
+
+class FeatureScopeStorageTestCase(TestCase):
+    @responses.activate
+    @override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
+    def test_pre_save_handles_feature_does_not_exist(self) -> None:
+        chain = ChainFactory.create()
+        feature = FeatureFactory.create(
+            key="Test Feature",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=(chain,),
+        )
+        responses.reset()
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        with patch(
+            "chains.signals.Feature.objects.get",
+            side_effect=Feature.DoesNotExist,
+        ):
+            feature.key = "Updated"
+            feature.save()
+
+        assert len(responses.calls) == 1
+
+    def test_request_finished_clears_scope_cache(self) -> None:
+        feature = FeatureFactory.create(key="Test Feature", scope=Feature.Scope.PER_CHAIN)
+        _set_feature_old_scope(feature, Feature.Scope.GLOBAL)
+        feature_id = id(feature)
+        assert feature_id in _feature_scope_storage.cache
+
+        request_finished.send(sender=None)
+
+        assert feature_id not in _feature_scope_storage.cache
+
+    def test_clear_feature_old_scope_removes_entry(self) -> None:
+        feature = FeatureFactory.create(key="Test Feature", scope=Feature.Scope.PER_CHAIN)
+        _set_feature_old_scope(feature, Feature.Scope.GLOBAL)
+        assert id(feature) in _feature_scope_storage.cache
+
+        _clear_feature_old_scope(feature)
+
+        assert id(feature) not in _feature_scope_storage.cache
 
 
 @override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
