@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Chain, Feature, GasPrice, Wallet
+from .models import Chain, Feature, GasPrice, Service, Wallet
 
 
 class GasPriceOracleSerializer(serializers.Serializer[GasPrice]):
@@ -274,7 +274,18 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
 
     @swagger_serializer_method(serializer_or_field=FeatureSerializer)  # type: ignore[untyped-decorator]
     def get_features(self, instance: Chain) -> ReturnDict[Any, Any]:
-        enabled_features = instance.feature_set.all().order_by("key")
+        service: Service | None = self.context.get("service")
+        if service:
+            global_features = self.context.get("_service_global_features", [])
+            per_chain_features = instance.feature_set.all()
+            enabled_features = sorted(
+                [*global_features, *per_chain_features],
+                key=lambda f: f.key,
+            )
+        else:
+            enabled_features = list(
+                instance.feature_set.all().order_by("key")
+            )
         return FeatureSerializer(enabled_features, many=True).data
 
     @swagger_serializer_method(serializer_or_field=PricesProviderSerializer)  # type: ignore[untyped-decorator]

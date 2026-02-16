@@ -1,6 +1,6 @@
 import os
 import re
-from typing import IO, Union
+from typing import IO, Any, Union
 from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
@@ -261,10 +261,28 @@ class Wallet(models.Model):
         return f"Wallet: {self.key}"
 
 
+class Service(models.Model):
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The unique key that identifies this service (e.g., 'cgw', 'frontend')",
+    )
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, default="")
+
+    def __str__(self) -> str:
+        return f"{self.name} | {self.key}"
+
+
 class Feature(models.Model):
-    # A feature can be enabled for multiple Chains and a Chain can have multiple features enabled
+    class Scope(models.TextChoices):
+        GLOBAL = "GLOBAL", "Global"
+        PER_CHAIN = "PER_CHAIN", "Per-chain"
+
     chains = models.ManyToManyField(
-        Chain, blank=True, help_text="Chains where this feature is enabled."
+        Chain,
+        blank=True,
+        help_text="Chains where this feature is enabled. Used only when scope is per-chain.",
     )
     key = models.CharField(
         unique=True,
@@ -276,6 +294,26 @@ class Feature(models.Model):
         default=False,
         help_text="If checked, this feature will be automatically enabled when creating a chain.",
     )
+    scope = models.CharField(
+        max_length=10,
+        choices=Scope.choices,
+        default=Scope.PER_CHAIN,
+        db_index=True,
+        help_text="Global applies to all chains. Per-chain limits the feature to selected chains.",
+    )
+    services = models.ManyToManyField(
+        Service,
+        blank=True,
+        help_text="Services that have access to this feature.",
+    )
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        is_new = self.pk is None
+        if not is_new and self.scope == self.Scope.GLOBAL:
+            self.chains.clear()
+        super().save(*args, **kwargs)
+        if is_new and self.scope == self.Scope.GLOBAL:
+            self.chains.clear()
 
     def __str__(self) -> str:
-        return f"Chain Feature: {self.key}"
+        return f"Feature: {self.key}"
