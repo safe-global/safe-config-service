@@ -277,7 +277,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
         service: Service | None = self.context.get("service")
         if service:
             global_features = self.context.get("_service_global_features", [])
-            per_chain_features = instance.feature_set.filter(services=service)
+            per_chain_features = instance.feature_set.all()
             enabled_features = sorted(
                 [*global_features, *per_chain_features],
                 key=lambda f: f.key,
