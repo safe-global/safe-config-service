@@ -82,14 +82,12 @@ class ChainsListViewV2(ListAPIView[Chain]):
 
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
-        service = getattr(self, "service", None)
-        context["service"] = service
-        if service:
-            context["_service_global_features"] = list(
-                Feature.objects.filter(
-                    services=service, scope=Feature.Scope.GLOBAL
-                ).order_by("key")
-            )
+        context["service"] = self.service
+        context["_service_global_features"] = list(
+            Feature.objects.filter(
+                services=self.service, scope=Feature.Scope.GLOBAL
+            ).order_by("key")
+        )
         return context
 
     @swagger_auto_schema(
@@ -125,14 +123,12 @@ class ChainsDetailViewV2(RetrieveAPIView[Chain]):
 
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
-        service = getattr(self, "service", None)
-        context["service"] = service
-        if service:
-            context["_service_global_features"] = list(
-                Feature.objects.filter(
-                    services=service, scope=Feature.Scope.GLOBAL
-                ).order_by("key")
-            )
+        context["service"] = self.service
+        context["_service_global_features"] = list(
+            Feature.objects.filter(
+                services=self.service, scope=Feature.Scope.GLOBAL
+            ).order_by("key")
+        )
         return context
 
     @swagger_auto_schema(
