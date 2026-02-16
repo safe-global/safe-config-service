@@ -307,8 +307,11 @@ class Feature(models.Model):
     )
 
     def save(self, *args: Any, **kwargs: Any) -> None:
+        is_new = self.pk is None
+        if not is_new and self.scope == self.Scope.GLOBAL:
+            self.chains.clear()
         super().save(*args, **kwargs)
-        if self.scope == self.Scope.GLOBAL:
+        if is_new and self.scope == self.Scope.GLOBAL:
             self.chains.clear()
 
     def __str__(self) -> str:
