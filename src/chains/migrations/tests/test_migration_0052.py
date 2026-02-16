@@ -110,6 +110,7 @@ class Migration0052TestCase(TestMigrations):
         # Test field properties
         self.assertEqual(scope_field.max_length, 10)
         self.assertEqual(scope_field.default, "PER_CHAIN")
+        self.assertTrue(scope_field.db_index)
         self.assertIn("Global applies to all chains", scope_field.help_text)
 
         # Test choices
