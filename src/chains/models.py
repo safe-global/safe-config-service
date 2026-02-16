@@ -298,6 +298,7 @@ class Feature(models.Model):
         max_length=10,
         choices=Scope.choices,
         default=Scope.PER_CHAIN,
+        db_index=True,
         help_text="Global applies to all chains. Per-chain limits the feature to selected chains.",
     )
     services = models.ManyToManyField(

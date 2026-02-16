@@ -16,6 +16,7 @@ class Migration(migrations.Migration):
                     ("GLOBAL", "Global"),
                     ("PER_CHAIN", "Per-chain"),
                 ],
+                db_index=True,
                 default="PER_CHAIN",
                 help_text="Global applies to all chains. Per-chain limits the feature to selected chains.",
                 max_length=10,
