@@ -8,7 +8,7 @@ djangorestframework-camel-case==1.4.2
 drf-yasg[validation]==1.21.14
 eth-typing==5.2.1
 eth-utils==5.3.1
-gunicorn==25.0.1
+gunicorn==25.1.0
 Pillow==12.1.1
 psycopg2-binary==2.9.11
 requests==2.32.5
