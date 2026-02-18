@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: pip install pre-commit
       - name: Run pre-commit
-        run: pre-commit run --all-files
+        run: SKIP=license-headers pre-commit run --all-files
 
   license-headers:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -66,7 +66,7 @@ jobs:
             exit 0
           fi
 
-          pre-commit run --files $CHANGED_FILES
+          pre-commit run license-headers --files $CHANGED_FILES
 
   django-check:
     runs-on: ubuntu-latest

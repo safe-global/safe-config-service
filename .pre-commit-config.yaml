@@ -20,6 +20,7 @@ repos:
     hooks:
       - id: insert-license
         name: insert-license
+        alias: license-headers
         files: \.(py|yaml|yml|md|sh|Dockerfile|ini)$
         stages: [pre-commit]
         args:
