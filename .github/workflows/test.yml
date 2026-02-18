@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 name: "CI"
 
 # The workflow should be triggered on any push and release events.
