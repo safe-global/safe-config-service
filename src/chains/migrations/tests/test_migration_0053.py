@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from django.db.migrations.state import StateApps
 
 from chains.migrations.tests.utils import TestMigrations
