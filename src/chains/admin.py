@@ -8,15 +8,6 @@ from django.forms import BaseInlineFormSet, ModelForm
 from .models import Chain, Feature, GasPrice, Service, Wallet
 
 
-class FeatureInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        if self.instance.pk is None:
-            default_features = list(Feature.objects.filter(enable_by_default=True))
-            self.initial = [{"feature": feature.id} for feature in default_features]
-            self.extra = len(default_features)
-
-
 class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -51,7 +42,6 @@ class GasPriceInline(admin.TabularInline[Model, Model]):
 
 class FeatureInline(admin.TabularInline[Model, Model]):
     model = Feature.chains.through
-    formset = FeatureInlineFormSet
     extra = 0
     verbose_name_plural = "Features enabled for this chain"
 
@@ -115,15 +105,15 @@ class ServiceAdmin(admin.ModelAdmin[Service]):
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin[Feature]):
     form = FeatureAdminForm
-    list_display = ("key", "scope", "description", "enable_by_default")
-    list_editable = ("enable_by_default", "scope")
+    list_display = ("key", "scope", "description")
+    list_editable = ("scope",)
     list_filter = ("scope", "services")
     fieldsets = (
         (None, {"fields": ("key", "description")}),
         (
             "Scope Configuration",
             {
-                "fields": ("scope", "chains", "enable_by_default", "services"),
+                "fields": ("scope", "chains", "services"),
                 "description": "Configure which chains and services have access to this feature.",
             },
         ),
