@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: FSL-1.1-MIT
 import os
 import re
-from typing import IO, Any, Union
+from typing import IO, Union
 from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
@@ -303,14 +303,6 @@ class Feature(models.Model):
         blank=True,
         help_text="Services that have access to this feature.",
     )
-
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        is_new = self.pk is None
-        if not is_new and self.scope == self.Scope.GLOBAL:
-            self.chains.clear()
-        super().save(*args, **kwargs)
-        if is_new and self.scope == self.Scope.GLOBAL:
-            self.chains.clear()
 
     def __str__(self) -> str:
         return f"Feature: {self.key}"

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from unittest.mock import patch
 
 import responses
@@ -310,7 +311,7 @@ class FeatureHookTestCase(TestCase):
         feature = FeatureFactory.create(
             key="Test Feature",
             scope=Feature.Scope.GLOBAL,
-            chains=()  # Global features don't have specific chains
+            chains=()
         )
 
         # Clear previous calls
