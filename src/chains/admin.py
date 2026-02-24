@@ -24,8 +24,25 @@ class GasPriceInline(admin.TabularInline[Model, Model]):
     verbose_name_plural = "Gas prices set for this chain"
 
 
+class FeatureChainInlineForm(forms.ModelForm[Model]):
+    class Meta:
+        model = Feature.chains.through
+        fields = "__all__"
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        per_chain = Feature.objects.filter(
+            scope=Feature.Scope.PER_CHAIN
+        ).order_by("key")
+        for field in self.fields.values():
+            if getattr(getattr(field, "queryset", None), "model", None) == Feature:
+                field.queryset = per_chain
+                break
+
+
 class FeatureInline(admin.TabularInline[Model, Model]):
     model = Feature.chains.through
+    form = FeatureChainInlineForm
     extra = 0
     verbose_name_plural = "Features enabled for this chain"
 
@@ -58,6 +75,40 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
         "name",
     )
     inlines = [FeatureInline, GasPriceInline, WalletInline]
+
+    def formfield_for_foreignkey(
+        self, db_field: Any, request: Any, **kwargs: Any
+    ) -> Any:
+        if db_field.name == "feature" and db_field.related_model == Feature:
+            kwargs["queryset"] = Feature.objects.filter(
+                scope=Feature.Scope.PER_CHAIN
+            ).order_by("key")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def change_view(
+        self,
+        request: Any,
+        object_id: str,
+        form_url: str = "",
+        extra_context: dict[str, Any] | None = None,
+    ) -> Any:
+        extra_context = extra_context or {}
+        extra_context["global_features"] = Feature.objects.filter(
+            scope=Feature.Scope.GLOBAL
+        ).order_by("key")
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def add_view(
+        self,
+        request: Any,
+        form_url: str = "",
+        extra_context: dict[str, Any] | None = None,
+    ) -> Any:
+        extra_context = extra_context or {}
+        extra_context["global_features"] = Feature.objects.filter(
+            scope=Feature.Scope.GLOBAL
+        ).order_by("key")
+        return super().add_view(request, form_url, extra_context)
 
 
 @admin.register(GasPrice)
