@@ -4,7 +4,7 @@ from typing import Any
 from django import forms
 from django.contrib import admin
 from django.db.models import Model
-from django.forms import BaseInlineFormSet, ModelForm
+from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 
 from .models import Chain, Feature, GasPrice, Service, Wallet
 
@@ -31,13 +31,12 @@ class FeatureChainInlineForm(forms.ModelForm[Model]):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        per_chain = Feature.objects.filter(
-            scope=Feature.Scope.PER_CHAIN
-        ).order_by("key")
-        for field in self.fields.values():
-            if getattr(getattr(field, "queryset", None), "model", None) == Feature:
-                field.queryset = per_chain
-                break
+        if "feature" in self.fields:
+            field = self.fields["feature"]
+            if isinstance(field, ModelChoiceField):
+                field.queryset = Feature.objects.filter(
+                    scope=Feature.Scope.PER_CHAIN
+                ).order_by("key")
 
 
 class FeatureInline(admin.TabularInline[Model, Model]):
