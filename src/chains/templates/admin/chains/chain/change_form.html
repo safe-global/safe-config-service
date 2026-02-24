@@ -10,9 +10,9 @@
     {% for f in global_features %}
     <li>
       <a href="{% url 'admin:chains_feature_change' f.pk %}">
-        <strong>{{ f.key }}</strong>
+        <strong>{{ f.key|escape }}</strong>
       </a>
-      {% if f.description %} - {{ f.description }}{% endif %}
+      {% if f.description %} - {{ f.description|escape }}{% endif %}
     </li>
     {% endfor %}
   </ul>
