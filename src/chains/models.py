@@ -1,4 +1,3 @@
-# SPDX-License-Identifier: FSL-1.1-MIT
 import os
 import re
 from typing import IO, Any, Union
@@ -291,6 +290,10 @@ class Feature(models.Model):
         help_text="The unique name/key that identifies this feature",
     )
     description = models.CharField(max_length=255, default="")
+    enable_by_default = models.BooleanField(
+        default=False,
+        help_text="If checked, this feature will be automatically enabled when creating a chain.",
+    )
     scope = models.CharField(
         max_length=10,
         choices=Scope.choices,
