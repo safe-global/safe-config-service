@@ -56,26 +56,12 @@ class ChainAdminGlobalFeaturesContextTests(TestCase):
         url = reverse("admin:chains_chain_change", args=[chain.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        content = response.content.decode()
-        # Order by key: a_global before z_global in the global section
-        self.assertLess(
-            content.index("a_global"),
-            content.index("z_global"),
-            msg="Global features should appear ordered by key (a before z)",
-        )
-        # Global section is between the heading and the next inline section
-        global_start = content.index("GLOBAL FEATURES ENABLED FOR THIS CHAIN")
-        next_section = content.find(
-            "Features enabled for this chain", global_start
-        )
-        global_section = (
-            content[global_start:next_section]
-            if next_section != -1
-            else content[global_start:]
-        )
+        global_features = response.context["global_features"]
+        keys = [f.key for f in global_features]
+        self.assertEqual(keys, ["a_global", "z_global"])
         self.assertNotIn(
             "only_per_chain_list",
-            global_section,
+            keys,
             msg="PER_CHAIN feature must not appear in the global features list",
         )
 
