@@ -81,9 +81,58 @@ class ChainAdminGlobalFeaturesContextTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(b"GLOBAL FEATURES ENABLED FOR THIS CHAIN", response.content)
 
+    def test_global_feature_description_rendered_when_present(self) -> None:
+        """Feature description is rendered when set."""
+        chain = ChainFactory.create()
+        FeatureFactory.create(
+            key="WITH_DESC",
+            description="My feature description",
+            scope=Feature.Scope.GLOBAL,
+        )
+        url = reverse("admin:chains_chain_change", args=[chain.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"WITH_DESC", response.content)
+        self.assertIn(b"My feature description", response.content)
 
-class ChainAdminChangeViewAddViewUnitTests(TestCase):
-    """Unit tests for ChainAdmin change_view and add_view extra_context."""
+    def test_global_feature_no_description_when_empty(self) -> None:
+        """Feature list item does not show description suffix when description is empty."""
+        chain = ChainFactory.create()
+        FeatureFactory.create(
+            key="NO_DESC",
+            description="",
+            scope=Feature.Scope.GLOBAL,
+        )
+        url = reverse("admin:chains_chain_change", args=[chain.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"NO_DESC", response.content)
+        # Template only outputs " - description" when f.description is truthy
+        self.assertNotIn(
+            b"NO_DESC - ",
+            response.content,
+            msg="Empty description should not render ' - ' after key",
+        )
+
+    def test_global_feature_link_has_correct_change_url(self) -> None:
+        """Rendered HTML includes correct admin change URL for each global feature."""
+        chain = ChainFactory.create()
+        global_feature = FeatureFactory.create(
+            key="LINKED_FEATURE",
+            scope=Feature.Scope.GLOBAL,
+        )
+        expected_url = reverse(
+            "admin:chains_feature_change", args=[global_feature.pk]
+        )
+        url = reverse("admin:chains_chain_change", args=[chain.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            expected_url.encode(),
+            response.content,
+            msg="Feature change URL should appear in rendered HTML",
+        )
+        self.assertIn(b"LINKED_FEATURE", response.content)
 
     def test_change_view_sets_global_features_queryset_scope_and_order(self) -> None:
         """change_view passes extra_context with global_features (GLOBAL scope, ordered by key)."""
