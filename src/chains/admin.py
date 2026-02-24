@@ -75,15 +75,6 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
     )
     inlines = [FeatureInline, GasPriceInline, WalletInline]
 
-    def formfield_for_foreignkey(
-        self, db_field: Any, request: Any, **kwargs: Any
-    ) -> Any:
-        if db_field.name == "feature" and db_field.related_model == Feature:
-            kwargs["queryset"] = Feature.objects.filter(
-                scope=Feature.Scope.PER_CHAIN
-            ).order_by("key")
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
     def _get_global_features(self) -> QuerySet[Feature]:
         return Feature.objects.filter(
             scope=Feature.Scope.GLOBAL
