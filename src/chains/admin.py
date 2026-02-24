@@ -3,7 +3,7 @@ from typing import Any
 
 from django import forms
 from django.contrib import admin
-from django.db.models import Model
+from django.db.models import Model, QuerySet
 from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 
 from .models import Chain, Feature, GasPrice, Service, Wallet
@@ -84,6 +84,11 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
             ).order_by("key")
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+    def _get_global_features(self) -> QuerySet[Feature]:
+        return Feature.objects.filter(
+            scope=Feature.Scope.GLOBAL
+        ).order_by("key")
+
     def change_view(
         self,
         request: Any,
@@ -92,9 +97,7 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
         extra_context: dict[str, Any] | None = None,
     ) -> Any:
         extra_context = extra_context or {}
-        extra_context["global_features"] = Feature.objects.filter(
-            scope=Feature.Scope.GLOBAL
-        ).order_by("key")
+        extra_context["global_features"] = self._get_global_features()
         return super().change_view(request, object_id, form_url, extra_context)
 
     def add_view(
@@ -104,9 +107,7 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
         extra_context: dict[str, Any] | None = None,
     ) -> Any:
         extra_context = extra_context or {}
-        extra_context["global_features"] = Feature.objects.filter(
-            scope=Feature.Scope.GLOBAL
-        ).order_by("key")
+        extra_context["global_features"] = self._get_global_features()
         return super().add_view(request, form_url, extra_context)
 
 
