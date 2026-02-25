@@ -18,23 +18,6 @@ class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
             self.extra = len(default_wallets)
 
 
-class FeatureAdminForm(forms.ModelForm[Feature]):
-    class Meta:
-        model = Feature
-        fields = "__all__"
-
-    def clean(self) -> dict[str, Any]:
-        cleaned_data = super().clean() or {}
-        scope = cleaned_data.get("scope")
-        chains = cleaned_data.get("chains")
-
-        if scope == Feature.Scope.GLOBAL and chains:
-            raise forms.ValidationError(
-                {"chains": "Global scope features cannot have chains selected."}
-            )
-        return cleaned_data
-
-
 class GasPriceInline(admin.TabularInline[Model, Model]):
     model = GasPrice
     extra = 0
@@ -105,7 +88,6 @@ class ServiceAdmin(admin.ModelAdmin[Service]):
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin[Feature]):
-    form = FeatureAdminForm
     list_display = ("key", "scope", "description")
     list_editable = ("scope",)
     list_filter = ("scope", "services")
@@ -119,3 +101,6 @@ class FeatureAdmin(admin.ModelAdmin[Feature]):
             },
         ),
     )
+
+    class Media:
+        js = ("admin/chains/feature_admin.js",)

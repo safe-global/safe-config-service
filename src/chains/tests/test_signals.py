@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from unittest.mock import patch
 
 import responses
@@ -248,10 +249,12 @@ class FeatureHookTestCase(TestCase):
 
     @responses.activate
     def test_on_feature_scope_change_per_chain_to_global(self) -> None:
+        # chain_1 is assigned to the feature; chain_2 is not.
+        # When the scope switches to GLOBAL the handler must notify every chain
+        # in the database, not only the ones previously associated.
         chain_1 = ChainFactory.create()
         chain_2 = ChainFactory.create()
 
-        # Add mock responses for all expected webhook calls
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/hooks/events",
@@ -261,28 +264,23 @@ class FeatureHookTestCase(TestCase):
         feature = FeatureFactory.create(
             key="Test Feature",
             scope=Feature.Scope.PER_CHAIN,
-            chains=(chain_1,)
+            chains=(chain_1,),
         )
 
-        # Clear previous calls from feature creation
+        # Clear calls produced by feature creation before testing scope change.
         responses.reset()
-
-        # Re-add the mock for scope change calls
         responses.add(
             responses.POST,
             "http://127.0.0.1/v1/hooks/events",
             status=200,
         )
 
-        # Change scope from PER_CHAIN to GLOBAL
         feature.scope = Feature.Scope.GLOBAL
         feature.save()
 
-        # With the updated logic, scope changes trigger webhooks for ALL chains
-        # Only the scope change handler should be triggered (not the regular feature update handler)
-        assert len(responses.calls) == 2  # Exactly one for each chain
+        # Exactly one webhook call per chain in the DB.
+        assert len(responses.calls) == 2
 
-        # Verify the webhook calls contain the correct chain IDs
         chain_ids_called = set()
         for call in responses.calls:
             body = call.request.body.decode("utf-8")
@@ -291,9 +289,7 @@ class FeatureHookTestCase(TestCase):
             elif f'"chainId": "{chain_2.id}"' in body:
                 chain_ids_called.add(chain_2.id)
 
-        # Both chains should be called due to the scope change to GLOBAL
-        assert chain_1.id in chain_ids_called
-        assert chain_2.id in chain_ids_called
+        assert chain_ids_called == {chain_1.id, chain_2.id}
 
     @responses.activate
     def test_on_feature_scope_change_global_to_per_chain(self) -> None:
@@ -310,7 +306,7 @@ class FeatureHookTestCase(TestCase):
         feature = FeatureFactory.create(
             key="Test Feature",
             scope=Feature.Scope.GLOBAL,
-            chains=()  # Global features don't have specific chains
+            chains=()
         )
 
         # Clear previous calls
