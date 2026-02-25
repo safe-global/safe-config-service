@@ -31,3 +31,15 @@ repos:
           - --comment-style
           - "#"
           - --no-extra-eol
+
+      - id: insert-license
+        name: insert-license
+        alias: license-headers
+        files: \.(html)$
+        stages: [pre-commit]
+        args:
+          - --license-filepath
+          - LICENSE_HEADER.txt
+          - --comment-style
+          - "<!--||-->"
+          - --no-extra-eol
