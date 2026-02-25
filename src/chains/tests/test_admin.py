@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 from django.contrib.admin import site
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 
-from ..admin import ChainAdmin
+from ..admin import ChainAdmin, FeatureInline
 from ..models import Chain, Feature
 from .factories import ChainFactory, FeatureFactory
 
@@ -206,3 +206,51 @@ class ChainAdminGlobalFeaturesContextTests(TestCase):
         self.assertTrue(
             all(f.scope == Feature.Scope.GLOBAL for f in passed["global_features"])
         )
+
+
+class FeatureInlineQuerysetTests(TestCase):
+    """FeatureInline.get_queryset() must exclude GLOBAL feature associations."""
+
+    def setUp(self) -> None:
+        self.request = RequestFactory().get("/")
+        self.request.user = User.objects.create_superuser(
+            "admin", "admin@example.com", "password"
+        )
+        self.inline = FeatureInline(Chain, site)
+
+    def test_global_feature_association_excluded(self) -> None:
+        chain = ChainFactory.create()
+        global_feature = FeatureFactory.create(scope=Feature.Scope.GLOBAL)
+        global_feature.chains.add(chain)
+
+        qs = self.inline.get_queryset(self.request)
+
+        self.assertFalse(
+            qs.filter(feature=global_feature, chain=chain).exists(),
+            "GLOBAL feature association must not appear in the inline queryset",
+        )
+
+    def test_per_chain_feature_association_included(self) -> None:
+        chain = ChainFactory.create()
+        per_chain_feature = FeatureFactory.create(scope=Feature.Scope.PER_CHAIN)
+        per_chain_feature.chains.add(chain)
+
+        qs = self.inline.get_queryset(self.request)
+
+        self.assertTrue(
+            qs.filter(feature=per_chain_feature, chain=chain).exists(),
+            "PER_CHAIN feature association must appear in the inline queryset",
+        )
+
+    def test_mixed_features_only_per_chain_included(self) -> None:
+        chain = ChainFactory.create()
+        global_feature = FeatureFactory.create(scope=Feature.Scope.GLOBAL)
+        per_chain_feature = FeatureFactory.create(scope=Feature.Scope.PER_CHAIN)
+        global_feature.chains.add(chain)
+        per_chain_feature.chains.add(chain)
+
+        qs = self.inline.get_queryset(self.request).filter(chain=chain)
+
+        feature_ids = set(qs.values_list("feature_id", flat=True))
+        self.assertIn(per_chain_feature.pk, feature_ids)
+        self.assertNotIn(global_feature.pk, feature_ids)

@@ -45,6 +45,13 @@ class FeatureInline(admin.TabularInline[Model, Model]):
     extra = 0
     verbose_name_plural = "Features enabled for this chain"
 
+    def get_queryset(self, request: Any) -> QuerySet[Model]:
+        return (
+            super()
+            .get_queryset(request)
+            .filter(feature__scope=Feature.Scope.PER_CHAIN)
+        )
+
 
 class WalletInline(admin.TabularInline[Model, Model]):
     model = Wallet.chains.through
