@@ -1,0 +1,25 @@
+<!--
+ SPDX-License-Identifier: FSL-1.1-MIT
+-->
+{% extends "admin/change_form.html" %}
+{% load admin_urls %}
+
+{% block inline_field_sets %}
+{% if global_features %}
+<div class="module">
+  <h2>GLOBAL FEATURES ENABLED FOR THIS CHAIN</h2>
+  <p>These features are enabled for this chain by default and cannot be edited here.</p>
+  <ul>
+    {% for f in global_features %}
+    <li>
+      <a href="{% url 'admin:chains_feature_change' f.pk %}">
+        <strong>{{ f.key|escape }}</strong>
+      </a>
+      {% if f.description %} - {{ f.description|escape }}{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{{ block.super }}
+{% endblock %}

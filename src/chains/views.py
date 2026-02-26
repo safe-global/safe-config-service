@@ -1,6 +1,7 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from typing import Any
 
-from django.db.models import Prefetch
+from django.db.models import Prefetch, QuerySet
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
@@ -69,7 +70,7 @@ class ChainsListViewV2(ListAPIView[Chain]):
     ordering_fields = ["relevance", "name"]
     ordering = ["relevance", "name"]
 
-    def get_queryset(self) -> Any:
+    def get_queryset(self) -> QuerySet[Chain]:
         self.service = get_object_or_404(Service, key=self.kwargs["service_key"])
         return Chain.objects.filter(hidden=False).prefetch_related(
             Prefetch(
