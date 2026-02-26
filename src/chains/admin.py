@@ -5,6 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.db.models import Model, QuerySet
 from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
+from django.http import HttpRequest, HttpResponse
 
 from .models import Chain, Feature, GasPrice, Service, Wallet
 
@@ -45,7 +46,7 @@ class FeatureInline(admin.TabularInline[Model, Model]):
     extra = 0
     verbose_name_plural = "Features enabled for this chain"
 
-    def get_queryset(self, request: Any) -> QuerySet[Model]:
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Model]:
         return (
             super()
             .get_queryset(request)
@@ -89,21 +90,21 @@ class ChainAdmin(admin.ModelAdmin[Chain]):
 
     def change_view(
         self,
-        request: Any,
+        request: HttpRequest,
         object_id: str,
         form_url: str = "",
         extra_context: dict[str, Any] | None = None,
-    ) -> Any:
+    ) -> HttpResponse:
         extra_context = extra_context or {}
         extra_context["global_features"] = self._get_global_features()
         return super().change_view(request, object_id, form_url, extra_context)
 
     def add_view(
         self,
-        request: Any,
+        request: HttpRequest,
         form_url: str = "",
         extra_context: dict[str, Any] | None = None,
-    ) -> Any:
+    ) -> HttpResponse:
         extra_context = extra_context or {}
         extra_context["global_features"] = self._get_global_features()
         return super().add_view(request, form_url, extra_context)
