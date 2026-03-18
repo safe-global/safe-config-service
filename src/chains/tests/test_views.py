@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from decimal import Decimal
 from typing import Any
 
@@ -87,6 +88,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     },
                     "transactionService": chain.transaction_service_uri,
                     "vpcTransactionService": chain.vpc_transaction_service_uri,
+                    "vpcRpcUri": chain.vpc_rpc_uri,
                     "theme": {
                         "textColor": chain.theme_text_color,
                         "backgroundColor": chain.theme_background_color,
@@ -229,6 +231,7 @@ class ChainDetailViewTests(APITestCase):
             },
             "transactionService": chain.transaction_service_uri,
             "vpcTransactionService": chain.vpc_transaction_service_uri,
+            "vpcRpcUri": chain.vpc_rpc_uri,
             "theme": {
                 "textColor": chain.theme_text_color,
                 "backgroundColor": chain.theme_background_color,

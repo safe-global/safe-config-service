@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from abc import abstractmethod
 from typing import Any
 
@@ -190,6 +191,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
         source="transaction_service_uri", default=None
     )
     vpc_transaction_service = serializers.URLField(source="vpc_transaction_service_uri")
+    vpc_rpc_uri = serializers.URLField()
     theme = serializers.SerializerMethodField()
     gas_price = serializers.SerializerMethodField()
     ens_registry_address = EthereumAddressField()
@@ -218,6 +220,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "contract_addresses",
             "transaction_service",
             "vpc_transaction_service",
+            "vpc_rpc_uri",
             "theme",
             "gas_price",
             "ens_registry_address",
