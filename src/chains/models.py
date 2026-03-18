@@ -48,7 +48,7 @@ def validate_native_currency_size(image: Union[str, IO[bytes]]) -> None:
         raise ValidationError("Image width and height need to be at most 512 pixels")
 
 
-def validate_tx_service_url(url: str) -> None:
+def validate_url(url: str) -> None:
     result = urlparse(url)
     if not all(
         (
@@ -129,13 +129,19 @@ class Chain(models.Model):
         max_length=255,
     )
     transaction_service_uri = models.CharField(
-        max_length=255, validators=[validate_tx_service_url]
+        max_length=255, validators=[validate_url]
     )
     vpc_transaction_service_uri = models.CharField(
         max_length=255,
-        validators=[validate_tx_service_url],
+        validators=[validate_url],
         default="http://staging-chain-safe-transaction-web.safe-transaction-chain.svc.cluster.local",
         help_text="Please replace chain by chain name and delete staging if production environment",
+    )
+    vpc_rpc_uri = models.CharField(
+        max_length=255,
+        validators=[validate_url],
+        default="http://chain-rpc-haproxy.safe-transaction-chain.svc.cluster.local:8545",
+        help_text="Please replace chain by chain name",
     )
     theme_text_color = models.CharField(
         validators=[color_validator],
