@@ -92,18 +92,6 @@ class BalancesProviderSerializer(serializers.Serializer[Chain]):
     enabled = serializers.BooleanField(source="balances_provider_enabled")
 
 
-class ContractAddressesSerializer(serializers.Serializer[Chain]):
-    safe_singleton_address = serializers.CharField()
-    safe_proxy_factory_address = serializers.CharField()
-    multi_send_address = serializers.CharField()
-    multi_send_call_only_address = serializers.CharField()
-    fallback_handler_address = serializers.CharField()
-    sign_message_lib_address = serializers.CharField()
-    create_call_address = serializers.CharField()
-    simulate_tx_accessor_address = serializers.CharField()
-    safe_web_authn_signer_factory_address = serializers.CharField()
-
-
 class BaseRpcUriSerializer(serializers.Serializer[Chain]):
     authentication = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField(method_name="get_rpc_value")
@@ -185,7 +173,6 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     beacon_chain_explorer_uri_template = serializers.SerializerMethodField()
     native_currency = serializers.SerializerMethodField()
     prices_provider = serializers.SerializerMethodField()
-    contract_addresses = serializers.SerializerMethodField()
     balances_provider = serializers.SerializerMethodField()
     transaction_service = serializers.URLField(
         source="transaction_service_uri", default=None
@@ -217,7 +204,6 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "native_currency",
             "prices_provider",
             "balances_provider",
-            "contract_addresses",
             "transaction_service",
             "vpc_transaction_service",
             "vpc_rpc_uri",
@@ -299,6 +285,3 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     def get_balances_provider(self, instance: Chain) -> ReturnDict[Any, Any]:
         return BalancesProviderSerializer(instance).data
 
-    @swagger_serializer_method(serializer_or_field=ContractAddressesSerializer)  # type: ignore[untyped-decorator]
-    def get_contract_addresses(self, instance: Chain) -> ReturnDict[Any, Any]:
-        return ContractAddressesSerializer(instance).data
