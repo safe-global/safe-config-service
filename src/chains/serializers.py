@@ -284,4 +284,3 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     @swagger_serializer_method(serializer_or_field=BalancesProviderSerializer)  # type: ignore[untyped-decorator]
     def get_balances_provider(self, instance: Chain) -> ReturnDict[Any, Any]:
         return BalancesProviderSerializer(instance).data
-
