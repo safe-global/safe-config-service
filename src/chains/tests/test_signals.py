@@ -122,6 +122,26 @@ class ChainNetworkHookTestCase(TestCase):
         )
 
     @responses.activate
+    def test_on_chain_create_no_services_fallback(self) -> None:
+        chain_id = fake.pyint()
+        responses.add(
+            responses.POST,
+            "http://127.0.0.1/v1/hooks/events",
+            status=200,
+            match=[
+                responses.matchers.json_params_matcher(
+                    {"type": "CHAIN_UPDATE", "chainId": str(chain_id)}
+                ),
+            ],
+        )
+
+        ChainFactory.create(id=chain_id)
+
+        assert len(responses.calls) == 1
+        body = responses.calls[0].request.body.decode("utf-8")
+        assert "service" not in body
+
+    @responses.activate
     def test_on_chain_create_with_services(self) -> None:
         ServiceFactory.create(key="CGW")
         ServiceFactory.create(key="WALLET_WEB")
