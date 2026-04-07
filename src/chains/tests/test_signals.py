@@ -121,6 +121,42 @@ class ChainNetworkHookTestCase(TestCase):
             == "Basic example-token"
         )
 
+    @responses.activate
+    def test_on_chain_create_with_services(self) -> None:
+        ServiceFactory.create(key="CGW")
+        ServiceFactory.create(key="WALLET_WEB")
+        chain_id = fake.pyint()
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        ChainFactory.create(id=chain_id)
+
+        assert len(responses.calls) == 2
+        bodies = {call.request.body.decode("utf-8") for call in responses.calls}
+        assert any('"service": "CGW"' in b for b in bodies)
+        assert any('"service": "WALLET_WEB"' in b for b in bodies)
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            assert f'"chainId": "{chain_id}"' in body
+
+    @responses.activate
+    def test_on_chain_update_with_services(self) -> None:
+        ServiceFactory.create(key="CGW")
+        ServiceFactory.create(key="WALLET_WEB")
+        chain = ChainFactory.create()
+        responses.reset()
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        chain.currency_name = "Ether"
+        chain.save()
+
+        assert len(responses.calls) == 2
+        bodies = {call.request.body.decode("utf-8") for call in responses.calls}
+        assert any('"service": "CGW"' in b for b in bodies)
+        assert any('"service": "WALLET_WEB"' in b for b in bodies)
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            assert f'"chainId": "{chain.id}"' in body
+
 
 @override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class FeatureHookTestCase(TestCase):
@@ -644,6 +680,22 @@ class WalletHookTestCase(TestCase):
             == "Basic example-token"
         )
 
+    @responses.activate
+    def test_on_wallet_create_with_chain_and_services(self) -> None:
+        ServiceFactory.create(key="CGW")
+        chain = ChainFactory.create()
+        responses.reset()
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        WalletFactory.create(key="Test Wallet", chains=(chain,))
+
+        # Wallet save (1 chain x 1 service) + M2M add (1 chain x 1 service) = 2 hooks
+        assert len(responses.calls) == 2
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            assert f'"chainId": "{chain.id}"' in body
+            assert '"service": "CGW"' in body
+
 
 @override_settings(CGW_URL="http://127.0.0.1", CGW_AUTH_TOKEN="example-token")
 class GasPriceHookTestCase(TestCase):
@@ -724,3 +776,19 @@ class GasPriceHookTestCase(TestCase):
             responses.calls[1].request.headers.get("Authorization")
             == "Basic example-token"
         )
+
+    @responses.activate
+    def test_on_gas_price_create_with_services(self) -> None:
+        ServiceFactory.create(key="CGW")
+        ServiceFactory.create(key="WALLET_WEB")
+        responses.add(responses.POST, "http://127.0.0.1/v1/hooks/events", status=200)
+
+        GasPriceFactory.create(chain=self.chain)
+
+        assert len(responses.calls) == 2
+        bodies = {call.request.body.decode("utf-8") for call in responses.calls}
+        assert any('"service": "CGW"' in b for b in bodies)
+        assert any('"service": "WALLET_WEB"' in b for b in bodies)
+        for call in responses.calls:
+            body = call.request.body.decode("utf-8")
+            assert f'"chainId": "{self.chain.id}"' in body

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 import logging
 import threading
 from typing import Any
@@ -77,7 +78,7 @@ def on_feature_changed(sender: Feature, instance: Feature, **kwargs: Any) -> Non
         # Scope changes are handled by the on_feature_scope_change_post_save signal
         return
 
-    service_keys = list(instance.services.values_list("key", flat=True)) or None
+    service_keys = list(instance.services.values_list("key", flat=True))
     chain_ids = (
         Chain.objects.values_list("id", flat=True)
         if instance.scope == Feature.Scope.GLOBAL
@@ -97,7 +98,7 @@ def on_feature_scope_change_post_save(sender: Feature, instance: Feature, **kwar
         old_scope,
         instance.scope,
     )
-    service_keys = list(instance.services.values_list("key", flat=True)) or None
+    service_keys = list(instance.services.values_list("key", flat=True))
     chain_ids = Chain.objects.values_list("id", flat=True)
     webhook_service.notify(chain_ids, service_keys)
     _clear_feature_old_scope(instance)
@@ -113,7 +114,7 @@ def on_feature_chains_changed(
         return
 
     if action in ("post_add", "post_remove"):
-        service_keys = list(instance.services.values_list("key", flat=True)) or None
+        service_keys = list(instance.services.values_list("key", flat=True))
         webhook_service.notify(pk_set, service_keys)
 
 
