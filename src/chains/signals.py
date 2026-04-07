@@ -78,6 +78,8 @@ def on_feature_changed(sender: Feature, instance: Feature, **kwargs: Any) -> Non
         # Scope changes are handled by the on_feature_scope_change_post_save signal
         return
 
+    # Pass [] (not None) when feature has no services — None means
+    # "broadcast to all registered services" in notify().
     service_keys = list(instance.services.values_list("key", flat=True))
     chain_ids = (
         Chain.objects.values_list("id", flat=True)
