@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from decimal import Decimal
 
 import factory
@@ -259,6 +260,11 @@ class ChainTransactionServiceUrlValidationTestCase(TestCase):
                     chain = ChainFactory.create(vpc_transaction_service_uri=invalid_url)
                     chain.full_clean()
 
+            with self.subTest(msg=f"{invalid_url} is not a valid url"):
+                with self.assertRaises(ValidationError):
+                    chain = ChainFactory.create(vpc_rpc_uri=invalid_url)
+                    chain.full_clean()
+
     def test_valid_urls(self) -> None:
         param_list = [
             "http://tx-service",
@@ -274,6 +280,10 @@ class ChainTransactionServiceUrlValidationTestCase(TestCase):
 
             with self.subTest(msg=f"Valid url {valid_url} should not throw"):
                 chain = ChainFactory.create(vpc_transaction_service_uri=valid_url)
+                chain.full_clean()
+
+            with self.subTest(msg=f"Valid url {valid_url} should not throw"):
+                chain = ChainFactory.create(vpc_rpc_uri=valid_url)
                 chain.full_clean()
 
 

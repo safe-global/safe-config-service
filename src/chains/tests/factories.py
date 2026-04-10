@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 import random
 
 import factory
@@ -42,6 +43,7 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     currency_logo_uri = factory.django.ImageField(width=50, height=50)
     transaction_service_uri = factory.Faker("url")
     vpc_transaction_service_uri = factory.Faker("url")
+    vpc_rpc_uri = factory.Faker("url")
     theme_text_color = factory.Faker("hex_color")
     theme_background_color = factory.Faker("hex_color")
     ens_registry_address = factory.LazyAttribute(
