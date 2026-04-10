@@ -11,5 +11,5 @@ eth-utils==5.3.1
 gunicorn==25.1.0
 Pillow==12.1.1
 psycopg2-binary==2.9.11
-safe-eth-py[django]==7.20.0
 requests==2.33.0
+safe-eth-py[django]==7.20.0
