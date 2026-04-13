@@ -1,7 +1,7 @@
 -r requirements.txt
 coverage==7.13.4
 django-stubs==5.2.9
-djangorestframework-stubs==3.16.8
+djangorestframework-stubs==3.16.9
 factory-boy==3.3.3
 Faker==40.8.0
 mypy==1.19.1
