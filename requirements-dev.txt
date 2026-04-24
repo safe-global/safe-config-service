@@ -1,6 +1,6 @@
 -r requirements.txt
 coverage==7.13.4
-django-stubs==5.2.9
+django-stubs==6.0.3
 djangorestframework-stubs==3.16.9
 factory-boy==3.3.3
 Faker==40.15.0
