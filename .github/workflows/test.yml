@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.14.0"]
+        python-version: ["3.14.3"]
 
     steps:
       - uses: actions/checkout@v6.0.2
@@ -104,7 +104,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.14.0"
+          python-version: "3.14.3"
       - name: Install dependencies
         run: |
           pip install -U wheel setuptools

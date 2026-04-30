@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+
 # safe-config-service
 
 [![Coverage Status](https://coveralls.io/repos/github/gnosis/safe-config-service/badge.svg)](https://coveralls.io/github/gnosis/safe-config-service)
@@ -7,7 +9,7 @@ The `safe-config-service` is a service that provides configuration information i
 ## Requirements
 
 - `docker-compose` – https://docs.docker.com/compose/install/
-- Python 3.14.0
+- Python 3.14.3
 
 ## Setup
 
