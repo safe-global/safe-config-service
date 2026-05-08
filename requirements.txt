@@ -1,5 +1,5 @@
 boto3==1.42.91
-Django==6.0.4
+Django==6.0.5
 django-cors-headers==4.9.0
 django-storages==1.14.6
 django-stubs-ext==6.0.3
