@@ -21,14 +21,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6.0.2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
       - name: Install dependencies
-        run: pip install pre-commit
+        run: uv sync --frozen
       - name: Run pre-commit
-        run: SKIP=license-headers pre-commit run --all-files
+        run: SKIP=license-headers uv run pre-commit run --all-files
 
   license-headers:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -37,10 +38,12 @@ jobs:
       - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v5.0.1
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14.3"
-      - run: pip install pre-commit
+          enable-cache: true
+      - run: uv sync --frozen
 
       - name: Run pre-commit on changed files
         run: |
@@ -67,7 +70,7 @@ jobs:
             exit 0
           fi
 
-          pre-commit run license-headers --files $CHANGED_FILES
+          uv run pre-commit run license-headers --files $CHANGED_FILES
 
   django-check:
     runs-on: ubuntu-latest
@@ -95,30 +98,23 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v6.0.2
-      - uses: actions/cache@v5
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14.3"
+          enable-cache: true
       - name: Install dependencies
-        run: |
-          pip install -U wheel setuptools
-          pip install -r requirements-dev.txt
+        run: uv sync --frozen
       - name: Run mypy
-        run: mypy --strict src/chains src/safe_apps
+        run: uv run mypy --strict src/chains src/safe_apps
       - name: Check pending migrations
-        run: python src/manage.py makemigrations --check --dry-run
+        run: uv run python src/manage.py makemigrations --check --dry-run
       - name: Run migrations
-        run: python src/manage.py migrate
+        run: uv run python src/manage.py migrate
       - name: Django System Check
-        run: python src/manage.py check
+        run: uv run python src/manage.py check
       - name: Run tests with coverage
-        run: coverage run -m pytest src
+        run: uv run coverage run -m pytest src
       - name: Coveralls
         uses: coverallsapp/github-action@v2
 

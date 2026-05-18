@@ -1,2 +1,44 @@
+[project]
+name = "safe-config-service"
+version = "0.0.0" # Not used, injected from git tags in the docker image
+requires-python = ">=3.14"
+dependencies = [
+    "boto3==1.43.6",
+    "django-cors-headers==4.9.0",
+    "django-storages==1.14.6",
+    "django-stubs-ext==6.0.4",
+    "django==6.0.5",
+    "djangorestframework-camel-case==1.4.2",
+    "djangorestframework==3.17.1",
+    "drf-yasg[validation]==1.21.15",
+    "eth-typing==5.2.1",
+    "eth-utils==5.3.1",
+    "gunicorn==25.3.0",
+    "pillow==12.2.0",
+    "psycopg2-binary==2.9.11",
+    "requests==2.33.1",
+    "safe-eth-py[django]==7.21.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage",
+    "django-stubs",
+    "djangorestframework-stubs",
+    "factory-boy",
+    "faker",
+    "mypy",
+    "pre-commit",
+    "pytest-django",
+    "responses",
+    "types-requests",
+]
+
+[tool.uv]
+package = false
+# Prevent supply chain attacks by excluding packages published in the last 7 days
+exclude-newer = "7 days"
+exclude-newer-package = { safe-eth-py = false }
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
