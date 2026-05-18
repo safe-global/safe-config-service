@@ -12,7 +12,7 @@ dependencies = [
     "djangorestframework==3.17.1",
     "drf-yasg[validation]==1.21.15",
     "eth-typing==5.2.1",
-    "eth-utils==5.3.1",
+    "eth-utils==6.0.0",
     "gunicorn==25.3.0",
     "pillow==12.2.0",
     "psycopg[binary]==3.3.4",
