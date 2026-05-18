@@ -268,6 +268,24 @@ class Wallet(models.Model):
         return f"Wallet: {self.key}"
 
 
+class Token(models.Model):
+    class Meta:
+        unique_together = ("address", "symbol")
+
+    chains = models.ManyToManyField(
+        Chain,
+        blank=True,
+        help_text="Chains where this token is accepted as a fee payment.",
+    )
+    address = EthereumAddressBinaryField(
+        help_text="Token contract address.",
+    )
+    symbol = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return f"Token: {self.symbol} ({self.address})"
+
+
 class Service(models.Model):
     key = models.CharField(
         unique=True,

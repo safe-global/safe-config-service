@@ -5,7 +5,7 @@ import factory
 import web3
 from factory.django import DjangoModelFactory
 
-from ..models import Chain, Feature, GasPrice, Service, Wallet
+from ..models import Chain, Feature, GasPrice, Service, Token, Wallet
 
 
 class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -121,6 +121,23 @@ class ServiceFactory(DjangoModelFactory):  # type: ignore[misc]
     key = factory.Faker("slug")
     name = factory.Faker("company")
     description = factory.Faker("sentence")
+
+
+class TokenFactory(DjangoModelFactory):  # type: ignore[misc]
+    class Meta:
+        model = Token
+
+    address = factory.LazyAttribute(lambda o: web3.Account.create().address)
+    symbol = factory.Faker("cryptocurrency_code")
+
+    @factory.post_generation
+    def chains(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def]
+        if not create:
+            return
+
+        if extracted:
+            for chain in extracted:
+                self.chains.add(chain)
 
 
 class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]

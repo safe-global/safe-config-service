@@ -14,6 +14,7 @@ from .factories import (
     FeatureFactory,
     GasPriceFactory,
     ServiceFactory,
+    TokenFactory,
     WalletFactory,
 )
 
@@ -405,6 +406,54 @@ class ServiceTestCase(TestCase):
         service = ServiceFactory.create(key="cgw", name="Client Gateway")
 
         self.assertEqual(str(service), "Client Gateway | cgw")
+
+
+class TokenTestCase(TestCase):
+    def test_str_method_outputs_symbol_and_address(self) -> None:
+        token = TokenFactory.create()
+
+        self.assertEqual(str(token), f"Token: {token.symbol} ({token.address})")
+
+    def test_address_and_symbol_combination_is_unique(self) -> None:
+        token = TokenFactory.create()
+
+        with self.assertRaises(Exception):
+            TokenFactory.create(address=token.address, symbol=token.symbol)
+
+    def test_same_address_with_different_symbol_is_allowed(self) -> None:
+        address = web3.Account.create().address
+        TokenFactory.create(address=address, symbol="USDC")
+        other = TokenFactory.create(address=address, symbol="OTHER")
+
+        self.assertEqual(other.address, address)
+
+    def test_symbol_can_be_repeated_across_different_addresses(self) -> None:
+        TokenFactory.create(symbol="USDC")
+        duplicate = TokenFactory.create(symbol="USDC")
+
+        self.assertEqual(duplicate.symbol, "USDC")
+
+    def test_token_can_belong_to_multiple_chains(self) -> None:
+        chain_a = ChainFactory.create()
+        chain_b = ChainFactory.create()
+        token = TokenFactory.create(chains=(chain_a, chain_b))
+
+        self.assertIn(chain_a, token.chains.all())
+        self.assertIn(chain_b, token.chains.all())
+
+    def test_chain_can_have_multiple_tokens(self) -> None:
+        chain = ChainFactory.create()
+        token_a = TokenFactory.create(chains=(chain,))
+        token_b = TokenFactory.create(chains=(chain,))
+
+        chain_tokens = chain.token_set.all()
+        self.assertIn(token_a, chain_tokens)
+        self.assertIn(token_b, chain_tokens)
+
+    def test_token_without_chains_is_valid(self) -> None:
+        token = TokenFactory.create()
+
+        token.full_clean()
 
 
 class FeatureScopeValidationTestCase(TestCase):
