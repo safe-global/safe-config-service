@@ -6,8 +6,9 @@ from django.contrib import admin
 from django.db.models import Model, QuerySet
 from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 from django.http import HttpRequest, HttpResponse
+from django.utils.html import mark_safe
 
-from .models import Chain, Feature, GasPrice, Service, Wallet
+from .models import Chain, Feature, GasPrice, Service, Token, Wallet
 
 
 class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
@@ -134,6 +135,62 @@ class ServiceAdmin(admin.ModelAdmin[Service]):
     search_fields = ("key", "name")
     ordering = ("name",)
     inlines = [FeatureServiceInline]
+
+
+class TokenChainListFilter(admin.SimpleListFilter):
+    title = "chain"
+    parameter_name = "chain"
+
+    def lookups(
+        self, request: HttpRequest, model_admin: admin.ModelAdmin[Token]
+    ) -> list[tuple[Any, str]]:
+        return list(Chain.objects.values_list("id", "name").order_by("name"))
+
+    def queryset(self, request: HttpRequest, queryset: QuerySet[Token]) -> QuerySet[Token]:
+        if self.value():
+            return queryset.filter(chains__id=self.value())
+        return queryset
+
+
+@admin.register(Token)
+class TokenAdmin(admin.ModelAdmin[Token]):
+    list_display = ("address", "symbol", "enabled_chains")
+    search_fields = ("address", "symbol")
+    list_filter = (TokenChainListFilter,)
+    filter_horizontal = ("chains",)
+    fieldsets = (
+        (None, {"fields": ("address", "symbol")}),
+        (
+            "Chains",
+            {
+                "fields": ("chains",),
+                "description": (
+                    "Select the chains where this token is accepted as fee payment. "
+                    "To enable on all chains at once, save the token and use the "
+                    "'Enable for all chains' action from the token list."
+                ),
+            },
+        ),
+    )
+    actions = ["enable_for_all_chains"]
+
+    @admin.display(description="Enabled chains")
+    def enabled_chains(self, obj: Token) -> str:
+        names = list(obj.chains.values_list("name", flat=True).order_by("name"))
+        if not names:
+            return mark_safe("<span style='color:#999'>Disabled</span>")
+        return ", ".join(names)
+
+    @admin.action(description="Enable for all chains")
+    def enable_for_all_chains(
+        self, request: HttpRequest, queryset: QuerySet[Token]
+    ) -> None:
+        all_chains = Chain.objects.all()
+        for token in queryset:
+            token.chains.set(all_chains)
+        self.message_user(
+            request, f"Enabled {queryset.count()} token(s) for all chains."
+        )
 
 
 @admin.register(Feature)
