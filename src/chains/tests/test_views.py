@@ -114,6 +114,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
                         "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
                     },
+                    "relayerType": chain.relayer_type,
                 }
             ],
         }
@@ -257,6 +258,7 @@ class ChainDetailViewTests(APITestCase):
                 "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
                 "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
             },
+            "relayerType": chain.relayer_type,
         }
 
         response = self.client.get(path=url, data=None, format="json")

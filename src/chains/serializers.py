@@ -227,6 +227,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "recommended_master_copy_version",
             "disabled_wallets",
             "features",
+            "relayer_type",
         ]
 
     @swagger_serializer_method(serializer_or_field=CurrencySerializer)  # type: ignore[untyped-decorator]

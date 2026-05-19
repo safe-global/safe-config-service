@@ -78,6 +78,9 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     safe_web_authn_signer_factory_address = factory.LazyAttribute(
         lambda o: web3.Account.create().address
     )
+    relayer_type = factory.lazy_attribute(
+        lambda o: random.choice([None, *list(Chain.RelayerType)])
+    )
 
 
 class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]
