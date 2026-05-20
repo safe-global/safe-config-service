@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import HttpResponse
