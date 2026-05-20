@@ -93,6 +93,8 @@ class ChainsListViewV2(ListAPIView[Chain]):
 
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
+        if getattr(self, "swagger_fake_view", False):
+            return context
         context["service"] = self.service
         context["_service_global_features"] = list(
             Feature.objects.filter(
@@ -134,6 +136,8 @@ class ChainsDetailViewV2(RetrieveAPIView[Chain]):
 
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
+        if getattr(self, "swagger_fake_view", False):
+            return context
         context["service"] = self.service
         context["_service_global_features"] = list(
             Feature.objects.filter(
