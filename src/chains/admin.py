@@ -8,7 +8,7 @@ from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 from django.http import HttpRequest, HttpResponse
 from django.utils.html import mark_safe
 
-from .models import Chain, Feature, GasPrice, Service, Token, Wallet
+from .models import Chain, Feature, GasPrice, GasToken, Service, Wallet
 
 
 class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
@@ -137,26 +137,26 @@ class ServiceAdmin(admin.ModelAdmin[Service]):
     inlines = [FeatureServiceInline]
 
 
-class TokenChainListFilter(admin.SimpleListFilter):
+class GasTokenChainListFilter(admin.SimpleListFilter):
     title = "chain"
     parameter_name = "chain"
 
     def lookups(
-        self, request: HttpRequest, model_admin: admin.ModelAdmin[Token]
+        self, request: HttpRequest, model_admin: admin.ModelAdmin[GasToken]
     ) -> list[tuple[Any, str]]:
         return list(Chain.objects.values_list("id", "name").order_by("name"))
 
-    def queryset(self, request: HttpRequest, queryset: QuerySet[Token]) -> QuerySet[Token]:
+    def queryset(self, request: HttpRequest, queryset: QuerySet[GasToken]) -> QuerySet[GasToken]:
         if self.value():
             return queryset.filter(chains__id=self.value())
         return queryset
 
 
-@admin.register(Token)
-class TokenAdmin(admin.ModelAdmin[Token]):
+@admin.register(GasToken)
+class GasTokenAdmin(admin.ModelAdmin[GasToken]):
     list_display = ("address", "symbol", "enabled_chains")
     search_fields = ("address", "symbol")
-    list_filter = (TokenChainListFilter,)
+    list_filter = (GasTokenChainListFilter,)
     filter_horizontal = ("chains",)
     fieldsets = (
         (None, {"fields": ("address", "symbol")}),
@@ -165,9 +165,9 @@ class TokenAdmin(admin.ModelAdmin[Token]):
             {
                 "fields": ("chains",),
                 "description": (
-                    "Select the chains where this token is accepted as fee payment. "
+                    "Select the chains where this gas token is accepted as fee payment. "
                     "To enable on all chains at once, save the token and use the "
-                    "'Enable for all chains' action from the token list."
+                    "'Enable for all chains' action from the list."
                 ),
             },
         ),
@@ -175,7 +175,7 @@ class TokenAdmin(admin.ModelAdmin[Token]):
     actions = ["enable_for_all_chains"]
 
     @admin.display(description="Enabled chains")
-    def enabled_chains(self, obj: Token) -> str:
+    def enabled_chains(self, obj: GasToken) -> str:
         names = list(obj.chains.values_list("name", flat=True).order_by("name"))
         if not names:
             return mark_safe("<span style='color:#999'>Disabled</span>")
@@ -183,13 +183,13 @@ class TokenAdmin(admin.ModelAdmin[Token]):
 
     @admin.action(description="Enable for all chains")
     def enable_for_all_chains(
-        self, request: HttpRequest, queryset: QuerySet[Token]
+        self, request: HttpRequest, queryset: QuerySet[GasToken]
     ) -> None:
         all_chains = Chain.objects.all()
-        for token in queryset:
-            token.chains.set(all_chains)
+        for gas_token in queryset:
+            gas_token.chains.set(all_chains)
         self.message_user(
-            request, f"Enabled {queryset.count()} token(s) for all chains."
+            request, f"Enabled {queryset.count()} gas token(s) for all chains."
         )
 
 

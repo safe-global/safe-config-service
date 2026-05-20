@@ -268,7 +268,7 @@ class Wallet(models.Model):
         return f"Wallet: {self.key}"
 
 
-class Token(models.Model):
+class GasToken(models.Model):
     class Meta:
         unique_together = ("address", "symbol")
 
@@ -278,12 +278,12 @@ class Token(models.Model):
         help_text="Chains where this token is accepted as a fee payment.",
     )
     address = EthereumAddressBinaryField(
-        help_text="Token contract address.",
+        unique=True, help_text="Token contract address.",
     )
     symbol = models.CharField(max_length=50)
 
     def __str__(self) -> str:
-        return f"Token: {self.symbol} ({self.address})"
+        return f"GasToken: {self.symbol} ({self.address})"
 
 
 class Service(models.Model):

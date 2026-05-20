@@ -8,7 +8,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Chain, Feature, GasPrice, Service, Wallet
+from .models import Chain, Feature, GasPrice, GasToken, Service, Wallet
 
 
 class GasPriceOracleSerializer(serializers.Serializer[GasPrice]):
@@ -171,6 +171,17 @@ class WalletSerializer(serializers.ModelSerializer[Wallet]):
 
     def to_representation(self, instance: Wallet) -> str:  # type: ignore[override]
         return instance.key
+
+
+class GasTokenSerializer(serializers.ModelSerializer[GasToken]):
+    address = EthereumAddressField()
+    enabled_chains = serializers.PrimaryKeyRelatedField(
+        source="chains", many=True, read_only=True
+    )
+
+    class Meta:
+        model = GasToken
+        fields = ["address", "enabled_chains"]
 
 
 class ChainSerializer(serializers.ModelSerializer[Chain]):

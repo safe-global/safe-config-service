@@ -10,8 +10,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from .models import Chain, Feature, Service
-from .serializers import ChainSerializer
+from .models import Chain, Feature, GasToken, Service
+from .serializers import ChainSerializer, GasTokenSerializer
 
 
 class ChainsPagination(LimitOffsetPagination):
@@ -53,6 +53,16 @@ class ChainsDetailViewByShortName(RetrieveAPIView[Chain]):
     )  # type: ignore[untyped-decorator]
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         return super().get(request, *args, **kwargs)
+
+
+class GasTokensListView(ListAPIView[GasToken]):
+    serializer_class = GasTokenSerializer
+    pagination_class = ChainsPagination
+    queryset = (
+        GasToken.objects.filter(chains__isnull=False)
+        .prefetch_related("chains")
+        .distinct()
+    )
 
 
 class ChainsListViewV2(ListAPIView[Chain]):

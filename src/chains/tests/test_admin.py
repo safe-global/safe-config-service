@@ -9,8 +9,8 @@ from django.urls import reverse
 import web3
 
 from ..admin import ChainAdmin, FeatureInline
-from ..models import Chain, Feature, Token
-from .factories import ChainFactory, FeatureFactory, TokenFactory
+from ..models import Chain, Feature, GasToken
+from .factories import ChainFactory, FeatureFactory, GasTokenFactory
 
 
 class ChainAdminGlobalFeaturesContextTests(TestCase):
@@ -224,27 +224,27 @@ class TokenAdminTests(TestCase):
     def test_create_token(self) -> None:
         address = web3.Account.create().address
         response = self.client.post(
-            reverse("admin:chains_token_add"),
+            reverse("admin:chains_gastoken_add"),
             {"address": address, "symbol": "USDC", "_save": "Save"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(Token.objects.filter(symbol="USDC").exists())
+        self.assertTrue(GasToken.objects.filter(symbol="USDC").exists())
 
     def test_create_token_with_chains(self) -> None:
         chain = ChainFactory.create()
         address = web3.Account.create().address
         response = self.client.post(
-            reverse("admin:chains_token_add"),
+            reverse("admin:chains_gastoken_add"),
             {"address": address, "symbol": "WETH", "chains": [chain.pk], "_save": "Save"},
         )
         self.assertEqual(response.status_code, 302)
-        token = Token.objects.get(symbol="WETH")
+        token = GasToken.objects.get(symbol="WETH")
         self.assertIn(chain, token.chains.all())
 
     def test_update_token_symbol(self) -> None:
-        token = TokenFactory.create(symbol="OLD")
+        token = GasTokenFactory.create(symbol="OLD")
         response = self.client.post(
-            reverse("admin:chains_token_change", args=[token.pk]),
+            reverse("admin:chains_gastoken_change", args=[token.pk]),
             {"address": str(token.address), "symbol": "NEW", "_save": "Save"},
         )
         self.assertEqual(response.status_code, 302)
@@ -253,9 +253,9 @@ class TokenAdminTests(TestCase):
 
     def test_update_token_assigns_chains(self) -> None:
         chain = ChainFactory.create()
-        token = TokenFactory.create()
+        token = GasTokenFactory.create()
         response = self.client.post(
-            reverse("admin:chains_token_change", args=[token.pk]),
+            reverse("admin:chains_gastoken_change", args=[token.pk]),
             {
                 "address": str(token.address),
                 "symbol": token.symbol,
@@ -267,35 +267,35 @@ class TokenAdminTests(TestCase):
         self.assertIn(chain, token.chains.all())
 
     def test_delete_token(self) -> None:
-        token = TokenFactory.create()
+        token = GasTokenFactory.create()
         response = self.client.post(
-            reverse("admin:chains_token_delete", args=[token.pk]),
+            reverse("admin:chains_gastoken_delete", args=[token.pk]),
             {"post": "yes"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(Token.objects.filter(pk=token.pk).exists())
+        self.assertFalse(GasToken.objects.filter(pk=token.pk).exists())
 
     def test_shows_disabled_when_token_has_no_chains(self) -> None:
-        TokenFactory.create()
-        response = self.client.get(reverse("admin:chains_token_changelist"))
+        GasTokenFactory.create()
+        response = self.client.get(reverse("admin:chains_gastoken_changelist"))
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Disabled", response.content)
 
     def test_shows_chain_name_when_token_has_chains(self) -> None:
         chain = ChainFactory.create(name="Ethereum")
-        TokenFactory.create(chains=(chain,))
-        response = self.client.get(reverse("admin:chains_token_changelist"))
+        GasTokenFactory.create(chains=(chain,))
+        response = self.client.get(reverse("admin:chains_gastoken_changelist"))
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Ethereum", response.content)
 
     def test_filter_by_chain_returns_only_matching_tokens(self) -> None:
         chain_a = ChainFactory.create()
         chain_b = ChainFactory.create()
-        token_on_a = TokenFactory.create(chains=(chain_a,))
-        token_on_b = TokenFactory.create(chains=(chain_b,))
+        token_on_a = GasTokenFactory.create(chains=(chain_a,))
+        token_on_b = GasTokenFactory.create(chains=(chain_b,))
 
         response = self.client.get(
-            reverse("admin:chains_token_changelist") + f"?chain={chain_a.pk}"
+            reverse("admin:chains_gastoken_changelist") + f"?chain={chain_a.pk}"
         )
 
         self.assertEqual(response.status_code, 200)
