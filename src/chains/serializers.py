@@ -175,7 +175,7 @@ class WalletSerializer(serializers.ModelSerializer[Wallet]):
 
 class GasTokenSerializer(serializers.ModelSerializer[GasToken]):
     address = EthereumAddressField()
-    enabled_chains = serializers.PrimaryKeyRelatedField(
+    enabled_chains: serializers.PrimaryKeyRelatedField[Any] = serializers.PrimaryKeyRelatedField(
         source="chains", many=True, read_only=True
     )
 

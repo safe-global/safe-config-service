@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.db.models import Model, QuerySet
 from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 from django.http import HttpRequest, HttpResponse
-from django.utils.html import mark_safe
+from django.utils.safestring import mark_safe
 
 from .models import Chain, Feature, GasPrice, GasToken, Service, Wallet
 
@@ -142,13 +142,14 @@ class GasTokenChainListFilter(admin.SimpleListFilter):
     parameter_name = "chain"
 
     def lookups(
-        self, request: HttpRequest, model_admin: admin.ModelAdmin[GasToken]
+        self, _request: HttpRequest, _model_admin: admin.ModelAdmin[GasToken]
     ) -> list[tuple[Any, str]]:
         return list(Chain.objects.values_list("id", "name").order_by("name"))
 
-    def queryset(self, request: HttpRequest, queryset: QuerySet[GasToken]) -> QuerySet[GasToken]:
-        if self.value():
-            return queryset.filter(chains__id=self.value())
+    def queryset(self, _request: HttpRequest, queryset: QuerySet[GasToken]) -> QuerySet[GasToken]:
+        value = self.value()
+        if value:
+            return queryset.filter(chains__id=value)
         return queryset
 
 
