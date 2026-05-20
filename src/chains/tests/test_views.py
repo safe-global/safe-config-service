@@ -11,6 +11,7 @@ from .factories import (
     ChainFactory,
     FeatureFactory,
     GasPriceFactory,
+    GasTokenFactory,
     ServiceFactory,
     WalletFactory,
 )
@@ -775,3 +776,60 @@ class V2FeatureFilteringTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(feature_no_services.key, response.json()["features"])
+
+
+class EmptyGasTokensListViewTests(APITestCase):
+    def test_empty_response_when_no_gas_tokens(self) -> None:
+        response = self.client.get(path=reverse("v1:gas-tokens-list"), format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {"count": 0, "next": None, "previous": None, "results": []},
+        )
+
+    def test_empty_response_when_all_tokens_have_no_chains(self) -> None:
+        GasTokenFactory.create()
+        GasTokenFactory.create()
+
+        response = self.client.get(path=reverse("v1:gas-tokens-list"), format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 0)
+        self.assertEqual(response.json()["results"], [])
+
+
+class GasTokensJsonPayloadFormatTests(APITestCase):
+    def test_json_payload_format(self) -> None:
+        chain = ChainFactory.create()
+        gas_token = GasTokenFactory.create(chains=(chain,))
+
+        response = self.client.get(path=reverse("v1:gas-tokens-list"), format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "count": 1,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "address": gas_token.address,
+                        "enabledChains": [chain.id],
+                    }
+                ],
+            },
+        )
+
+    def test_token_with_multiple_chains_lists_all_chain_ids(self) -> None:
+        chain_a = ChainFactory.create()
+        chain_b = ChainFactory.create()
+        gas_token = GasTokenFactory.create(chains=(chain_a, chain_b))
+
+        response = self.client.get(path=reverse("v1:gas-tokens-list"), format="json")
+
+        self.assertEqual(response.status_code, 200)
+        result = response.json()["results"][0]
+        self.assertEqual(result["address"], gas_token.address)
+        self.assertCountEqual(result["enabledChains"], [chain_a.id, chain_b.id])

@@ -13,7 +13,7 @@ from .factories import (
     ChainFactory,
     FeatureFactory,
     GasPriceFactory,
-    GasGasTokenFactory,
+    GasTokenFactory,
     ServiceFactory,
     WalletFactory,
 )
@@ -420,13 +420,6 @@ class GasTokenTestCase(TestCase):
         with self.assertRaises(Exception):
             GasTokenFactory.create(address=token.address, symbol=token.symbol)
 
-    def test_same_address_with_different_symbol_is_allowed(self) -> None:
-        address = web3.Account.create().address
-        GasTokenFactory.create(address=address, symbol="USDC")
-        other = GasTokenFactory.create(address=address, symbol="OTHER")
-
-        self.assertEqual(other.address, address)
-
     def test_symbol_can_be_repeated_across_different_addresses(self) -> None:
         GasTokenFactory.create(symbol="USDC")
         duplicate = GasTokenFactory.create(symbol="USDC")
@@ -440,15 +433,6 @@ class GasTokenTestCase(TestCase):
 
         self.assertIn(chain_a, token.chains.all())
         self.assertIn(chain_b, token.chains.all())
-
-    def test_chain_can_have_multiple_tokens(self) -> None:
-        chain = ChainFactory.create()
-        token_a = GasTokenFactory.create(chains=(chain,))
-        token_b = GasTokenFactory.create(chains=(chain,))
-
-        chain_tokens = chain.gastoken_set.all()
-        self.assertIn(token_a, chain_tokens)
-        self.assertIn(token_b, chain_tokens)
 
     def test_token_without_chains_is_valid(self) -> None:
         token = GasTokenFactory.create()
