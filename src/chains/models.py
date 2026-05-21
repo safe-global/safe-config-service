@@ -70,9 +70,9 @@ class Chain(models.Model):
 
     class RelayerType(models.TextChoices):
         GTF = "GTF", "GTF"
-        RELAY_FEE = "RELAY_FEE"
-        DAILY_LIMIT = "DAILY_LIMIT"
-        NO_FEE_CAMPAIGN = "NO_FEE_CAMPAIGN"
+        RELAY_FEE = "RELAY_FEE", "Relay Fee"
+        DAILY_LIMIT = "DAILY_LIMIT", "Daily Limit"
+        NO_FEE_CAMPAIGN = "NO_FEE_CAMPAIGN", "No Fee Campaign"
 
     id = models.PositiveBigIntegerField(verbose_name="Chain Id", primary_key=True)
     relevance = models.SmallIntegerField(
