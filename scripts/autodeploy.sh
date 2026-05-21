@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: FSL-1.1-MIT
 set -ev
 
 curl -s --output /dev/null --write-out "%{http_code}" \

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: FSL-1.1-MIT
 set -euo pipefail
 
 echo "==> $(date +%H:%M:%S) ==> Collecting static files..."

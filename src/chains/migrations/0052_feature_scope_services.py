@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 # Generated manually
 from django.db import migrations, models
 

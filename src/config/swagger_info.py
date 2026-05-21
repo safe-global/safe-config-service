@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from drf_yasg import openapi
 
 SAFE_CONFIG_SERVICE_SWAGGER_INFO = openapi.Info(

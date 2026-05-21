@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from django.apps import apps
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor

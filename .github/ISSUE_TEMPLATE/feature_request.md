@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 ---
 name: Feature request
 about: Suggest an idea for this project

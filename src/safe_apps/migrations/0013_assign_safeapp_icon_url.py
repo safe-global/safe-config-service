@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 # Associated with migration #0014, ensuring that all SafeApps have an icon_url
 # before making it non-nullable. Assigning a value and changing the field to
 # non-nullable in the same migration otherwise causes an error.

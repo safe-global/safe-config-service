@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from typing import Any, Union
 
 from django.db.models import Q, QuerySet

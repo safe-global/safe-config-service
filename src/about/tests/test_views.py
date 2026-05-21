@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from django.test import override_settings
 from django.urls import reverse
 from faker import Faker

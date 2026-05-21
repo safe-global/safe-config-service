@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 # NOTICE — Ownership & Licensing Split (SEF → Safe Labs)
 
 This repository is part of the Safe ecosystem and contains code owned and licensed

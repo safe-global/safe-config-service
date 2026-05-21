@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 """
 Django settings for safe_client_config_service project.
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 import responses
 from django.test import TestCase, override_settings
 from faker import Faker

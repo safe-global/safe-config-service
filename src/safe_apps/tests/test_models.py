@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 import factory
 from django.core.exceptions import ValidationError
 from django.test import TestCase

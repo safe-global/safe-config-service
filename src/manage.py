@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# SPDX-License-Identifier: FSL-1.1-MIT
 """Django's command-line utility for administrative tasks."""
 import os
 import sys

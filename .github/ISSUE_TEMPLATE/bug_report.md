@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 ---
 name: Bug report
 about: Create a report to help us improve

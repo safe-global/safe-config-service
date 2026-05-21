@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from django.core.exceptions import ImproperlyConfigured
 from pytest_django.asserts import assertRaisesMessage
 

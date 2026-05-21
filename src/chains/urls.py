@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
 from django.urls import path
 
 from chains.views import ChainsDetailView, ChainsDetailViewByShortName, ChainsListView
