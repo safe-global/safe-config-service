@@ -69,7 +69,7 @@ class Chain(models.Model):
         NO_AUTHENTICATION = "NO_AUTHENTICATION"
 
     class RelayerType(models.TextChoices):
-        GTF = "GTF"
+        GTF = "GTF", "GTF"
         RELAY_FEE = "RELAY_FEE"
         DAILY_LIMIT = "DAILY_LIMIT"
         NO_FEE_CAMPAIGN = "NO_FEE_CAMPAIGN"
