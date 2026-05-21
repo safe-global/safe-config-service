@@ -26,4 +26,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           personal-access-token: ${{ secrets.CLA_ACCESS_TOKEN }}
-          allowlist: moisses89,luarx,rmeissner,Uxio0,*bot
+          allowlist: moisses89,luarx,rmeissner,Uxio0,diegopazosrego,*bot
