@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 choices=[
-                    ("GTF", "Gtf"),
+                    ("GTF", "GTF"),
                     ("RELAY_FEE", "Relay Fee"),
                     ("DAILY_LIMIT", "Daily Limit"),
                     ("NO_FEE_CAMPAIGN", "No Fee Campaign"),
