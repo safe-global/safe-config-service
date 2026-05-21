@@ -1,5 +1,6 @@
 # Contribution Guide
 
+
 Thank you for considering contributing to our project! We welcome contributions that align with our goals and help improve the project. To ensure that contributions are valuable and consistent, we ask that all contributors follow these guidelines.
 
 ---
