@@ -269,9 +269,6 @@ class Wallet(models.Model):
 
 
 class GasToken(models.Model):
-    class Meta:
-        unique_together = ("address", "symbol")
-
     chains = models.ManyToManyField(
         Chain,
         blank=True,
