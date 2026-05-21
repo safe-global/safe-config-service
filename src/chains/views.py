@@ -58,11 +58,9 @@ class ChainsDetailViewByShortName(RetrieveAPIView[Chain]):
 class GasTokensListView(ListAPIView[GasToken]):
     serializer_class = GasTokenSerializer
     pagination_class = ChainsPagination
-    queryset = (
-        GasToken.objects.filter(chains__isnull=False)
-        .prefetch_related("chains")
-        .distinct()
-    )
+
+    def get_queryset(self) -> QuerySet[GasToken]:
+        return GasToken.objects.filter(chains__id=self.kwargs["pk"])
 
 
 class ChainsListViewV2(ListAPIView[Chain]):

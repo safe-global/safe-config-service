@@ -6,7 +6,6 @@ from django.urls import include, path, re_path
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
-from chains.views import GasTokensListView
 from config import settings
 
 schema_view = get_schema_view(
@@ -19,7 +18,6 @@ urlpatterns_v1 = [
     path("about/", include("about.urls", namespace="about")),
     path("safe-apps/", include("safe_apps.urls", namespace="safe-apps")),
     path("chains/", include("chains.urls", namespace="chains")),
-    path("gas-tokens/", GasTokensListView.as_view(), name="gas-tokens-list"),
 ]
 
 urlpatterns_v2 = [
