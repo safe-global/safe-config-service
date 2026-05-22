@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.db.models import Model, QuerySet
 from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 from django.http import HttpRequest, HttpResponse
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from .models import Chain, Feature, GasPrice, GasToken, Service, Wallet
 
@@ -179,7 +179,7 @@ class GasTokenAdmin(admin.ModelAdmin[GasToken]):
     def enabled_chains(self, obj: GasToken) -> str:
         names = list(obj.chains.values_list("name", flat=True).order_by("name"))
         if not names:
-            return mark_safe("<span style='color:#999'>Disabled</span>")
+            return format_html("<span style='color:#999'>Disabled</span>")
         return ", ".join(names)
 
     @admin.action(description="Enable for all chains")
