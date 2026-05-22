@@ -182,7 +182,7 @@ class GasTokenAdmin(admin.ModelAdmin[GasToken]):
     def enabled_chains(self, obj: GasToken) -> str:
         names = sorted(chain.name for chain in obj.chains.all())
         if not names:
-            return format_html("<span style='color:#999'>Disabled</span>")
+            return format_html("<span style='color:#999'>{}</span>", "Disabled")
         return ", ".join(names)
 
     @admin.action(description="Enable for all chains")
