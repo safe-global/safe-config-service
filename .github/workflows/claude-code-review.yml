@@ -13,11 +13,21 @@ permissions: {}
 
 jobs:
   claude-review:
-    uses: safe-global/github-reusable-workflows/.github/workflows/claude-code-review.yaml@c4f0ada72a93640dfd2f720ff47fa462197f47ca # v2.4.15
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
       issues: read
       id-token: write
-    secrets:
-      anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - name: Checkout reusable workflows
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: safe-global/github-reusable-workflows
+          token: ${{ secrets.REUSABLE_WORKFLOWS_TOKEN }}
+          path: reusable-workflows
+          ref: ed82e15a5851741a1cd23aefbf5b6dcb5ee21432 # v2.4.16
+      - name: Claude Code Review
+        uses: ./reusable-workflows/actions/claude-code-review
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
