@@ -275,7 +275,7 @@ class GasToken(models.Model):
         help_text="Chains where this token is accepted as a fee payment.",
     )
     address = EthereumAddressBinaryField(
-        unique=True, help_text="Token contract address.",
+        unique=True, help_text="Token contract address."
     )
     symbol = models.CharField(max_length=50)
 

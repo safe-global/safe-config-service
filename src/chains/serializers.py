@@ -179,6 +179,7 @@ class GasTokenSerializer(serializers.ModelSerializer[GasToken]):
     class Meta:
         model = GasToken
         fields = ["address", "symbol"]
+        ref_name = "chains.serializers.GasTokenSerializer"
 
 
 class ChainSerializer(serializers.ModelSerializer[Chain]):

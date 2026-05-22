@@ -189,11 +189,12 @@ class GasTokenAdmin(admin.ModelAdmin[GasToken]):
     def enable_for_all_chains(
         self, request: HttpRequest, queryset: QuerySet[GasToken]
     ) -> None:
+        tokens = list(queryset)
         all_chain_ids = list(Chain.objects.values_list("pk", flat=True))
-        for gas_token in queryset:
+        for gas_token in tokens:
             gas_token.chains.set(all_chain_ids)
         self.message_user(
-            request, f"Enabled {queryset.count()} gas token(s) for all chains."
+            request, f"Enabled {len(tokens)} gas token(s) for all chains."
         )
 
 

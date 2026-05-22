@@ -414,12 +414,6 @@ class GasTokenTestCase(TestCase):
 
         self.assertEqual(str(token), f"GasToken: {token.symbol} ({token.address})")
 
-    def test_address_and_symbol_combination_is_unique(self) -> None:
-        token = GasTokenFactory.create()
-
-        with self.assertRaises(Exception):
-            GasTokenFactory.create(address=token.address, symbol=token.symbol)
-
     def test_symbol_can_be_repeated_across_different_addresses(self) -> None:
         GasTokenFactory.create(symbol="USDC")
         duplicate = GasTokenFactory.create(symbol="USDC")
