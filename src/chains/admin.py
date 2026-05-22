@@ -175,9 +175,12 @@ class GasTokenAdmin(admin.ModelAdmin[GasToken]):
     )
     actions = ["enable_for_all_chains"]
 
+    def get_queryset(self, request: HttpRequest) -> QuerySet[GasToken]:
+        return super().get_queryset(request).prefetch_related("chains")
+
     @admin.display(description="Enabled chains")
     def enabled_chains(self, obj: GasToken) -> str:
-        names = list(obj.chains.values_list("name", flat=True).order_by("name"))
+        names = sorted(chain.name for chain in obj.chains.all())
         if not names:
             return format_html("<span style='color:#999'>Disabled</span>")
         return ", ".join(names)
