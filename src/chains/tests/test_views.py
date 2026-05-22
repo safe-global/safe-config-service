@@ -791,6 +791,20 @@ class EmptyGasTokensListViewTests(APITestCase):
             {"count": 0, "next": None, "previous": None, "results": []},
         )
 
+    def test_returns_404_for_nonexistent_chain(self) -> None:
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[9999]), format="json"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_returns_404_for_hidden_chain(self) -> None:
+        chain = ChainFactory.create(hidden=True)
+        GasTokenFactory.create(chains=(chain,))
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_empty_response_when_tokens_belong_to_other_chain(self) -> None:
         chain = ChainFactory.create()
         other_chain = ChainFactory.create()

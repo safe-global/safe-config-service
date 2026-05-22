@@ -60,9 +60,8 @@ class GasTokensListView(ListAPIView[GasToken]):
     pagination_class = ChainsPagination
 
     def get_queryset(self) -> QuerySet[GasToken]:
-        return GasToken.objects.filter(chains__id=self.kwargs["pk"]).order_by(
-            "symbol", "id"
-        )
+        chain = get_object_or_404(Chain, pk=self.kwargs["pk"], hidden=False)
+        return GasToken.objects.filter(chains=chain).order_by("symbol", "id")
 
 
 class ChainsListViewV2(ListAPIView[Chain]):
