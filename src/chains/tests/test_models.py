@@ -13,6 +13,7 @@ from .factories import (
     ChainFactory,
     FeatureFactory,
     GasPriceFactory,
+    GasTokenFactory,
     ServiceFactory,
     WalletFactory,
 )
@@ -405,6 +406,32 @@ class ServiceTestCase(TestCase):
         service = ServiceFactory.create(key="cgw", name="Client Gateway")
 
         self.assertEqual(str(service), "Client Gateway | cgw")
+
+
+class GasTokenTestCase(TestCase):
+    def test_str_method_outputs_symbol_and_address(self) -> None:
+        token = GasTokenFactory.create()
+
+        self.assertEqual(str(token), f"GasToken: {token.symbol} ({token.address})")
+
+    def test_symbol_can_be_repeated_across_different_addresses(self) -> None:
+        GasTokenFactory.create(symbol="USDC")
+        duplicate = GasTokenFactory.create(symbol="USDC")
+
+        self.assertEqual(duplicate.symbol, "USDC")
+
+    def test_token_can_belong_to_multiple_chains(self) -> None:
+        chain_a = ChainFactory.create()
+        chain_b = ChainFactory.create()
+        token = GasTokenFactory.create(chains=(chain_a, chain_b))
+
+        self.assertIn(chain_a, token.chains.all())
+        self.assertIn(chain_b, token.chains.all())
+
+    def test_token_without_chains_is_valid(self) -> None:
+        token = GasTokenFactory.create()
+
+        token.full_clean()
 
 
 class FeatureScopeValidationTestCase(TestCase):

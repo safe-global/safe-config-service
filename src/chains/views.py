@@ -10,8 +10,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from .models import Chain, Feature, Service
-from .serializers import ChainSerializer
+from .models import Chain, Feature, GasToken, Service
+from .serializers import ChainSerializer, GasTokenSerializer
 
 
 class ChainsPagination(LimitOffsetPagination):
@@ -55,6 +55,15 @@ class ChainsDetailViewByShortName(RetrieveAPIView[Chain]):
         return super().get(request, *args, **kwargs)
 
 
+class GasTokensListView(ListAPIView[GasToken]):
+    serializer_class = GasTokenSerializer
+    pagination_class = ChainsPagination
+
+    def get_queryset(self) -> QuerySet[GasToken]:
+        chain = get_object_or_404(Chain, pk=self.kwargs["pk"], hidden=False)
+        return GasToken.objects.filter(chains=chain).order_by("symbol", "id")
+
+
 class ChainsListViewV2(ListAPIView[Chain]):
     """
     v2 endpoint that returns chain configs filtered by service.
@@ -83,6 +92,8 @@ class ChainsListViewV2(ListAPIView[Chain]):
 
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
+        if getattr(self, "swagger_fake_view", False):
+            return context
         context["service"] = self.service
         context["_service_global_features"] = list(
             Feature.objects.filter(
@@ -124,6 +135,8 @@ class ChainsDetailViewV2(RetrieveAPIView[Chain]):
 
     def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
+        if getattr(self, "swagger_fake_view", False):
+            return context
         context["service"] = self.service
         context["_service_global_features"] = list(
             Feature.objects.filter(

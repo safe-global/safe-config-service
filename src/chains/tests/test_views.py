@@ -11,6 +11,7 @@ from .factories import (
     ChainFactory,
     FeatureFactory,
     GasPriceFactory,
+    GasTokenFactory,
     ServiceFactory,
     WalletFactory,
 )
@@ -775,3 +776,86 @@ class V2FeatureFilteringTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(feature_no_services.key, response.json()["features"])
+
+
+class EmptyGasTokensListViewTests(APITestCase):
+    def test_empty_response_when_no_gas_tokens(self) -> None:
+        chain = ChainFactory.create()
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {"count": 0, "next": None, "previous": None, "results": []},
+        )
+
+    def test_returns_404_for_nonexistent_chain(self) -> None:
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[9999]), format="json"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_returns_404_for_hidden_chain(self) -> None:
+        chain = ChainFactory.create(hidden=True)
+        GasTokenFactory.create(chains=(chain,))
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_empty_response_when_tokens_belong_to_other_chain(self) -> None:
+        chain = ChainFactory.create()
+        other_chain = ChainFactory.create()
+        GasTokenFactory.create(chains=(other_chain,))
+        GasTokenFactory.create(chains=(other_chain,))
+
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 0)
+        self.assertEqual(response.json()["results"], [])
+
+
+class GasTokensJsonPayloadFormatTests(APITestCase):
+    def test_json_payload_format(self) -> None:
+        chain = ChainFactory.create()
+        gas_token = GasTokenFactory.create(chains=(chain,))
+
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "count": 1,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "address": gas_token.address,
+                        "symbol": gas_token.symbol,
+                    }
+                ],
+            },
+        )
+
+    def test_token_shared_across_chains_appears_in_each_chain_response(self) -> None:
+        chain_a = ChainFactory.create()
+        chain_b = ChainFactory.create()
+        gas_token = GasTokenFactory.create(chains=(chain_a, chain_b))
+
+        for chain in (chain_a, chain_b):
+            response = self.client.get(
+                path=reverse("v1:chains:gas-tokens-list", args=[chain.id]),
+                format="json",
+            )
+            self.assertEqual(response.status_code, 200)
+            result = response.json()["results"][0]
+            self.assertEqual(result["address"], gas_token.address)
+            self.assertEqual(result["symbol"], gas_token.symbol)

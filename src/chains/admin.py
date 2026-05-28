@@ -6,8 +6,9 @@ from django.contrib import admin
 from django.db.models import Model, QuerySet
 from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 from django.http import HttpRequest, HttpResponse
+from django.utils.html import format_html
 
-from .models import Chain, Feature, GasPrice, Service, Wallet
+from .models import Chain, Feature, GasPrice, GasToken, Service, Wallet
 
 
 class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
@@ -134,6 +135,67 @@ class ServiceAdmin(admin.ModelAdmin[Service]):
     search_fields = ("key", "name")
     ordering = ("name",)
     inlines = [FeatureServiceInline]
+
+
+class GasTokenChainListFilter(admin.SimpleListFilter):
+    title = "chain"
+    parameter_name = "chain"
+
+    def lookups(
+        self, _request: HttpRequest, _model_admin: admin.ModelAdmin[GasToken]
+    ) -> list[tuple[Any, str]]:
+        return list(Chain.objects.values_list("id", "name").order_by("name"))
+
+    def queryset(self, _request: HttpRequest, queryset: QuerySet[GasToken]) -> QuerySet[GasToken]:
+        value = self.value()
+        if value:
+            return queryset.filter(chains__id=value)
+        return queryset
+
+
+@admin.register(GasToken)
+class GasTokenAdmin(admin.ModelAdmin[GasToken]):
+    list_display = ("address", "symbol", "enabled_chains")
+    search_fields = ("address", "symbol")
+    list_filter = (GasTokenChainListFilter,)
+    filter_horizontal = ("chains",)
+    fieldsets = (
+        (None, {"fields": ("address", "symbol")}),
+        (
+            "Chains",
+            {
+                "fields": ("chains",),
+                "description": (
+                    "Select the chains where this gas token is accepted as fee payment. "
+                    "To enable on all chains at once, save the token and use the "
+                    "'Enable for all chains' action from the list."
+                ),
+            },
+        ),
+    )
+    actions = ["enable_for_all_chains"]
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[GasToken]:
+        return super().get_queryset(request).prefetch_related("chains")
+
+    @admin.display(description="Enabled chains")
+    def enabled_chains(self, obj: GasToken) -> str:
+        names = sorted(chain.name for chain in obj.chains.all())
+        if not names:
+            return format_html("<span style='color:#999'>{}</span>", "Disabled")
+        return ", ".join(names)
+
+    @admin.action(description="Enable for all chains")
+    def enable_for_all_chains(
+        self, request: HttpRequest, queryset: QuerySet[GasToken]
+    ) -> None:
+        tokens = list(queryset)
+        all_chain_ids = list(Chain.objects.values_list("pk", flat=True))
+        for gas_token in tokens:
+            gas_token.chains.set(all_chain_ids)
+        self.message_user(
+            request, f"Enabled {len(tokens)} gas token(s) for all chains."
+        )
 
 
 @admin.register(Feature)
