@@ -22,7 +22,7 @@ jobs:
           repository: safe-global/github-reusable-workflows
           token: ${{ secrets.REUSABLE_WORKFLOWS_TOKEN }}
           path: reusable-workflows
-          ref: ed82e15a5851741a1cd23aefbf5b6dcb5ee21432 # v2.4.16
+          ref: f72a861e898dd2d539a0598a1fb43a8ea801ebd1 # main 2026-05-27 (signatures branch)
       - name: "CLA Assistant"
         uses: ./reusable-workflows/actions/cla
         with:
