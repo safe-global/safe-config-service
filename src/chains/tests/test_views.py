@@ -104,17 +104,6 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
                     "disabledWallets": [],
                     "features": [],
-                    "contractAddresses": {
-                        "safeSingletonAddress": chain.safe_singleton_address,
-                        "safeProxyFactoryAddress": chain.safe_proxy_factory_address,
-                        "multiSendAddress": chain.multi_send_address,
-                        "multiSendCallOnlyAddress": chain.multi_send_call_only_address,
-                        "fallbackHandlerAddress": chain.fallback_handler_address,
-                        "signMessageLibAddress": chain.sign_message_lib_address,
-                        "createCallAddress": chain.create_call_address,
-                        "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
-                        "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
-                    },
                 }
             ],
         }
@@ -247,17 +236,6 @@ class ChainDetailViewTests(APITestCase):
             "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
             "disabledWallets": [],
             "features": [],
-            "contractAddresses": {
-                "safeSingletonAddress": chain.safe_singleton_address,
-                "safeProxyFactoryAddress": chain.safe_proxy_factory_address,
-                "multiSendAddress": chain.multi_send_address,
-                "multiSendCallOnlyAddress": chain.multi_send_call_only_address,
-                "fallbackHandlerAddress": chain.fallback_handler_address,
-                "signMessageLibAddress": chain.sign_message_lib_address,
-                "createCallAddress": chain.create_call_address,
-                "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
-                "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
-            },
         }
 
         response = self.client.get(path=url, data=None, format="json")
