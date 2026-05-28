@@ -68,6 +68,12 @@ class Chain(models.Model):
         API_KEY_PATH = "API_KEY_PATH"
         NO_AUTHENTICATION = "NO_AUTHENTICATION"
 
+    class RelayerType(models.TextChoices):
+        GTF = "GTF", "GTF"
+        RELAY_FEE = "RELAY_FEE", "Relay Fee"
+        DAILY_LIMIT = "DAILY_LIMIT", "Daily Limit"
+        NO_FEE_CAMPAIGN = "NO_FEE_CAMPAIGN", "No Fee Campaign"
+
     id = models.PositiveBigIntegerField(verbose_name="Chain Id", primary_key=True)
     relevance = models.SmallIntegerField(
         default=100
@@ -181,6 +187,14 @@ class Chain(models.Model):
     simulate_tx_accessor_address = EthereumAddressBinaryField(null=True, blank=True)
     safe_web_authn_signer_factory_address = EthereumAddressBinaryField(
         null=True, blank=True
+    )
+    relayer_type = models.CharField(
+        max_length=32,
+        choices=RelayerType.choices,
+        null=True,
+        blank=True,
+        default=None,
+        help_text="Relayer strategy used by the Safe Client Gateway for this chain. Leave empty for no relayer.",
     )
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:
