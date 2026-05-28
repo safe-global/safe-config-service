@@ -22,10 +22,12 @@ jobs:
           repository: safe-global/github-reusable-workflows
           token: ${{ secrets.REUSABLE_WORKFLOWS_TOKEN }}
           path: reusable-workflows
-          ref: c4fd58f9c721aca09b841c8035ce1d115ed5f3c3 # v2.4.18
+          ref: ea5356563c5c5c31ceda25c7249640e2adc2e4c2 # v2.4.19
       - name: "CLA Assistant"
         uses: ./reusable-workflows/actions/cla
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           personal-access-token: ${{ secrets.CLA_ACCESS_TOKEN }}
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           allowlist: moisses89,luarx,rmeissner,Uxio0,*bot
