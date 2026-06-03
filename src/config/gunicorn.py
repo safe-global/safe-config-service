@@ -18,3 +18,6 @@ workers = int(os.getenv("WEB_CONCURRENCY", multiprocessing.cpu_count() * 2))
 threads = int(os.getenv("PYTHON_MAX_THREADS", 1))
 
 reload = _parse_bool(os.getenv("WEB_RELOAD", "false"))
+
+# Disable control socket because pods run with read-only root filesystems.
+control_socket = None
