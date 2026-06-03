@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("chains", "0054_chain_vpc_rpc_uri"),
+        ("chains", "0055_gastoken"),
     ]
 
     operations = [
