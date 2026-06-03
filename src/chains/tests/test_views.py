@@ -6,7 +6,7 @@ from django.urls import reverse
 from faker import Faker
 from rest_framework.test import APITestCase
 
-from ..models import Feature
+from ..models import Chain, Feature
 from .factories import (
     ChainFactory,
     FeatureFactory,
@@ -115,6 +115,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
                         "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
                     },
+                    "relayerType": chain.relayer_type,
                 }
             ],
         }
@@ -258,6 +259,7 @@ class ChainDetailViewTests(APITestCase):
                 "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
                 "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
             },
+            "relayerType": chain.relayer_type,
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -354,6 +356,28 @@ class ChainsEnsRegistryTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["ensRegistryAddress"], None)
+
+
+class ChainRelayerTypeTests(APITestCase):
+    def test_null_relayer_type(self) -> None:
+        ChainFactory.create(id=1, relayer_type=None)
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["relayerType"])
+
+    def test_each_relayer_type_value(self) -> None:
+        for index, relayer_type in enumerate(Chain.RelayerType):
+            with self.subTest(relayer_type=relayer_type.value):
+                ChainFactory.create(id=index, relayer_type=relayer_type)
+                url = reverse("v1:chains:detail", args=[index])
+
+                response = self.client.get(path=url, data=None, format="json")
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json()["relayerType"], relayer_type.value)
 
 
 class ChainGasPriceTests(APITestCase):
