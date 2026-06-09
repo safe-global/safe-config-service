@@ -292,6 +292,10 @@ class GasToken(models.Model):
         unique=True, help_text="Token contract address."
     )
     symbol = models.CharField(max_length=50)
+    priority = models.SmallIntegerField(
+        default=100,
+        help_text="A lower number indicates higher priority. Defaults to 100 (default ordering).",
+    )  # A lower number will indicate higher priority
 
     def __str__(self) -> str:
         return f"GasToken: {self.symbol} ({self.address})"
