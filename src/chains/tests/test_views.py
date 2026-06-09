@@ -115,7 +115,12 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
                         "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
                     },
-                    "relayerType": chain.relayer_type,
+                    "relayer": {
+                        "type": chain.relayer_type,
+                        "safeCreationSponsored": chain.relayer_safe_creation_sponsored,
+                        "safeTransactionSponsored": chain.relayer_safe_transaction_sponsored,
+                        "enableTenderlySimulationBeforeRelay": chain.relayer_enable_tenderly_simulation_before_relay,
+                    },
                 }
             ],
         }
@@ -259,7 +264,12 @@ class ChainDetailViewTests(APITestCase):
                 "simulateTxAccessorAddress": chain.simulate_tx_accessor_address,
                 "safeWebAuthnSignerFactoryAddress": chain.safe_web_authn_signer_factory_address,
             },
-            "relayerType": chain.relayer_type,
+            "relayer": {
+                "type": chain.relayer_type,
+                "safeCreationSponsored": chain.relayer_safe_creation_sponsored,
+                "safeTransactionSponsored": chain.relayer_safe_transaction_sponsored,
+                "enableTenderlySimulationBeforeRelay": chain.relayer_enable_tenderly_simulation_before_relay,
+            },
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -366,7 +376,7 @@ class ChainRelayerTypeTests(APITestCase):
         response = self.client.get(path=url, data=None, format="json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIsNone(response.json()["relayerType"])
+        self.assertIsNone(response.json()["relayer"]["type"])
 
     def test_each_relayer_type_value(self) -> None:
         for index, relayer_type in enumerate(Chain.RelayerType):
@@ -377,7 +387,39 @@ class ChainRelayerTypeTests(APITestCase):
                 response = self.client.get(path=url, data=None, format="json")
 
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.json()["relayerType"], relayer_type.value)
+                self.assertEqual(
+                    response.json()["relayer"]["type"], relayer_type.value
+                )
+
+    def test_relayer_sponsoring_flags(self) -> None:
+        ChainFactory.create(
+            id=1,
+            relayer_type=Chain.RelayerType.GTF,
+            relayer_safe_creation_sponsored=True,
+            relayer_safe_transaction_sponsored=False,
+            relayer_enable_tenderly_simulation_before_relay=True,
+        )
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        relayer = response.json()["relayer"]
+        self.assertEqual(relayer["type"], Chain.RelayerType.GTF.value)
+        self.assertTrue(relayer["safeCreationSponsored"])
+        self.assertFalse(relayer["safeTransactionSponsored"])
+        self.assertTrue(relayer["enableTenderlySimulationBeforeRelay"])
+
+    def test_relayer_sponsoring_defaults_off(self) -> None:
+        ChainFactory.create(id=1, relayer_type=None)
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        relayer = response.json()["relayer"]
+        self.assertFalse(relayer["safeCreationSponsored"])
+        self.assertFalse(relayer["safeTransactionSponsored"])
 
 
 class ChainGasPriceTests(APITestCase):
