@@ -925,3 +925,55 @@ class GasTokensJsonPayloadFormatTests(APITestCase):
             result = response.json()["results"][0]
             self.assertEqual(result["address"], gas_token.address)
             self.assertEqual(result["symbol"], gas_token.symbol)
+
+
+class GasTokensOrderingTests(APITestCase):
+    def test_orders_by_priority_ascending(self) -> None:
+        chain = ChainFactory.create()
+        GasTokenFactory.create(chains=(chain,), symbol="LOW", priority=3)
+        GasTokenFactory.create(chains=(chain,), symbol="HIGH", priority=1)
+        GasTokenFactory.create(chains=(chain,), symbol="MID", priority=2)
+
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        symbols = [token["symbol"] for token in response.json()["results"]]
+        self.assertEqual(symbols, ["HIGH", "MID", "LOW"])
+
+    def test_default_priority_tokens_sorted_after_prioritised_ones_by_symbol(
+        self,
+    ) -> None:
+        chain = ChainFactory.create()
+        # Prioritised token must come first regardless of its symbol.
+        GasTokenFactory.create(chains=(chain,), symbol="ZZZ", priority=1)
+        # Tokens left at the default priority (100) keep the default symbol
+        # ordering, after the prioritised ones.
+        GasTokenFactory.create(chains=(chain,), symbol="BBB")
+        GasTokenFactory.create(chains=(chain,), symbol="AAA")
+
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        symbols = [token["symbol"] for token in response.json()["results"]]
+        self.assertEqual(symbols, ["ZZZ", "AAA", "BBB"])
+
+    def test_same_priority_and_symbol_ordered_by_id(self) -> None:
+        chain = ChainFactory.create()
+        # Same priority and symbol (e.g. bridged/pegged variants); only the
+        # address and id differ.
+        first = GasTokenFactory.create(chains=(chain,), symbol="USDC", priority=1)
+        second = GasTokenFactory.create(chains=(chain,), symbol="USDC", priority=1)
+        self.assertLess(first.id, second.id)
+
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        addresses = [token["address"] for token in response.json()["results"]]
+        # Deterministic fallback to ascending id.
+        self.assertEqual(addresses, [first.address, second.address])

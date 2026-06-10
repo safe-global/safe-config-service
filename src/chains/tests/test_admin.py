@@ -225,7 +225,7 @@ class TokenAdminTests(TestCase):
         address = web3.Account.create().address
         response = self.client.post(
             reverse("admin:chains_gastoken_add"),
-            {"address": address, "symbol": "USDC", "_save": "Save"},
+            {"address": address, "symbol": "USDC", "priority": "100", "_save": "Save"},
         )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(GasToken.objects.filter(symbol="USDC").exists())
@@ -235,7 +235,13 @@ class TokenAdminTests(TestCase):
         address = web3.Account.create().address
         response = self.client.post(
             reverse("admin:chains_gastoken_add"),
-            {"address": address, "symbol": "WETH", "chains": [chain.pk], "_save": "Save"},
+            {
+                "address": address,
+                "symbol": "WETH",
+                "priority": "100",
+                "chains": [chain.pk],
+                "_save": "Save",
+            },
         )
         self.assertEqual(response.status_code, 302)
         token = GasToken.objects.get(symbol="WETH")
@@ -245,7 +251,12 @@ class TokenAdminTests(TestCase):
         token = GasTokenFactory.create(symbol="OLD")
         response = self.client.post(
             reverse("admin:chains_gastoken_change", args=[token.pk]),
-            {"address": str(token.address), "symbol": "NEW", "_save": "Save"},
+            {
+                "address": str(token.address),
+                "symbol": "NEW",
+                "priority": str(token.priority),
+                "_save": "Save",
+            },
         )
         self.assertEqual(response.status_code, 302)
         token.refresh_from_db()
@@ -259,6 +270,7 @@ class TokenAdminTests(TestCase):
             {
                 "address": str(token.address),
                 "symbol": token.symbol,
+                "priority": str(token.priority),
                 "chains": [chain.pk],
                 "_save": "Save",
             },
