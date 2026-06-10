@@ -81,6 +81,15 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     relayer_type = factory.LazyAttribute(
         lambda o: random.choice([None, *list(Chain.RelayerType)])
     )
+    relayer_safe_creation_sponsored = factory.LazyAttribute(
+        lambda o: o.relayer_type is not None and random.choice([True, False])
+    )
+    relayer_safe_transaction_sponsored = factory.LazyAttribute(
+        lambda o: o.relayer_type is not None and random.choice([True, False])
+    )
+    relayer_enable_tenderly_simulation_before_relay = factory.LazyAttribute(
+        lambda o: random.choice([True, False])
+    )
 
 
 class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]

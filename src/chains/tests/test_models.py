@@ -8,7 +8,7 @@ from django.db import DataError
 from django.test import TestCase, TransactionTestCase
 from faker import Faker
 
-from ..models import Feature
+from ..models import Chain, Feature
 from .factories import (
     ChainFactory,
     FeatureFactory,
@@ -178,6 +178,42 @@ class ChainGasPriceOracleTestCase(TestCase):
 
         # No validation exception should be thrown
         gas_price.full_clean()
+
+
+class ChainRelayerSponsoringValidationTestCase(TransactionTestCase):
+    def test_sponsoring_without_relayer_type_is_invalid(self) -> None:
+        for field in (
+            "relayer_safe_creation_sponsored",
+            "relayer_safe_transaction_sponsored",
+        ):
+            with self.subTest(field=field):
+                sponsoring = {
+                    "relayer_safe_creation_sponsored": False,
+                    "relayer_safe_transaction_sponsored": False,
+                    field: True,
+                }
+                chain = ChainFactory.build(relayer_type=None, **sponsoring)
+                with self.assertRaises(ValidationError):
+                    chain.clean()
+
+    def test_sponsoring_with_relayer_type_is_valid(self) -> None:
+        chain = ChainFactory.build(
+            relayer_type=Chain.RelayerType.GTF,
+            relayer_safe_creation_sponsored=True,
+            relayer_safe_transaction_sponsored=True,
+        )
+        # Should not raise
+        chain.clean()
+
+    def test_tenderly_simulation_independent_of_relayer_type(self) -> None:
+        chain = ChainFactory.build(
+            relayer_type=None,
+            relayer_safe_creation_sponsored=False,
+            relayer_safe_transaction_sponsored=False,
+            relayer_enable_tenderly_simulation_before_relay=True,
+        )
+        # Tenderly simulation is not gated on relayer type
+        chain.clean()
 
 
 class ChainColorValidationTestCase(TransactionTestCase):
