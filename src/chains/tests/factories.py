@@ -5,7 +5,7 @@ import factory
 import web3
 from factory.django import DjangoModelFactory
 
-from ..models import Chain, Feature, GasPrice, Service, Wallet
+from ..models import Chain, Feature, GasPrice, GasToken, Service, Wallet
 
 
 class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -55,6 +55,18 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     balances_provider_chain_name = factory.Faker("company")
     balances_provider_enabled = factory.Faker("pybool")
     hidden = False
+    relayer_type = factory.LazyAttribute(
+        lambda o: random.choice([None, *list(Chain.RelayerType)])
+    )
+    relayer_safe_creation_sponsored = factory.LazyAttribute(
+        lambda o: o.relayer_type is not None and random.choice([True, False])
+    )
+    relayer_safe_transaction_sponsored = factory.LazyAttribute(
+        lambda o: o.relayer_type is not None and random.choice([True, False])
+    )
+    relayer_enable_tenderly_simulation_before_relay = factory.LazyAttribute(
+        lambda o: random.choice([True, False])
+    )
 
 
 class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]
@@ -98,6 +110,23 @@ class ServiceFactory(DjangoModelFactory):  # type: ignore[misc]
     key = factory.Faker("slug")
     name = factory.Faker("company")
     description = factory.Faker("sentence")
+
+
+class GasTokenFactory(DjangoModelFactory):  # type: ignore[misc]
+    class Meta:
+        model = GasToken
+
+    address = factory.LazyAttribute(lambda o: web3.Account.create().address)
+    symbol = factory.Faker("cryptocurrency_code")
+
+    @factory.post_generation
+    def chains(self, create, extracted, **kwargs):  # type: ignore[no-untyped-def]
+        if not create:
+            return
+
+        if extracted:
+            for chain in extracted:
+                self.chains.add(chain)
 
 
 class FeatureFactory(DjangoModelFactory):  # type: ignore[misc]

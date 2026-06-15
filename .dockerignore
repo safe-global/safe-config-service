@@ -14,7 +14,7 @@ data/
 docker-compose.override.yml
 docker-compose.override.yml.example
 docker-compose.yml
-pyproject.toml
 nginx/
 *.md
 mypy.ini
+.venv

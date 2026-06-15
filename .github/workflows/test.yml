@@ -12,35 +12,41 @@ on:
   release:
     types: [released]
 
+permissions:
+  contents: read
+
 jobs:
   linting:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.14.0"]
+        python-version: ["3.14.3"]
 
     steps:
-      - uses: actions/checkout@v6
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
       - name: Install dependencies
-        run: pip install pre-commit
+        run: uv sync --frozen
       - name: Run pre-commit
-        run: SKIP=license-headers pre-commit run --all-files
+        run: SKIP=license-headers uv run pre-commit run --all-files
 
   license-headers:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           python-version: "3.14.3"
-      - run: pip install pre-commit
+          enable-cache: true
+      - run: uv sync --frozen
 
       - name: Run pre-commit on changed files
         run: |
@@ -67,7 +73,7 @@ jobs:
             exit 0
           fi
 
-          pre-commit run license-headers --files $CHANGED_FILES
+          uv run pre-commit run license-headers --files $CHANGED_FILES
 
   django-check:
     runs-on: ubuntu-latest
@@ -94,33 +100,30 @@ jobs:
       AWS_STORAGE_BUCKET_NAME: "example-aws-storage-bucket-name"
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v6
-      - uses: actions/cache@v5
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.14.0"
+          python-version: "3.14.3"
+          enable-cache: true
       - name: Install dependencies
-        run: |
-          pip install -U wheel setuptools
-          pip install -r requirements-dev.txt
+        run: uv sync --frozen
       - name: Run mypy
-        run: mypy --strict src/chains src/safe_apps
+        run: uv run mypy --strict src/chains src/safe_apps
       - name: Check pending migrations
-        run: python src/manage.py makemigrations --check --dry-run
+        run: uv run python src/manage.py makemigrations --check --dry-run
       - name: Run migrations
-        run: python src/manage.py migrate
+        run: uv run python src/manage.py migrate
       - name: Django System Check
-        run: python src/manage.py check
+        run: uv run python src/manage.py check
       - name: Run tests with coverage
-        run: coverage run -m pytest src
+        run: |
+          uv run coverage run -m pytest src
+          uv run coverage lcov -o coverage.lcov
       - name: Coveralls
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        with:
+          file: coverage.lcov
 
   docker-publish-staging:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
@@ -128,28 +131,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.7.0
+        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
         with:
           platforms: arm64
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.12.0
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
       - name: Cache Docker layers
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Login to DockerHub
-        uses: docker/login-action@v3.7.0
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v6.19.2
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -176,28 +179,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.7.0
+        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
         with:
           platforms: arm64
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.12.0
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
       - name: Cache Docker layers
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Login to DockerHub
-        uses: docker/login-action@v3.7.0
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v6.19.2
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -225,7 +228,7 @@ jobs:
     needs: [docker-publish-staging]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Deploy Staging
         run: bash scripts/autodeploy.sh
         env:

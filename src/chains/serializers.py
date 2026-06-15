@@ -8,7 +8,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import Chain, Feature, GasPrice, Service, Wallet
+from .models import Chain, Feature, GasPrice, GasToken, Service, Wallet
 
 
 class GasPriceOracleSerializer(serializers.Serializer[GasPrice]):
@@ -92,6 +92,19 @@ class BalancesProviderSerializer(serializers.Serializer[Chain]):
     enabled = serializers.BooleanField(source="balances_provider_enabled")
 
 
+class RelayerSerializer(serializers.Serializer[Chain]):
+    type = serializers.CharField(source="relayer_type", allow_null=True)
+    safe_creation_sponsored = serializers.BooleanField(
+        source="relayer_safe_creation_sponsored"
+    )
+    safe_transaction_sponsored = serializers.BooleanField(
+        source="relayer_safe_transaction_sponsored"
+    )
+    enable_tenderly_simulation_before_relay = serializers.BooleanField(
+        source="relayer_enable_tenderly_simulation_before_relay"
+    )
+
+
 class BaseRpcUriSerializer(serializers.Serializer[Chain]):
     authentication = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField(method_name="get_rpc_value")
@@ -161,6 +174,15 @@ class WalletSerializer(serializers.ModelSerializer[Wallet]):
         return instance.key
 
 
+class GasTokenSerializer(serializers.ModelSerializer[GasToken]):
+    address = EthereumAddressField()
+
+    class Meta:
+        model = GasToken
+        fields = ["address", "symbol"]
+        ref_name = "chains.serializers.GasTokenSerializer"
+
+
 class ChainSerializer(serializers.ModelSerializer[Chain]):
     chain_id = serializers.CharField(source="id")
     chain_name = serializers.CharField(source="name")
@@ -184,6 +206,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     ens_registry_address = EthereumAddressField()
     disabled_wallets = serializers.SerializerMethodField()
     features = serializers.SerializerMethodField()
+    relayer = serializers.SerializerMethodField()
 
     class Meta:
         model = Chain
@@ -213,6 +236,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
             "recommended_master_copy_version",
             "disabled_wallets",
             "features",
+            "relayer",
         ]
 
     @swagger_serializer_method(serializer_or_field=CurrencySerializer)  # type: ignore[untyped-decorator]
@@ -284,3 +308,7 @@ class ChainSerializer(serializers.ModelSerializer[Chain]):
     @swagger_serializer_method(serializer_or_field=BalancesProviderSerializer)  # type: ignore[untyped-decorator]
     def get_balances_provider(self, instance: Chain) -> ReturnDict[Any, Any]:
         return BalancesProviderSerializer(instance).data
+
+    @swagger_serializer_method(serializer_or_field=RelayerSerializer)  # type: ignore[untyped-decorator]
+    def get_relayer(self, instance: Chain) -> ReturnDict[Any, Any]:
+        return RelayerSerializer(instance).data

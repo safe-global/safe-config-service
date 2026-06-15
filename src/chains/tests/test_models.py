@@ -8,11 +8,12 @@ from django.db import DataError
 from django.test import TestCase, TransactionTestCase
 from faker import Faker
 
-from ..models import Feature
+from ..models import Chain, Feature
 from .factories import (
     ChainFactory,
     FeatureFactory,
     GasPriceFactory,
+    GasTokenFactory,
     ServiceFactory,
     WalletFactory,
 )
@@ -177,6 +178,42 @@ class ChainGasPriceOracleTestCase(TestCase):
 
         # No validation exception should be thrown
         gas_price.full_clean()
+
+
+class ChainRelayerSponsoringValidationTestCase(TransactionTestCase):
+    def test_sponsoring_without_relayer_type_is_invalid(self) -> None:
+        for field in (
+            "relayer_safe_creation_sponsored",
+            "relayer_safe_transaction_sponsored",
+        ):
+            with self.subTest(field=field):
+                sponsoring = {
+                    "relayer_safe_creation_sponsored": False,
+                    "relayer_safe_transaction_sponsored": False,
+                    field: True,
+                }
+                chain = ChainFactory.build(relayer_type=None, **sponsoring)
+                with self.assertRaises(ValidationError):
+                    chain.clean()
+
+    def test_sponsoring_with_relayer_type_is_valid(self) -> None:
+        chain = ChainFactory.build(
+            relayer_type=Chain.RelayerType.GTF,
+            relayer_safe_creation_sponsored=True,
+            relayer_safe_transaction_sponsored=True,
+        )
+        # Should not raise
+        chain.clean()
+
+    def test_tenderly_simulation_independent_of_relayer_type(self) -> None:
+        chain = ChainFactory.build(
+            relayer_type=None,
+            relayer_safe_creation_sponsored=False,
+            relayer_safe_transaction_sponsored=False,
+            relayer_enable_tenderly_simulation_before_relay=True,
+        )
+        # Tenderly simulation is not gated on relayer type
+        chain.clean()
 
 
 class ChainColorValidationTestCase(TransactionTestCase):
@@ -405,6 +442,32 @@ class ServiceTestCase(TestCase):
         service = ServiceFactory.create(key="cgw", name="Client Gateway")
 
         self.assertEqual(str(service), "Client Gateway | cgw")
+
+
+class GasTokenTestCase(TestCase):
+    def test_str_method_outputs_symbol_and_address(self) -> None:
+        token = GasTokenFactory.create()
+
+        self.assertEqual(str(token), f"GasToken: {token.symbol} ({token.address})")
+
+    def test_symbol_can_be_repeated_across_different_addresses(self) -> None:
+        GasTokenFactory.create(symbol="USDC")
+        duplicate = GasTokenFactory.create(symbol="USDC")
+
+        self.assertEqual(duplicate.symbol, "USDC")
+
+    def test_token_can_belong_to_multiple_chains(self) -> None:
+        chain_a = ChainFactory.create()
+        chain_b = ChainFactory.create()
+        token = GasTokenFactory.create(chains=(chain_a, chain_b))
+
+        self.assertIn(chain_a, token.chains.all())
+        self.assertIn(chain_b, token.chains.all())
+
+    def test_token_without_chains_is_valid(self) -> None:
+        token = GasTokenFactory.create()
+
+        token.full_clean()
 
 
 class FeatureScopeValidationTestCase(TestCase):

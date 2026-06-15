@@ -68,6 +68,12 @@ class Chain(models.Model):
         API_KEY_PATH = "API_KEY_PATH"
         NO_AUTHENTICATION = "NO_AUTHENTICATION"
 
+    class RelayerType(models.TextChoices):
+        GTF = "GTF", "GTF"
+        RELAY_FEE = "RELAY_FEE", "Relay Fee"
+        DAILY_LIMIT = "DAILY_LIMIT", "Daily Limit"
+        NO_FEE_CAMPAIGN = "NO_FEE_CAMPAIGN", "No Fee Campaign"
+
     id = models.PositiveBigIntegerField(verbose_name="Chain Id", primary_key=True)
     relevance = models.SmallIntegerField(
         default=100
@@ -171,6 +177,43 @@ class Chain(models.Model):
         help_text="This flag informs API clients whether the balances provider is enabled for the chain",
     )
     hidden = models.BooleanField(default=False)
+    relayer_type = models.CharField(
+        max_length=32,
+        choices=RelayerType.choices,
+        null=True,
+        blank=True,
+        default=None,
+        help_text="Relayer strategy used by the Safe Client Gateway for this chain. Leave empty for no relayer.",
+    )
+    relayer_safe_creation_sponsored = models.BooleanField(
+        default=False,
+        db_default=False,
+        help_text="Sponsor/relay Safe account creation transactions. Requires a relayer type.",
+    )
+    relayer_safe_transaction_sponsored = models.BooleanField(
+        default=False,
+        db_default=False,
+        help_text="Sponsor/relay Safe transaction execution. Requires a relayer type.",
+    )
+    relayer_enable_tenderly_simulation_before_relay = models.BooleanField(
+        default=False,
+        db_default=False,
+        help_text="Enable/disable Tenderly simulation on the Safe Client Gateway when relaying a transaction on this chain.",
+    )
+
+    def clean(self) -> None:
+        if self.relayer_type is None and (
+            self.relayer_safe_creation_sponsored
+            or self.relayer_safe_transaction_sponsored
+        ):
+            msg = "Sponsoring options require a relayer type to be set."
+            raise ValidationError(
+                {
+                    "relayer_type": msg,
+                    "relayer_safe_creation_sponsored": msg,
+                    "relayer_safe_transaction_sponsored": msg,
+                }
+            )
 
     def get_disabled_wallets(self) -> QuerySet["Wallet"]:
         all_wallets = Wallet.objects.all()
@@ -255,6 +298,21 @@ class Wallet(models.Model):
 
     def __str__(self) -> str:
         return f"Wallet: {self.key}"
+
+
+class GasToken(models.Model):
+    chains = models.ManyToManyField(
+        Chain,
+        blank=True,
+        help_text="Chains where this token is accepted as a fee payment.",
+    )
+    address = EthereumAddressBinaryField(
+        unique=True, help_text="Token contract address."
+    )
+    symbol = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return f"GasToken: {self.symbol} ({self.address})"
 
 
 class Service(models.Model):

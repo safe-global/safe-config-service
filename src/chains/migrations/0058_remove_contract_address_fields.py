@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chains', '0054_chain_vpc_rpc_uri'),
+        ('chains', '0057_chain_relayer_sponsoring'),
     ]
 
     operations = [

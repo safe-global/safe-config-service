@@ -6,11 +6,12 @@ from django.urls import reverse
 from faker import Faker
 from rest_framework.test import APITestCase
 
-from ..models import Feature
+from ..models import Chain, Feature
 from .factories import (
     ChainFactory,
     FeatureFactory,
     GasPriceFactory,
+    GasTokenFactory,
     ServiceFactory,
     WalletFactory,
 )
@@ -103,6 +104,12 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                     "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
                     "disabledWallets": [],
                     "features": [],
+                    "relayer": {
+                        "type": chain.relayer_type,
+                        "safeCreationSponsored": chain.relayer_safe_creation_sponsored,
+                        "safeTransactionSponsored": chain.relayer_safe_transaction_sponsored,
+                        "enableTenderlySimulationBeforeRelay": chain.relayer_enable_tenderly_simulation_before_relay,
+                    },
                 }
             ],
         }
@@ -235,6 +242,12 @@ class ChainDetailViewTests(APITestCase):
             "recommendedMasterCopyVersion": chain.recommended_master_copy_version,
             "disabledWallets": [],
             "features": [],
+            "relayer": {
+                "type": chain.relayer_type,
+                "safeCreationSponsored": chain.relayer_safe_creation_sponsored,
+                "safeTransactionSponsored": chain.relayer_safe_transaction_sponsored,
+                "enableTenderlySimulationBeforeRelay": chain.relayer_enable_tenderly_simulation_before_relay,
+            },
         }
 
         response = self.client.get(path=url, data=None, format="json")
@@ -331,6 +344,60 @@ class ChainsEnsRegistryTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["ensRegistryAddress"], None)
+
+
+class ChainRelayerTypeTests(APITestCase):
+    def test_null_relayer_type(self) -> None:
+        ChainFactory.create(id=1, relayer_type=None)
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["relayer"]["type"])
+
+    def test_each_relayer_type_value(self) -> None:
+        for index, relayer_type in enumerate(Chain.RelayerType):
+            with self.subTest(relayer_type=relayer_type.value):
+                ChainFactory.create(id=index, relayer_type=relayer_type)
+                url = reverse("v1:chains:detail", args=[index])
+
+                response = self.client.get(path=url, data=None, format="json")
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    response.json()["relayer"]["type"], relayer_type.value
+                )
+
+    def test_relayer_sponsoring_flags(self) -> None:
+        ChainFactory.create(
+            id=1,
+            relayer_type=Chain.RelayerType.GTF,
+            relayer_safe_creation_sponsored=True,
+            relayer_safe_transaction_sponsored=False,
+            relayer_enable_tenderly_simulation_before_relay=True,
+        )
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        relayer = response.json()["relayer"]
+        self.assertEqual(relayer["type"], Chain.RelayerType.GTF.value)
+        self.assertTrue(relayer["safeCreationSponsored"])
+        self.assertFalse(relayer["safeTransactionSponsored"])
+        self.assertTrue(relayer["enableTenderlySimulationBeforeRelay"])
+
+    def test_relayer_sponsoring_defaults_off(self) -> None:
+        ChainFactory.create(id=1, relayer_type=None)
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        relayer = response.json()["relayer"]
+        self.assertFalse(relayer["safeCreationSponsored"])
+        self.assertFalse(relayer["safeTransactionSponsored"])
 
 
 class ChainGasPriceTests(APITestCase):
@@ -753,3 +820,86 @@ class V2FeatureFilteringTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(feature_no_services.key, response.json()["features"])
+
+
+class EmptyGasTokensListViewTests(APITestCase):
+    def test_empty_response_when_no_gas_tokens(self) -> None:
+        chain = ChainFactory.create()
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {"count": 0, "next": None, "previous": None, "results": []},
+        )
+
+    def test_returns_404_for_nonexistent_chain(self) -> None:
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[9999]), format="json"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_returns_404_for_hidden_chain(self) -> None:
+        chain = ChainFactory.create(hidden=True)
+        GasTokenFactory.create(chains=(chain,))
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_empty_response_when_tokens_belong_to_other_chain(self) -> None:
+        chain = ChainFactory.create()
+        other_chain = ChainFactory.create()
+        GasTokenFactory.create(chains=(other_chain,))
+        GasTokenFactory.create(chains=(other_chain,))
+
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 0)
+        self.assertEqual(response.json()["results"], [])
+
+
+class GasTokensJsonPayloadFormatTests(APITestCase):
+    def test_json_payload_format(self) -> None:
+        chain = ChainFactory.create()
+        gas_token = GasTokenFactory.create(chains=(chain,))
+
+        response = self.client.get(
+            path=reverse("v1:chains:gas-tokens-list", args=[chain.id]), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "count": 1,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "address": gas_token.address,
+                        "symbol": gas_token.symbol,
+                    }
+                ],
+            },
+        )
+
+    def test_token_shared_across_chains_appears_in_each_chain_response(self) -> None:
+        chain_a = ChainFactory.create()
+        chain_b = ChainFactory.create()
+        gas_token = GasTokenFactory.create(chains=(chain_a, chain_b))
+
+        for chain in (chain_a, chain_b):
+            response = self.client.get(
+                path=reverse("v1:chains:gas-tokens-list", args=[chain.id]),
+                format="json",
+            )
+            self.assertEqual(response.status_code, 200)
+            result = response.json()["results"][0]
+            self.assertEqual(result["address"], gas_token.address)
+            self.assertEqual(result["symbol"], gas_token.symbol)

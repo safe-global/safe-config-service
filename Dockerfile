@@ -1,9 +1,13 @@
-FROM python:3.14.3-slim
+FROM python:3.14.5-slim
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
 # python
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONUSERBASE=/python-deps
-ENV PATH="${PATH}:${PYTHONUSERBASE}/bin"
+ENV UV_NO_DEV=1
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+ENV PATH="/app/.venv/bin:$PATH"
 
 ARG VERSION
 ARG BUILD_NUMBER
@@ -11,9 +15,9 @@ ENV APPLICATION_VERSION=${VERSION} \
     APPLICATION_BUILD_NUMBER=${BUILD_NUMBER}
 
 WORKDIR /app
-COPY requirements.txt ./
+COPY pyproject.toml uv.lock ./
 
-RUN set ex \
+RUN set -ex \
     && buildDeps=" \
         automake \
         build-essential  \
@@ -25,8 +29,7 @@ RUN set ex \
 		" \
     && apt-get update \
     && apt-get install -y --no-install-recommends $buildDeps \
-    && pip3 install -U --no-cache-dir wheel setuptools pip \
-    && pip3 install --no-cache-dir --user -r requirements.txt \
+    && uv sync --frozen --no-dev --no-install-project \
     && apt-get purge -y --auto-remove $buildDeps \
     && rm -rf /var/lib/apt/lists/*
 
