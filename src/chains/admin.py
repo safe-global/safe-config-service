@@ -155,12 +155,22 @@ class GasTokenChainListFilter(admin.SimpleListFilter):
 
 @admin.register(GasToken)
 class GasTokenAdmin(admin.ModelAdmin[GasToken]):
-    list_display = ("address", "symbol", "enabled_chains")
+    list_display = ("address", "symbol", "priority", "enabled_chains")
     search_fields = ("address", "symbol")
     list_filter = (GasTokenChainListFilter,)
     filter_horizontal = ("chains",)
+    ordering = ("priority", "symbol")
     fieldsets = (
-        (None, {"fields": ("address", "symbol")}),
+        (
+            None,
+            {
+                "fields": ("address", "symbol", "priority"),
+                "description": (
+                    "Priority is optional: a lower number means higher priority. "
+                    "Leave it at the default (100) to keep the default ordering."
+                ),
+            },
+        ),
         (
             "Chains",
             {

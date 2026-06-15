@@ -61,7 +61,9 @@ class GasTokensListView(ListAPIView[GasToken]):
 
     def get_queryset(self) -> QuerySet[GasToken]:
         chain = get_object_or_404(Chain, pk=self.kwargs["pk"], hidden=False)
-        return GasToken.objects.filter(chains=chain).order_by("symbol", "id")
+        return GasToken.objects.filter(chains=chain).order_by(
+            "priority", "symbol", "id"
+        )
 
 
 class ChainsListViewV2(ListAPIView[Chain]):

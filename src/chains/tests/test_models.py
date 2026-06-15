@@ -469,6 +469,12 @@ class GasTokenTestCase(TestCase):
 
         token.full_clean()
 
+    def test_priority_defaults_to_100(self) -> None:
+        token = GasTokenFactory.create()
+
+        self.assertEqual(token.priority, 100)
+        token.full_clean()
+
 
 class FeatureScopeValidationTestCase(TestCase):
     def test_global_scope_without_chains_is_valid(self) -> None:
