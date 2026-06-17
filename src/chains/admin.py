@@ -220,7 +220,8 @@ class GasTokenAdmin(admin.ModelAdmin[GasToken]):
 
 @admin.register(Feature)
 class FeatureAdmin(ReconcileAdminMixin, admin.ModelAdmin[Feature]):
-    list_display = ("key", "scope", "services_display", "chains_display", "description")
+    list_display = ("id", "key", "scope", "services_display", "chains_display", "description")
+    list_display_links = ("id", "key")
     list_editable = ("scope",)
     list_filter = ("scope", "services", "chains")
     search_fields = ("key", "description")
