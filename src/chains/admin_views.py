@@ -5,6 +5,7 @@ Mixed into ``FeatureAdmin`` via :class:`ReconcileAdminMixin`. Standard Django
 admin extension (``get_urls`` + ``TemplateResponse``), following the existing
 ``change_form.html`` customization style.
 """
+import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from typing import Any
@@ -25,10 +26,18 @@ from .remote_config.declaration import (
     parse_declaration_text,
 )
 from .remote_config.diff import Change, ChangeType, FieldDelta, diff_service
+from .remote_config.export import ServiceNotFound, build_declaration_document
 from .remote_config.github import DeclarationFetchError, fetch_declaration_text
 from .remote_config.sources import RemoteConfigSource, get_sources
 from .remote_config.state import known_chain_ids, load_feature_states
 from .remote_config.tokens import change_from_token, change_to_token
+
+
+def _export_service_keys() -> list[str]:
+    """Service keys offered in the export picker: configured ∪ those in the DB."""
+    configured = {source.service_key for source in get_sources()}
+    existing = set(Service.objects.values_list("key", flat=True))
+    return sorted(configured | existing)
 
 
 @dataclass
@@ -330,9 +339,45 @@ class ReconcileAdminMixin:
                 "reconcile/",
                 self.admin_site.admin_view(self.reconcile_view),  # type: ignore[attr-defined]
                 name="chains_feature_reconcile",
-            )
+            ),
+            path(
+                "export/",
+                self.admin_site.admin_view(self.export_view),  # type: ignore[attr-defined]
+                name="chains_feature_export",
+            ),
         ]
         return custom + urls
+
+    def export_view(self, request: HttpRequest) -> HttpResponse:
+        if not self.has_view_permission(request):  # type: ignore[attr-defined]
+            raise PermissionDenied
+
+        service_key = request.GET.get("service", "")
+        payload: str | None = None
+        error: str | None = None
+        if service_key:
+            try:
+                document = build_declaration_document(service_key)
+            except ServiceNotFound:
+                error = f"No Service with key '{service_key}'."
+            else:
+                payload = json.dumps(document, indent=2)
+                if request.GET.get("download") == "1":
+                    response = HttpResponse(payload, content_type="application/json")
+                    response["Content-Disposition"] = (
+                        f'attachment; filename="remote-config.{service_key}.json"'
+                    )
+                    return response
+
+        context = {
+            **self.admin_site.each_context(request),  # type: ignore[attr-defined]
+            "title": "Export declaration",
+            "service_keys": _export_service_keys(),
+            "selected": service_key,
+            "payload": payload,
+            "error": error,
+        }
+        return TemplateResponse(request, "admin/chains/export_flags.html", context)
 
     def reconcile_view(self, request: HttpRequest) -> HttpResponse:
         if not self.has_change_permission(request):  # type: ignore[attr-defined]
