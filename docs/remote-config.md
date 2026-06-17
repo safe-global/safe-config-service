@@ -71,6 +71,19 @@ drift and never overwrites it unless you explicitly tick it.
 The **"Check drift vs main"** link runs the same diff read-only against each repo's
 default branch — no apply controls. Use it any time to see code-vs-DB drift.
 
+## A note on caching (prefer a SHA/tag for releases)
+
+Declarations are fetched from `raw.githubusercontent.com/<repo>/<ref>/<path>`. GitHub's
+**raw CDN caches each branch URL for ~5 minutes**, so immediately after a push a *branch*
+ref can briefly serve the previous commit's content (you may see one service update while
+another still shows the old value as the per-URL caches expire at different times). The
+Config Service itself adds no caching.
+
+- For a **release reconcile**, enter an exact **commit SHA or tag** as the ref. SHA/tag URLs
+  are immutable, so they are always fresh and pin the reconcile to a known release.
+- For **drift checks** against a branch (e.g. `main`), a stale read self-corrects within the
+  CDN TTL — just re-compute after a few minutes.
+
 ## Seeding the initial declaration from the DB
 
 To make the first reconcile clean, export current production state into the checked-in

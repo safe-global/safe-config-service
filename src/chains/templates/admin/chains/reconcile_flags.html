@@ -19,6 +19,12 @@
   <code>remote-config.json</code> and the database, then select the changes to apply.
   <a href="?drift=1">Check drift vs main</a> renders the same diff read-only.
 </p>
+<p class="help">
+  Tip: for a release, use an exact <strong>commit SHA or tag</strong> as the ref. Branch refs
+  (including “drift vs main”) are fetched from GitHub's raw CDN, which caches each branch URL for
+  ~5&nbsp;minutes — so just after a push a branch ref may briefly show stale content. A SHA/tag URL
+  is immutable and always fresh.
+</p>
 
 {% if not drift %}
 <form method="get" id="reconcile-refs">
