@@ -1,0 +1,101 @@
+<!--
+ SPDX-License-Identifier: FSL-1.1-MIT
+-->
+{% extends "admin/base_site.html" %}
+{% load admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='chains' %}">Chains</a>
+  &rsaquo; <a href="{% url 'admin:chains_feature_changelist' %}">Features</a>
+  &rsaquo; Reconcile flags
+</div>
+{% endblock %}
+
+{% block content %}
+<p>
+  Enter a Git ref per service, compute the diff between the declared
+  <code>remote-config.json</code> and the database, then select the changes to apply.
+  <a href="?drift=1">Check drift vs main</a> renders the same diff read-only.
+</p>
+
+{% if not drift %}
+<form method="get" id="reconcile-refs">
+  <fieldset class="module aligned">
+    <h2>Refs</h2>
+    {{ form.as_p }}
+    <div class="submit-row">
+      <input type="submit" name="compute" value="Compute diff" class="default">
+    </div>
+  </fieldset>
+</form>
+{% else %}
+<p><strong>Drift vs main (read-only).</strong></p>
+{% endif %}
+
+{% if computed %}
+<form method="post" action="{% url 'admin:chains_feature_reconcile' %}">
+  {% csrf_token %}
+  {% for r in results %}
+    <input type="hidden" name="ref_{{ r.source.service_key }}" value="{{ r.ref }}">
+  {% endfor %}
+
+  {% for r in results %}
+  <div class="module">
+    <h2>{{ r.source.label }} ({{ r.source.service_key }}) &mdash; {{ r.ref }}</h2>
+    <p class="help">{{ r.source.repo }} &middot; {{ r.source.path }}</p>
+
+    {% if not r.service_exists %}
+    <p class="errornote">
+      No Service row with key <code>{{ r.source.service_key }}</code> exists yet.
+      Applying an ADD/ATTACH will create it.
+    </p>
+    {% endif %}
+
+    {% for w in r.warnings %}<p class="warning">{{ w }}</p>{% endfor %}
+
+    {% if r.error %}
+      <p class="errornote">{{ r.error }}</p>
+    {% elif not r.units %}
+      <p>No changes — declaration matches the database.</p>
+    {% else %}
+      <table>
+        <thead>
+          <tr>
+            {% if not drift %}<th scope="col">Apply</th>{% endif %}
+            <th scope="col">Change</th>
+            <th scope="col">Detail</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in r.units %}
+          <tr>
+            {% if not drift %}
+            <td>
+              <input type="checkbox" name="apply" value="{{ u.token }}"
+                     {% if u.default_checked %}checked{% endif %}>
+            </td>
+            {% endif %}
+            <td><strong>{{ u.label }}</strong></td>
+            <td>
+              {{ u.detail }}
+              {% for w in u.warnings %}<br><span class="warning">{{ w }}</span>{% endfor %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  {% if not drift %}
+  <div class="submit-row">
+    <input type="submit" value="Apply selected changes" class="default"
+           onclick="return confirm('Apply the selected changes to the database?');">
+  </div>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}

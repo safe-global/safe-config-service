@@ -208,6 +208,41 @@ CGW_AUTH_TOKEN = os.environ.get("CGW_AUTH_TOKEN")
 CGW_SESSION_MAX_RETRIES = int(os.environ.get("CGW_SESSION_MAX_RETRIES", "0"))
 CGW_SESSION_TIMEOUT_SECONDS = int(os.environ.get("CGW_SESSION_TIMEOUT_SECONDS", "2"))
 
+# Remote-config flag reconciliation (chains.remote_config).
+# Optional GitHub token to raise the unauthenticated raw-API rate limit; public
+# repos work without it. Mirrors the CGW_* settings pattern above.
+REMOTE_CONFIG_GITHUB_TOKEN = os.getenv("REMOTE_CONFIG_GITHUB_TOKEN")
+REMOTE_CONFIG_TIMEOUT_SECONDS = int(os.getenv("REMOTE_CONFIG_TIMEOUT_SECONDS", "5"))
+# Base URL for raw file fetches; overridable for testing/self-hosting.
+REMOTE_CONFIG_RAW_BASE_URL = os.getenv(
+    "REMOTE_CONFIG_RAW_BASE_URL", "https://raw.githubusercontent.com"
+)
+# Declaration sources: one per service. repo/path/default_ref describe where the
+# checked-in declaration file lives. Edit to match the canonical service keys.
+REMOTE_CONFIG_SOURCES = [
+    {
+        "label": "Web",
+        "service_key": "WALLET_WEB",
+        "repo": "safe-global/safe-wallet-monorepo",
+        "path": "apps/web/config/remote-config.json",
+        "default_ref": "main",
+    },
+    {
+        "label": "Mobile",
+        "service_key": "MOBILE",
+        "repo": "safe-global/safe-wallet-monorepo",
+        "path": "apps/mobile/config/remote-config.json",
+        "default_ref": "main",
+    },
+    {
+        "label": "CGW",
+        "service_key": "CGW",
+        "repo": "safe-global/safe-client-gateway",
+        "path": "remote-config.json",
+        "default_ref": "main",
+    },
+]
+
 # By default, Django stores files locally, using the MEDIA_ROOT and MEDIA_URL settings.
 # (using the default the default FileSystemStorage)
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
