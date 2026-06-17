@@ -5,6 +5,7 @@ Mixed into ``FeatureAdmin`` via :class:`ReconcileAdminMixin`. Standard Django
 admin extension (``get_urls`` + ``TemplateResponse``), following the existing
 ``change_form.html`` customization style.
 """
+from collections import defaultdict
 from dataclasses import dataclass, replace
 from typing import Any
 
@@ -18,8 +19,12 @@ from django.urls import path
 
 from .models import RemoteConfigReconcileRef, Service
 from .remote_config.apply import apply_changes
-from .remote_config.declaration import DeclarationError, parse_declaration_text
-from .remote_config.diff import Change, ChangeType, diff_service
+from .remote_config.declaration import (
+    Declaration,
+    DeclarationError,
+    parse_declaration_text,
+)
+from .remote_config.diff import Change, ChangeType, FieldDelta, diff_service
 from .remote_config.github import DeclarationFetchError, fetch_declaration_text
 from .remote_config.sources import RemoteConfigSource, get_sources
 from .remote_config.state import known_chain_ids, load_feature_states
@@ -49,14 +54,40 @@ class SourceResult:
     warnings: list[str]
 
 
-def _delta_units(change: Change) -> list[ApplyUnit]:
-    """Split a change's field deltas into authoritative vs informational units.
+def _update_unit(
+    change: Change,
+    delta: FieldDelta,
+    label: str,
+    checked: bool,
+    warns: tuple[str, ...],
+) -> ApplyUnit:
+    unit_change = Change(
+        type=ChangeType.UPDATE,
+        service_key=change.service_key,
+        key=change.key,
+        feature_id=change.feature_id,
+        deltas=(delta,),
+    )
+    detail = f"{delta.name}: {delta.current!r} → {delta.declared!r}"
+    return ApplyUnit(change_to_token(unit_change), label, detail, checked, warns)
 
-    Authoritative (description/scope) deltas are grouped and pre-checked;
-    the chains delta is a separate, un-checked unit (decision #6).
+
+def _delta_units(change: Change, conflicted_fields: frozenset[str]) -> list[ApplyUnit]:
+    """Split a change's field deltas into checkbox units.
+
+    Authoritative (description/scope) deltas are pre-checked and grouped — unless
+    the field conflicts across services (the same key declared with a different
+    value elsewhere). A conflicting field is a code bug, not a DB drift, so it is
+    a separate un-checked unit with a warning to avoid a flip-flop. The chains
+    delta is always a separate, un-checked unit (decision #6).
     """
     units: list[ApplyUnit] = []
-    authoritative = tuple(d for d in change.deltas if d.authoritative)
+    authoritative = tuple(
+        d for d in change.deltas if d.authoritative and d.name not in conflicted_fields
+    )
+    conflicting = tuple(
+        d for d in change.deltas if d.authoritative and d.name in conflicted_fields
+    )
     informational = tuple(d for d in change.deltas if not d.authoritative)
 
     if authoritative:
@@ -72,6 +103,18 @@ def _delta_units(change: Change) -> list[ApplyUnit]:
         )
         units.append(
             ApplyUnit(change_to_token(unit_change), f"UPDATE {change.key}", detail, True, ())
+        )
+
+    for delta in conflicting:
+        warning = (
+            f"'{change.key}' is declared with a different {delta.name} by another "
+            f"service. A shared feature has one {delta.name}; align the declarations "
+            f"in code rather than applying (applying flip-flops between services).",
+        )
+        units.append(
+            _update_unit(
+                change, delta, f"UPDATE {change.key} ({delta.name}, conflicting)", False, warning
+            )
         )
 
     if informational:
@@ -92,8 +135,15 @@ def _delta_units(change: Change) -> list[ApplyUnit]:
     return units
 
 
-def units_for_change(change: Change) -> list[ApplyUnit]:
-    """Expand a :class:`Change` into one or more checkbox units."""
+def units_for_change(
+    change: Change, conflicted_fields: frozenset[str] = frozenset()
+) -> list[ApplyUnit]:
+    """Expand a :class:`Change` into one or more checkbox units.
+
+    ``conflicted_fields`` names Feature-level fields (description/scope) that the
+    same key declares differently across services; such deltas are presented
+    un-checked with a warning instead of pre-checked.
+    """
     if change.type is ChangeType.ADD:
         detail = f"scope={change.declared_scope}"
         if change.declared_chains:
@@ -113,11 +163,11 @@ def units_for_change(change: Change) -> list[ApplyUnit]:
                 change.warnings,
             )
         ]
-        units.extend(_delta_units(change))
+        units.extend(_delta_units(change, conflicted_fields))
         return units
 
     if change.type is ChangeType.UPDATE:
-        return _delta_units(change)
+        return _delta_units(change, conflicted_fields)
 
     if change.type is ChangeType.DETACH:
         return [
@@ -141,43 +191,96 @@ def units_for_change(change: Change) -> list[ApplyUnit]:
     ]
 
 
+def _cross_source_conflicts(
+    parsed: dict[str, Declaration],
+) -> dict[str, frozenset[str]]:
+    """Find keys declared by multiple sources with differing Feature-level fields.
+
+    ``description`` and ``scope`` are columns on the single ``Feature`` row (the
+    key is unique), so all services declaring a shared key must agree on them.
+    Returns ``key -> {conflicting field names}``.
+    """
+    descriptions: dict[str, set[str]] = defaultdict(set)
+    scopes: dict[str, set[str]] = defaultdict(set)
+    for declaration in parsed.values():
+        for feature in declaration.features:
+            descriptions[feature.key].add(feature.description)
+            scopes[feature.key].add(feature.scope)
+
+    conflicts: dict[str, frozenset[str]] = {}
+    for key, values in descriptions.items():
+        fields = set()
+        if len(values) > 1:
+            fields.add("description")
+        if len(scopes[key]) > 1:
+            fields.add("scope")
+        if fields:
+            conflicts[key] = frozenset(fields)
+    return conflicts
+
+
 def build_source_results(
     refs: dict[str, str], read_only: bool = False
 ) -> list[SourceResult]:
-    """Fetch + diff every configured source at its ref. Errors are per-source."""
+    """Fetch + diff every configured source at its ref. Errors are per-source.
+
+    All declarations are fetched first so cross-source field conflicts (a shared
+    key declared with a different description/scope) can be detected and surfaced.
+    """
     states = load_feature_states()
     chain_ids = known_chain_ids()
     existing_services = set(Service.objects.values_list("key", flat=True))
+    sources = get_sources()
+
+    parsed: dict[str, Declaration] = {}
+    errors: dict[str, str] = {}
+    refs_used: dict[str, str] = {}
+    for source in sources:
+        ref = refs.get(source.service_key) or source.default_ref
+        refs_used[source.service_key] = ref
+        try:
+            parsed[source.service_key] = parse_declaration_text(
+                fetch_declaration_text(source.repo, ref, source.path)
+            )
+        except (DeclarationFetchError, DeclarationError) as error:
+            errors[source.service_key] = str(error)
+
+    conflicts = _cross_source_conflicts(parsed)
     results: list[SourceResult] = []
 
-    for source in get_sources():
-        ref = refs.get(source.service_key) or source.default_ref
-        warnings: list[str] = []
-        try:
-            text = fetch_declaration_text(source.repo, ref, source.path)
-            declaration = parse_declaration_text(text)
-        except (DeclarationFetchError, DeclarationError) as error:
+    for source in sources:
+        ref = refs_used[source.service_key]
+        service_exists = source.service_key in existing_services
+        if source.service_key in errors:
             results.append(
-                SourceResult(
-                    source, ref, [], str(error), source.service_key in existing_services, []
-                )
+                SourceResult(source, ref, [], errors[source.service_key], service_exists, [])
             )
             continue
 
+        declaration = parsed[source.service_key]
+        warnings: list[str] = []
         if declaration.service != source.service_key:
             warnings.append(
                 f"Declared service '{declaration.service}' does not match configured "
                 f"'{source.service_key}'; diffing against '{source.service_key}'."
             )
+        for key in sorted(declaration.keys() & conflicts.keys()):
+            fields = ", ".join(sorted(conflicts[key]))
+            warnings.append(
+                f"'{key}' is declared with a different {fields} by another service; "
+                f"a shared feature has a single {fields}. Align the declarations in code."
+            )
 
         changes = diff_service(
             source.service_key, declaration.features, states, chain_ids
         )
-        units = [unit for change in changes for unit in units_for_change(change)]
+        units = [
+            unit
+            for change in changes
+            for unit in units_for_change(change, conflicts.get(change.key, frozenset()))
+        ]
         results.append(
-            SourceResult(
-                source, ref, units, None, source.service_key in existing_services, warnings
-            )
+            SourceResult(source, ref, units, None, service_exists, warnings)
         )
     return results
 
