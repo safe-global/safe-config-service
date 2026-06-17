@@ -1,0 +1,12 @@
+<!--
+ SPDX-License-Identifier: FSL-1.1-MIT
+-->
+{% extends "admin/change_list.html" %}
+{% load admin_urls %}
+
+{% block object-tools-items %}
+<li>
+  <a href="{% url 'admin:chains_feature_reconcile' %}" class="addlink">Reconcile flags</a>
+</li>
+{{ block.super }}
+{% endblock %}

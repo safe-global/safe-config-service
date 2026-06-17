@@ -4,6 +4,7 @@ import re
 from typing import IO, Union
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator
@@ -363,3 +364,31 @@ class Feature(models.Model):
 
     def __str__(self) -> str:
         return f"Feature: {self.key}"
+
+
+class RemoteConfigReconcileRef(models.Model):
+    """Operational state: the last Git ref reconciled for a service.
+
+    This is NOT config data. It only lets the admin "Reconcile flags" view
+    pre-fill each service's ref input with whatever was last used, so it does
+    not duplicate the Feature/Service/Chain config models.
+    """
+
+    service_key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The Service.key this ref was last reconciled for.",
+    )
+    ref = models.CharField(
+        max_length=255, help_text="The Git ref (branch, tag, or SHA) last used."
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
+    def __str__(self) -> str:
+        return f"{self.service_key} @ {self.ref}"

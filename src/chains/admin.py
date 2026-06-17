@@ -8,7 +8,16 @@ from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 from django.http import HttpRequest, HttpResponse
 from django.utils.html import format_html
 
-from .models import Chain, Feature, GasPrice, GasToken, Service, Wallet
+from .admin_views import ReconcileAdminMixin
+from .models import (
+    Chain,
+    Feature,
+    GasPrice,
+    GasToken,
+    RemoteConfigReconcileRef,
+    Service,
+    Wallet,
+)
 
 
 class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
@@ -209,10 +218,11 @@ class GasTokenAdmin(admin.ModelAdmin[GasToken]):
 
 
 @admin.register(Feature)
-class FeatureAdmin(admin.ModelAdmin[Feature]):
+class FeatureAdmin(ReconcileAdminMixin, admin.ModelAdmin[Feature]):
     list_display = ("key", "scope", "description")
     list_editable = ("scope",)
     list_filter = ("scope", "services")
+    change_list_template = "admin/chains/feature_changelist.html"
     fieldsets = (
         (None, {"fields": ("key", "description")}),
         (
@@ -226,3 +236,11 @@ class FeatureAdmin(admin.ModelAdmin[Feature]):
 
     class Media:
         js = ("admin/chains/feature_admin.js",)
+
+
+@admin.register(RemoteConfigReconcileRef)
+class RemoteConfigReconcileRefAdmin(admin.ModelAdmin[RemoteConfigReconcileRef]):
+    list_display = ("service_key", "ref", "updated_at", "updated_by")
+    search_fields = ("service_key",)
+    ordering = ("service_key",)
+    readonly_fields = ("updated_at", "updated_by")
