@@ -225,14 +225,15 @@ REMOTE_CONFIG_SOURCES = [
         "service_key": "WALLET_WEB",
         "repo": "safe-global/safe-wallet-monorepo",
         "path": "apps/web/config/remote-config.json",
-        "default_ref": "main",
+        # The wallet monorepo's trunk is "dev" (not "main").
+        "default_ref": "dev",
     },
     {
         "label": "Mobile",
         "service_key": "MOBILE",
         "repo": "safe-global/safe-wallet-monorepo",
         "path": "apps/mobile/config/remote-config.json",
-        "default_ref": "main",
+        "default_ref": "dev",
     },
     {
         "label": "CGW",

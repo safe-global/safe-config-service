@@ -17,11 +17,18 @@
 <p>
   Enter a Git ref per service, compute the diff between the declared
   <code>remote-config.json</code> and the database, then select the changes to apply.
-  <a href="?drift=1">Check drift vs main</a> renders the same diff read-only.
+  <a href="?drift=1">Check drift vs default branch</a> renders the same diff read-only against
+  each repo's trunk.
+</p>
+<p class="help">
+  “Drift vs default branch” fetches each service's declaration from its repo's default branch
+  (<code>dev</code> for the wallet monorepo, <code>main</code> for CGW) and compares it to the
+  database — use it to spot code-vs-DB drift. A “not found” here usually means the declaration
+  isn't on that branch yet (e.g. the change is still on a feature branch).
 </p>
 <p class="help">
   Tip: for a release, use an exact <strong>commit SHA or tag</strong> as the ref. Branch refs
-  (including “drift vs main”) are fetched from GitHub's raw CDN, which caches each branch URL for
+  (including the drift check) are fetched from GitHub's raw CDN, which caches each branch URL for
   ~5&nbsp;minutes — so just after a push a branch ref may briefly show stale content. A SHA/tag URL
   is immutable and always fresh.
 </p>
@@ -37,7 +44,7 @@
   </fieldset>
 </form>
 {% else %}
-<p><strong>Drift vs main (read-only).</strong></p>
+<p><strong>Drift vs default branch (read-only).</strong></p>
 {% endif %}
 
 {% if computed %}
