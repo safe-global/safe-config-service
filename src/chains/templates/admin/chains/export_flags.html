@@ -1,0 +1,56 @@
+<!--
+ SPDX-License-Identifier: FSL-1.1-MIT
+-->
+{% extends "admin/base_site.html" %}
+{% load admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='chains' %}">Chains</a>
+  &rsaquo; <a href="{% url 'admin:chains_feature_changelist' %}">Features</a>
+  &rsaquo; Export declaration
+</div>
+{% endblock %}
+
+{% block content %}
+<p>
+  Export a service's current feature flags from the database as a
+  <code>remote-config.json</code> declaration. Review the result and commit it into the
+  repo to seed or refresh that service's declaration file. Features are ordered by key;
+  <code>defaultChains</code> reflects the chains currently enabled for each per-chain flag.
+</p>
+
+<form method="get">
+  <fieldset class="module aligned">
+    <div class="form-row">
+      <label for="service">Service:</label>
+      <select name="service" id="service">
+        <option value="">— choose a service —</option>
+        {% for key in service_keys %}
+        <option value="{{ key }}" {% if key == selected %}selected{% endif %}>{{ key }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="submit-row">
+      <input type="submit" value="Show declaration" class="default">
+    </div>
+  </fieldset>
+</form>
+
+{% if error %}
+<p class="errornote">{{ error }}</p>
+{% endif %}
+
+{% if payload %}
+<div class="module">
+  <h2>{{ selected }} &mdash; remote-config.json</h2>
+  <div class="submit-row">
+    <a class="button default" href="?service={{ selected }}&amp;download=1">
+      Download remote-config.{{ selected }}.json
+    </a>
+  </div>
+  <pre style="white-space:pre-wrap;border:1px solid #ccc;border-radius:4px;padding:1em;background:#f8f8f8;max-height:32em;overflow:auto;">{{ payload }}</pre>
+</div>
+{% endif %}
+{% endblock %}

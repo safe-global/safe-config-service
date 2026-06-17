@@ -93,11 +93,15 @@ Config Service itself adds no caching.
 ## Seeding the initial declaration from the DB
 
 To make the first reconcile clean, export current production state into the checked-in
-declaration file:
+declaration file. Two equivalent ways:
 
-```bash
-python src/manage.py export_remote_config --service WALLET_WEB > remote-config.json
-```
+- **Admin UI:** Features → **"Export declaration"**, pick a service, then **Download
+  remote-config.&lt;service&gt;.json** (or copy the rendered JSON).
+- **Command line:**
+
+  ```bash
+  python src/manage.py export_remote_config --service WALLET_WEB > remote-config.json
+  ```
 
 Run per service, review, and commit into the relevant repo.
 

@@ -5,13 +5,15 @@ Run this against a populated database (e.g. production) to seed the initial
 checked-in declaration file so the first reconcile diff is clean::
 
     python src/manage.py export_remote_config --service WALLET_WEB > remote-config.json
+
+The same export is available in the Django admin (Features → "Export declaration").
 """
 import json
 from typing import Any
 
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 
-from chains.models import Feature, Service
+from chains.remote_config.export import ServiceNotFound, build_declaration_document
 
 
 class Command(BaseCommand):
@@ -25,38 +27,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args: Any, **options: Any) -> None:
-        service_key = options["service"]
         try:
-            service = Service.objects.get(key=service_key)
-        except Service.DoesNotExist as error:
-            raise CommandError(f"No Service with key '{service_key}'") from error
-
-        features = (
-            Feature.objects.filter(services=service)
-            .prefetch_related("chains")
-            .order_by("key")
-        )
-
-        entries = []
-        for feature in features:
-            if feature.scope == Feature.Scope.PER_CHAIN:
-                default_chains = sorted(
-                    (str(chain.id) for chain in feature.chains.all()), key=int
-                )
-            else:
-                default_chains = []
-            entries.append(
-                {
-                    "key": feature.key,
-                    "description": feature.description,
-                    "scope": feature.scope,
-                    "defaultChains": default_chains,
-                }
-            )
-
-        document = {
-            "$schema": "./remote-config.schema.json",
-            "service": service_key,
-            "features": entries,
-        }
+            document = build_declaration_document(options["service"])
+        except ServiceNotFound as error:
+            raise CommandError(f"No Service with key '{error}'") from error
         self.stdout.write(json.dumps(document, indent=2))

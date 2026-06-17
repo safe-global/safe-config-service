@@ -18,7 +18,8 @@
   Enter a Git ref per service, compute the diff between the declared
   <code>remote-config.json</code> and the database, then select the changes to apply.
   <a href="?drift=1">Check drift vs default branch</a> renders the same diff read-only against
-  each repo's trunk.
+  each repo's trunk. <a href="{% url 'admin:chains_feature_export' %}">Export declaration</a>
+  dumps a service's current DB state as a <code>remote-config.json</code> to seed a repo.
 </p>
 <p class="help">
   “Drift vs default branch” fetches each service's declaration from its repo's default branch
