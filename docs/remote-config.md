@@ -68,8 +68,14 @@ drift and never overwrites it unless you explicitly tick it.
 
 ## Drift detection
 
-The **"Check drift vs main"** link runs the same diff read-only against each repo's
-default branch — no apply controls. Use it any time to see code-vs-DB drift.
+The **"Check drift vs default branch"** link runs the same diff read-only against each
+repo's **trunk** (its `default_ref`: `dev` for the wallet monorepo, `main` for CGW) — no
+apply controls. Use it any time to spot code-vs-DB drift (a flag declared on the trunk but
+missing in the DB, or enabled in the DB but no longer declared).
+
+A "not found" for a source usually means the declaration file isn't on that branch yet —
+e.g. it is still on an unmerged feature branch. The check is only meaningful once the
+declarations are merged to each repo's trunk.
 
 ## A note on caching (prefer a SHA/tag for releases)
 
