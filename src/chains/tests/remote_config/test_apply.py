@@ -75,6 +75,34 @@ class ApplyChangesTestCase(TestCase):
 
         assert Service.objects.filter(key="WALLET_WEB").exists()
 
+    def test_add_is_idempotent_for_key_shared_across_services(self) -> None:
+        # The same key declared by two services is proposed as ADD for each
+        # (per-service diff over one snapshot). Applying both must not collide.
+        web_add = Change(
+            type=ChangeType.ADD,
+            service_key="WALLET_WEB",
+            key="DEFAULT_TOKENLIST",
+            declared_description="Curated default token list.",
+            declared_scope="PER_CHAIN",
+        )
+        mobile_add = Change(
+            type=ChangeType.ADD,
+            service_key="MOBILE",
+            key="DEFAULT_TOKENLIST",
+            declared_description="Curated default token list.",
+            declared_scope="PER_CHAIN",
+        )
+
+        result = apply_changes([web_add, mobile_add], actor=_actor())
+
+        feature = Feature.objects.get(key="DEFAULT_TOKENLIST")
+        assert set(feature.services.values_list("key", flat=True)) == {
+            "WALLET_WEB",
+            "MOBILE",
+        }
+        assert result.added == 1
+        assert result.attached == 1
+
     def test_attach_adds_service_to_existing_feature(self) -> None:
         cgw = ServiceFactory(key="CGW")
         web = ServiceFactory(key="WALLET_WEB")

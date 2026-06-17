@@ -95,11 +95,16 @@ class ReconcileAdminViewTestCase(TestCase):
         assert remembered.updated_by == self.user
 
     def test_apply_rejects_malformed_token(self) -> None:
+        before = Feature.objects.count()
+
         response = self.client.post(
             self.url, {"apply": ["not-a-valid-token"], "ref_WALLET_WEB": "main"}
         )
+
         assert response.status_code == 302
-        assert not Feature.objects.exists()
+        # Nothing was applied (the DB has migration-seeded features, so assert no
+        # net change rather than an empty table).
+        assert Feature.objects.count() == before
 
     @responses.activate
     def test_drift_view_is_read_only(self) -> None:

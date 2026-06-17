@@ -94,16 +94,27 @@ def apply_changes(changes: list[Change], actor: Actor = None) -> ApplyResult:
             service, _ = Service.objects.get_or_create(
                 key=change.service_key, defaults={"name": change.service_key}
             )
-            feature = Feature.objects.create(
+            # Idempotent: the same key may be declared by several services and
+            # proposed as ADD for each (the per-service diff shares one DB
+            # snapshot). The first ADD creates the row; later ADDs for the same
+            # key just attach their service instead of colliding on the unique
+            # key. Seeding (description/scope/chains) only happens on create.
+            feature, created = Feature.objects.get_or_create(
                 key=change.key,
-                description=change.declared_description or "",
-                scope=change.declared_scope or Feature.Scope.PER_CHAIN,
+                defaults={
+                    "description": change.declared_description or "",
+                    "scope": change.declared_scope or Feature.Scope.PER_CHAIN,
+                },
             )
             feature.services.add(service)
-            if feature.scope == SCOPE_PER_CHAIN and change.declared_chains:
-                feature.chains.set(_chains_queryset(change.declared_chains))
-            _log(actor, feature, ADDITION, f"Declared by {change.service_key}")
-            result.added += 1
+            if created:
+                if feature.scope == SCOPE_PER_CHAIN and change.declared_chains:
+                    feature.chains.set(_chains_queryset(change.declared_chains))
+                _log(actor, feature, ADDITION, f"Declared by {change.service_key}")
+                result.added += 1
+            else:
+                _log(actor, feature, CHANGE, f"Attached service {change.service_key}")
+                result.attached += 1
 
         elif change.type is ChangeType.ATTACH:
             service, _ = Service.objects.get_or_create(
