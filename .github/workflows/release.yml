@@ -27,7 +27,16 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: safe-global/github-reusable-workflows/actions/create-release@030861d3db87a73eefab99c7b46e510c70288237 # v2.4.21
+      - name: Checkout reusable workflows
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          repository: safe-global/github-reusable-workflows
+          token: ${{ secrets.REUSABLE_WORKFLOWS_TOKEN }}
+          path: reusable-workflows
+          ref: 030861d3db87a73eefab99c7b46e510c70288237 # v2.4.21
+
+      - name: Create Release
+        uses: ./reusable-workflows/actions/create-release
         with:
           token: ${{ secrets.REUSABLE_WORKFLOWS_TOKEN }}
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
