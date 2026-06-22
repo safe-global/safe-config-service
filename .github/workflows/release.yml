@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_version:
+        description: "Tag version (e.g., v1.2.3). Leave empty to auto-generate."
+        required: false
+        default: ""
+        type: string
+      bump_type:
+        description: "Version bump type (only used when tag_version is empty)"
+        required: false
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: safe-global/github-reusable-workflows/actions/create-release@030861d3db87a73eefab99c7b46e510c70288237 # v2.4.21
+        with:
+          token: ${{ secrets.REUSABLE_WORKFLOWS_TOKEN }}
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          tag-version: ${{ inputs.tag_version }}
+          bump-type: ${{ inputs.bump_type }}
