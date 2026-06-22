@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chains', '0057_chain_relayer_sponsoring'),
+        ('chains', '0058_gastoken_priority'),
     ]
 
     operations = [
