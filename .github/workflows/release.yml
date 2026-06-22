@@ -38,7 +38,7 @@ jobs:
       - name: Create Release
         uses: ./reusable-workflows/actions/create-release
         with:
-          token: ${{ secrets.REUSABLE_WORKFLOWS_TOKEN }}
+          token: ${{ github.token }}
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           tag-version: ${{ inputs.tag_version }}
