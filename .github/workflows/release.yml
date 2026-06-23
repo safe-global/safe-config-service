@@ -33,7 +33,7 @@ jobs:
           repository: safe-global/github-reusable-workflows
           token: ${{ secrets.REUSABLE_WORKFLOWS_TOKEN }}
           path: reusable-workflows
-          ref: 030861d3db87a73eefab99c7b46e510c70288237 # v2.4.21
+          ref: 716ad3acb8ec684f377da50cc2d77a28351f7adf # v2.4.22
 
       - name: Create Release
         uses: ./reusable-workflows/actions/create-release
