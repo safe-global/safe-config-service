@@ -5,6 +5,7 @@ from functools import cache
 from typing import Any, Dict
 from urllib.parse import urljoin
 
+import apm
 import requests
 from django.conf import settings
 
@@ -42,15 +43,23 @@ def cgw_setup() -> tuple[str, str]:
 
 
 def hook_event(event: HookEvent) -> None:
-    try:
-        (url, token) = cgw_setup()
-        url = urljoin(url.rstrip("/") + "/", "v1/hooks/events")
-        payload: Dict[str, Any] = {"type": event.type, "chainId": str(event.chain_id)}
-        if event.service is not None:
-            payload["service"] = event.service
-        post(url, token, json=payload)
-    except Exception as error:
-        logger.error(error)
+    with apm.trace("cgw.hook_event", resource=event.type.value) as span:
+        if span is not None:
+            span.set_tag("cgw.chain_id", str(event.chain_id))
+            if event.service:
+                span.set_tag("cgw.service", event.service)
+        try:
+            (url, token) = cgw_setup()
+            url = urljoin(url.rstrip("/") + "/", "v1/hooks/events")
+            payload: Dict[str, Any] = {"type": event.type, "chainId": str(event.chain_id)}
+            if event.service is not None:
+                payload["service"] = event.service
+            post(url, token, json=payload)
+        except Exception as error:
+            if span is not None:
+                span.set_tag("error", True)
+                span.set_tag("error.message", str(error))
+            logger.error(error)
 
 
 def post(url: str, token: str, json: Dict[str, Any]) -> None:
