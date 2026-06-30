@@ -14,7 +14,12 @@ ENABLED = os.environ.get("DD_APM_ENABLED", "false").lower() in _TRUTHY
 
 
 def setup_tracing() -> None:
-    """Initialize ddtrace integrations. Must be called before any Django import."""
+    """Initialize ddtrace integrations. Must be called before any Django import.
+
+    Wired into wsgi.py only (WSGI/gunicorn deployment target). Management
+    commands do not call this, so APM spans from ``manage.py`` commands will
+    lack Django/requests/psycopg patches.
+    """
     if not ENABLED:
         return
     from ddtrace import patch
@@ -47,7 +52,7 @@ def trace(
             kwargs["service"] = service
         if resource:
             kwargs["resource"] = resource
-        return tracer.trace(operation_name, **kwargs)  # type: ignore[return-value]
+        return tracer.trace(operation_name, **kwargs)
     except Exception:
         logger.warning("APM trace() unavailable, falling back to no-op", exc_info=True)
         return nullcontext()

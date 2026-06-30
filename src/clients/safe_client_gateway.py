@@ -58,9 +58,12 @@ def hook_event(event: HookEvent) -> None:
                     payload["service"] = event.service
                 post(url, token, json=payload)
             except Exception as error:
+                logger.exception(error)
                 if span is not None:
-                    span.set_exc_info(type(error), error, error.__traceback__)
-                logger.error(error)
+                    try:
+                        span.set_exc_info(type(error), error, error.__traceback__)
+                    except Exception:
+                        logger.exception("APM set_exc_info failed")
     except Exception:
         logger.exception("APM instrumentation error in hook_event")
 
