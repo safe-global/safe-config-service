@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: safe-global/github-reusable-workflows/.github/workflows/_ci-python.yml@563dd4298f3f6e470910617369e06eac955dcf22 # v2.4.23
+    uses: ./.github/workflows/_ci-python.yml
     with:
       mypy_paths: "src/chains src/safe_apps"
 
@@ -35,7 +35,7 @@ jobs:
 
   build:
     needs: [ci, prepare]
-    uses: safe-global/github-reusable-workflows/.github/workflows/_build-image.yml@563dd4298f3f6e470910617369e06eac955dcf22 # v2.4.23
+    uses: ./.github/workflows/_build-image.yml
     with:
       image_name: ghcr.io/safe-global/safe-config-service
       image_tag: ${{ needs.prepare.outputs.tag }}
@@ -43,7 +43,7 @@ jobs:
 
   deploy-staging:
     needs: [prepare, build]
-    uses: safe-global/github-reusable-workflows/.github/workflows/_deploy.yml@563dd4298f3f6e470910617369e06eac955dcf22 # v2.4.23
+    uses: ./.github/workflows/_deploy.yml
     with:
       environment: staging
       image_tag: ${{ needs.prepare.outputs.tag }}

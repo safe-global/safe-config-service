@@ -1,0 +1,211 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+# =============================================================================
+# REUSABLE: GitOps deploy — bump the Helm image tag in the infra repo
+# =============================================================================
+# The deploy IS a git commit. This job mints a GitHub App token scoped to the
+# separate Terraform/Helm repo, checks it out, rewrites `image.tag` in the
+# environment's values file, and pushes. ArgoCD (watching that repo) reconciles
+# the new tag onto the cluster automatically — CI never touches kubectl/helm.
+#
+# Optional production gate: wait for ArgoCD health + smoke-test the service;
+# on failure, `git revert` the bump (ArgoCD rolls back to the previous tag).
+# -----------------------------------------------------------------------------
+name: _deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Target environment (staging | production). Also selects env-scoped secrets.
+        type: string
+        required: true
+      image_tag:
+        description: Immutable image tag to deploy (must already be pushed to the registry).
+        type: string
+        required: true
+      infra_repo:
+        description: owner/name of the Terraform/Helm/values repo (e.g. safe-global/my-service-infra).
+        type: string
+        required: true
+      values_file:
+        description: Path (within infra_repo) to the env values file to bump.
+        type: string
+        required: true
+      image_tag_path:
+        description: yq path to the image tag field inside values_file.
+        type: string
+        default: .image.tag
+      argocd_app:
+        description: ArgoCD Application name to wait on (optional; production gate).
+        type: string
+        default: ""
+      health_url:
+        description: URL to smoke-test after deploy (optional; production gate).
+        type: string
+        default: ""
+      health_gate:
+        description: >-
+          Enable the full production gate: ArgoCD wait + smoke test + auto-rollback
+          on failure. Set true for production only. For staging, set health_url
+          without health_gate to get a non-rolling smoke test (no rollback).
+        type: boolean
+        default: false
+      post_deploy_checks:
+        description: >-
+          Optional bash commands run after the smoke test. Any non-zero exit
+          triggers rollback (same as the smoke test). Useful for service-specific
+          checks such as API endpoint assertions or DB migration verification.
+          Only executed when health_gate is true.
+          Example: |
+            curl -fsS https://example.com/api/v1/chains/ | jq -e '.count > 0'
+            curl -fsS https://example.com/api/v1/safe-apps/ | jq -e '.count > 0'
+        type: string
+        default: ""
+    secrets:
+      app_id:
+        required: true
+      app_private_key:
+        required: true
+      gpg_private_key:
+        description: GPG private key for signing the deploy commit (enterprise signed-commits rule).
+        required: true
+      gpg_passphrase:
+        description: Passphrase for the GPG private key.
+        required: true
+      argocd_server:
+        required: false
+      argocd_token:
+        required: false
+
+# Serialise deploys per-environment so two pushes can't race the infra repo.
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Resolve infra repo name
+        id: infra
+        env:
+          INFRA: ${{ inputs.infra_repo }}
+        run: echo "name=${INFRA##*/}" >> "$GITHUB_OUTPUT"
+
+      - name: Mint GitHub App token (scoped to infra repo)
+        id: app-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        with:
+          app-id: ${{ secrets.app_id }}
+          private-key: ${{ secrets.app_private_key }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ steps.infra.outputs.name }}
+          permission-contents: write
+
+      - name: Checkout infra repo
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          repository: ${{ inputs.infra_repo }}
+          token: ${{ steps.app-token.outputs.token }}
+          path: infra
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
+        with:
+          gpg_private_key: ${{ secrets.gpg_private_key }}
+          passphrase: ${{ secrets.gpg_passphrase }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_config_global: true
+          git_committer_name: 'GH Signer Bot'
+          git_committer_email: 'gh-signer-bot@safe.global'
+
+      - name: Bump image tag (yq) & push
+        id: commit
+        working-directory: infra
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          VALUES_FILE: ${{ inputs.values_file }}
+          TAG_PATH: ${{ inputs.image_tag_path }}
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          set -euo pipefail
+          # mikefarah yq v4 is preinstalled on ubuntu-latest runners.
+          yq -i "${TAG_PATH} = strenv(IMAGE_TAG)" "$VALUES_FILE"
+          git add "$VALUES_FILE"
+          if git diff --cached --quiet; then
+            echo "Image tag already ${IMAGE_TAG} — nothing to deploy."
+            exit 0
+          fi
+          git commit -m "deploy(${ENVIRONMENT}): ${GITHUB_REPOSITORY##*/} ${IMAGE_TAG}"
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "pushed=true" >> "$GITHUB_OUTPUT"
+              echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+              echo "Deployed ${IMAGE_TAG} to ${ENVIRONMENT}."
+              exit 0
+            fi
+            echo "push rejected (attempt ${attempt}) — rebasing on infra HEAD"
+            git pull --rebase
+          done
+          echo "::error::Failed to push deploy commit after 3 attempts."
+          exit 1
+
+      - name: Wait for ArgoCD sync & health
+        if: ${{ inputs.health_gate && inputs.argocd_app != '' }}
+        env:
+          ARGOCD_SERVER: ${{ secrets.argocd_server }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.argocd_token }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ARGOCD_SERVER:-}" ] || [ -z "${ARGOCD_AUTH_TOKEN:-}" ]; then
+            echo "ArgoCD credentials not provided — skipping explicit wait, relying on smoke test."
+            exit 0
+          fi
+          # Pin the CLI version (don't pull a moving "latest" at runtime).
+          ARGOCD_VERSION="v2.13.3"
+          curl -sSL -o /tmp/argocd \
+            "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
+          chmod +x /tmp/argocd
+          /tmp/argocd app wait "${{ inputs.argocd_app }}" \
+            --health --sync --timeout 300 --grpc-web
+
+      - name: Smoke test
+        if: ${{ inputs.health_url != '' }}
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 6 --retry-delay 10 --retry-all-errors "${{ inputs.health_url }}"
+
+      - name: Custom post-deploy checks
+        if: ${{ inputs.health_gate && inputs.post_deploy_checks != '' }}
+        run: |
+          set -euo pipefail
+          ${{ inputs.post_deploy_checks }}
+
+      - name: Roll back on failed health gate
+        if: ${{ failure() && steps.commit.outputs.pushed == 'true' && inputs.health_gate }}
+        working-directory: infra
+        env:
+          DEPLOY_SHA: ${{ steps.commit.outputs.sha }}
+        run: |
+          set -euo pipefail
+          echo "::warning::Health gate failed — reverting ${DEPLOY_SHA}; ArgoCD will roll back."
+          # Revert by explicit SHA (not HEAD) and retry the push: the infra repo may
+          # have advanced during the multi-minute health gate, making a bare push a
+          # non-fast-forward. Without this, the rollback would silently fail.
+          git pull --rebase
+          git revert --no-edit "$DEPLOY_SHA"
+          for attempt in 1 2 3; do
+            # On success still exit non-zero so the bad release is surfaced as a failure.
+            if git push; then exit 1; fi
+            echo "rollback push rejected (attempt ${attempt}) — rebasing"
+            git pull --rebase
+          done
+          echo "::error::Rollback push failed after 3 attempts — manual intervention required."
+          exit 1

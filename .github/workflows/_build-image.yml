@@ -1,0 +1,107 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+# =============================================================================
+# REUSABLE: Build & push a single, IMMUTABLE multi-arch image to GHCR
+# =============================================================================
+# Replaces the inline docker-publish-staging / docker-publish-release jobs.
+# Always pushes an immutable tag (main-<sha> or vX.Y.Z) — never a moving tag
+# like :staging / :latest, so a GitOps controller can pin and roll back cleanly.
+#
+# Registry = GHCR (ghcr.io), authenticated with the auto-provided GITHUB_TOKEN
+# (no static Docker Hub credentials needed).
+# -----------------------------------------------------------------------------
+name: _build-image
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        description: Image path WITHOUT tag, e.g. ghcr.io/safe-global/my-service.
+        type: string
+        required: true
+      image_tag:
+        description: Immutable tag to publish (e.g. main-abc1234 or v4.38.0).
+        type: string
+        required: true
+      push:
+        description: Push to the registry (false = build-only validation, e.g. on PRs).
+        type: boolean
+        default: true
+      platforms:
+        type: string
+        default: linux/amd64,linux/arm64
+      version:
+        description: Passed through as the VERSION build-arg.
+        type: string
+        default: ""
+      also_tag_latest:
+        description: >-
+          Also push a :latest tag alongside the immutable tag. Use for production
+          releases only (matches diagram "vX.Y.Z + latest"). Never set on staging
+          builds — :latest on a main-<sha> tag is meaningless.
+        type: boolean
+        default: false
+    outputs:
+      image:
+        description: Fully-qualified image reference that was built.
+        value: ${{ jobs.build.outputs.image }}
+      digest:
+        description: Image digest (sha256:...).
+        value: ${{ jobs.build.outputs.digest }}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ inputs.image_name }}:${{ inputs.image_tag }}
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
+      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+      - name: Compute image tags
+        id: tags
+        run: |
+          TAGS="${{ inputs.image_name }}:${{ inputs.image_tag }}"
+          if [ "${{ inputs.also_tag_latest }}" = "true" ]; then
+            TAGS="${TAGS}"$'\n'"${{ inputs.image_name }}:latest"
+          fi
+          {
+            echo "tags<<EOF"
+            echo "$TAGS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      - name: Log in to GHCR
+        if: ${{ inputs.push }}
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & push
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          platforms: ${{ inputs.platforms }}
+          push: ${{ inputs.push }}
+          tags: ${{ steps.tags.outputs.tags }}
+          build-args: |
+            VERSION=${{ inputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+      - name: Summary
+        run: |
+          {
+            echo "### Image"
+            echo "- \`${{ inputs.image_name }}:${{ inputs.image_tag }}\`"
+            if [ "${{ inputs.also_tag_latest }}" = "true" ]; then
+              echo "- \`${{ inputs.image_name }}:latest\`"
+            fi
+            echo "- digest: \`${{ steps.build.outputs.digest }}\`"
+            echo "- pushed: \`${{ inputs.push }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

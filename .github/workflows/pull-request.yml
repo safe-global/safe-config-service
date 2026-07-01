@@ -20,6 +20,6 @@ permissions:
 
 jobs:
   ci:
-    uses: safe-global/github-reusable-workflows/.github/workflows/_ci-python.yml@563dd4298f3f6e470910617369e06eac955dcf22 # v2.4.23
+    uses: ./.github/workflows/_ci-python.yml
     with:
       mypy_paths: "src/chains src/safe_apps"
