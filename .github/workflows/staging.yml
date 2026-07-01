@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+# =============================================================================
+# CALLER: Trunk pipeline → STAGING (event: push to main)
+# =============================================================================
+# Every merge to main: re-run CI on the merge result, build an immutable image
+# tagged main-<short-sha>, then GitOps-deploy it to staging. No manual steps.
+# -----------------------------------------------------------------------------
+name: Staging
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: staging
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_ci-python.yml
+    with:
+      mypy_paths: "src/chains src/safe_apps"
+
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - id: tag
+        run: echo "tag=main-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: [ci, prepare]
+    uses: ./.github/workflows/_build-image.yml
+    with:
+      image_name: ghcr.io/safe-global/safe-config-service
+      image_tag: ${{ needs.prepare.outputs.tag }}
+      version: ${{ needs.prepare.outputs.tag }}
+
+  deploy-staging:
+    needs: [prepare, build]
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      environment: staging
+      image_tag: ${{ needs.prepare.outputs.tag }}
+      infra_repo: safe-global/safe-config-service-infra-tf
+      values_file: apps/safe-config-service/values-staging.yaml
+      image_tag_path: .web.imageTag
+      health_url: https://safe-config.staging.5afe.dev/check/
+      health_gate: false
+    secrets:
+      app_id: ${{ secrets.CI_APP_ID }}
+      app_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+      gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+      gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}

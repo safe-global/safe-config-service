@@ -1,0 +1,137 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+# =============================================================================
+# REUSABLE: CI quality gate (lint · license headers · mypy · pytest+coverage)
+# =============================================================================
+# Mirrors the jobs in the repo's former test.yml as an `on: workflow_call`
+# building block so the PR gate and the trunk (push-to-main) pipeline share one
+# definition. Pure quality checks — it never builds or pushes images.
+# -----------------------------------------------------------------------------
+name: _ci
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: Python version to lint/type-check/test against.
+        type: string
+        default: "3.14.3"
+      mypy_paths:
+        description: >-
+          Space-separated list of source paths passed to mypy --strict.
+          Example: "src/chains src/safe_apps" or "src/app".
+        type: string
+        default: "src"
+      ref:
+        description: Git ref to check out. Empty = the ref that triggered the caller.
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: ${{ inputs.python_version }}
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: pre-commit (all files, skip license-headers)
+        run: SKIP=license-headers uv run pre-commit run --all-files
+
+  license-headers:
+    # Diff-based hook: only meaningful when we have a base to diff against.
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: ${{ inputs.python_version }}
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: Run license-headers on added/modified files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_REF="${{ github.event.before }}"
+          fi
+
+          if [ -z "$BASE_REF" ] || [ "$BASE_REF" = "0000000000000000000000000000000000000000" ]; then
+            echo "No valid base ref; skipping."
+            exit 0
+          fi
+
+          if ! git cat-file -e "$BASE_REF^{commit}" 2>/dev/null; then
+            echo "$BASE_REF is not available locally; falling back to HEAD^."
+            BASE_REF="HEAD^"
+          fi
+
+          CHANGED_FILES=$(git diff --name-only --diff-filter=AM "$BASE_REF" HEAD)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No added or modified files; skipping."
+            exit 0
+          fi
+
+          # word-splitting is intentional: pass each changed file as a separate arg
+          # shellcheck disable=SC2086
+          uv run pre-commit run license-headers --files $CHANGED_FILES
+
+  django-check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SECRET_KEY: insecure-ci-only-key
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      # Placeholders so Django settings that read these don't blow up in CI.
+      AWS_ACCESS_KEY_ID: example
+      AWS_SECRET_ACCESS_KEY: example
+      AWS_STORAGE_BUCKET_NAME: example
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: ${{ inputs.python_version }}
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: mypy (strict)
+        run: uv run mypy --strict ${{ inputs.mypy_paths }}
+      - name: Check for missing migrations
+        run: uv run python src/manage.py makemigrations --check --dry-run
+      - name: Apply migrations
+        run: uv run python src/manage.py migrate
+      - name: Django system check
+        run: uv run python src/manage.py check
+      - name: Tests + coverage
+        run: |
+          uv run coverage run -m pytest src
+          uv run coverage lcov -o coverage.lcov
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        with:
+          file: coverage.lcov
