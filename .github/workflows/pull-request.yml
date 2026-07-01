@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+# =============================================================================
+# CALLER: Pull request gate
+# =============================================================================
+# Event: any PR opened/updated against any branch.
+# The ONLY human-gated step in the whole pipeline is the review this enables.
+# Make the three _ci jobs (linting, license-headers, django-check) REQUIRED
+# status checks in branch protection, plus "Require 1 approving review", plus
+# "Require branches up to date". Everything after merge is automated.
+#
+# (cla.yml and claude-code-review.yml stay as-is — they already run on PR events.)
+# -----------------------------------------------------------------------------
+name: Pull request
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: safe-global/github-reusable-workflows/.github/workflows/_ci-python.yml@563dd4298f3f6e470910617369e06eac955dcf22 # v2.4.23
+    with:
+      mypy_paths: "src/chains src/safe_apps"
