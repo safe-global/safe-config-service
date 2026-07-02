@@ -4,6 +4,7 @@ version = "0.0.0" # Not used, injected from git tags in the docker image
 requires-python = ">=3.14"
 dependencies = [
     "boto3==1.43.6",
+    "ddtrace==4.10.5",
     "django-cors-headers==4.9.0",
     "django-storages==1.14.6",
     "django-stubs-ext==6.0.5",
