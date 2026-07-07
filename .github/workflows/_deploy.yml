@@ -161,7 +161,17 @@ jobs:
             --title "deploy(${ENVIRONMENT}): ${REPO} ${IMAGE_TAG}" \
             --body "Automated deploy · [CI run #${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})")
 
-          gh pr merge "$PR_URL" --squash --delete-branch
+          # --rebase preserves the GPG-signed commit; retry on conflict with infra HEAD.
+          for attempt in 1 2 3; do
+            if gh pr merge "$PR_URL" --rebase --delete-branch; then
+              break
+            fi
+            [ "$attempt" -eq 3 ] && { echo "::error::PR merge failed after 3 attempts."; exit 1; }
+            echo "Merge attempt ${attempt} failed — rebasing deploy branch on infra HEAD"
+            git fetch origin
+            git rebase origin/main
+            git push --force-with-lease origin "$BRANCH"
+          done
 
           MERGE_SHA=$(gh pr view "$PR_URL" --json mergeCommit --jq '.mergeCommit.oid')
           echo "pushed=true" >> "$GITHUB_OUTPUT"
@@ -207,10 +217,10 @@ jobs:
         run: |
           set -euo pipefail
           echo "::warning::Health gate failed — reverting ${DEPLOY_SHA}; ArgoCD will roll back."
-          # Revert by explicit SHA (not HEAD) and retry the push: the infra repo may
-          # have advanced during the multi-minute health gate, making a bare push a
-          # non-fast-forward. Without this, the rollback would silently fail.
-          git pull --rebase
+          # After gh pr merge --delete-branch the working tree is left on the now-deleted
+          # deploy branch. Explicitly switch to main before reverting.
+          git checkout main
+          git pull --rebase origin main
           git revert --no-edit "$DEPLOY_SHA"
           for attempt in 1 2 3; do
             # On success still exit non-zero so the bad release is surfaced as a failure.
