@@ -174,20 +174,25 @@ jobs:
             [ "$attempt" -eq 3 ] && { echo "::error::PR merge failed after 3 attempts."; exit 1; }
             echo "Merge attempt ${attempt} failed — rebasing deploy branch on infra HEAD"
             git fetch origin
-            git rebase origin/main
+            git rebase origin/main || { git rebase --abort; echo "::error::Rebase conflict — manual resolution required. Open PR: ${PR_URL}"; exit 1; }
             git push --force-with-lease origin "$BRANCH"
           done
 
           # mergeCommit.oid can lag a few seconds after gh pr merge returns.
           MERGE_SHA=""
-          for i in 1 2 3 4 5; do
+          for attempt in 1 2 3 4 5; do
             MERGE_SHA=$(gh pr view "$PR_URL" --json mergeCommit --jq '.mergeCommit.oid // empty')
             [ -n "$MERGE_SHA" ] && break
             sleep 2
           done
           if [ -z "$MERGE_SHA" ]; then
+            # Fallback: find the commit by title — safe under concurrent unrelated deploys.
             git fetch origin main
-            MERGE_SHA=$(git rev-parse origin/main)
+            MERGE_SHA=$(git log origin/main --grep "^deploy(${ENVIRONMENT}): ${REPO} ${IMAGE_TAG}$" -n1 --format=%H)
+          fi
+          if [ -z "$MERGE_SHA" ]; then
+            echo "::error::Could not resolve merge SHA — rollback not possible if health gate fails."
+            exit 1
           fi
           echo "pushed=true" >> "$GITHUB_OUTPUT"
           echo "sha=${MERGE_SHA}" >> "$GITHUB_OUTPUT"
