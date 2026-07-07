@@ -1,15 +1,18 @@
 # SPDX-License-Identifier: FSL-1.1-MIT
 # =============================================================================
-# CALLER: Trunk pipeline → STAGING (event: push to main)
+# CALLER: Trunk pipeline → STAGING (event: push to main or manual dispatch)
 # =============================================================================
 # Every merge to main: re-run CI on the merge result, build an immutable image
 # tagged main-<short-sha>, then GitOps-deploy it to staging. No manual steps.
+# workflow_dispatch allows triggering a staging deploy without a code commit
+# (useful for soak testing and hotfix verification).
 # -----------------------------------------------------------------------------
 name: Staging
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
