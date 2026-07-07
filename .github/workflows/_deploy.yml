@@ -153,7 +153,9 @@ jobs:
             exit 0
           fi
           git commit -m "deploy(${ENVIRONMENT}): ${REPO} ${IMAGE_TAG}"
-          git push origin "$BRANCH"
+          # --force handles re-runs of failed workflows where the branch already exists.
+          # Deploy branches are ephemeral and only written by this workflow.
+          git push --force origin "$BRANCH"
 
           PR_URL=$(gh pr create \
             --base main \
@@ -161,7 +163,10 @@ jobs:
             --title "deploy(${ENVIRONMENT}): ${REPO} ${IMAGE_TAG}" \
             --body "Automated deploy · [CI run #${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})")
 
-          # --rebase preserves the GPG-signed commit; retry on conflict with infra HEAD.
+          # --rebase keeps the locally-signed commit when the branch is already up-to-date
+          # with main; a server-side rebase (race window) produces a web-flow-signed commit
+          # instead — verify the infra repo accepts web-flow signatures end-to-end.
+          # Retry on conflict: rebase deploy branch on latest infra HEAD and re-attempt.
           for attempt in 1 2 3; do
             if gh pr merge "$PR_URL" --rebase --delete-branch; then
               break
@@ -173,7 +178,17 @@ jobs:
             git push --force-with-lease origin "$BRANCH"
           done
 
-          MERGE_SHA=$(gh pr view "$PR_URL" --json mergeCommit --jq '.mergeCommit.oid')
+          # mergeCommit.oid can lag a few seconds after gh pr merge returns.
+          MERGE_SHA=""
+          for i in 1 2 3 4 5; do
+            MERGE_SHA=$(gh pr view "$PR_URL" --json mergeCommit --jq '.mergeCommit.oid // empty')
+            [ -n "$MERGE_SHA" ] && break
+            sleep 2
+          done
+          if [ -z "$MERGE_SHA" ]; then
+            git fetch origin main
+            MERGE_SHA=$(git rev-parse origin/main)
+          fi
           echo "pushed=true" >> "$GITHUB_OUTPUT"
           echo "sha=${MERGE_SHA}" >> "$GITHUB_OUTPUT"
           echo "Deployed ${IMAGE_TAG} to ${ENVIRONMENT} — ${PR_URL}"
