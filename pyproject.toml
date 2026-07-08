@@ -1,6 +1,6 @@
 [project]
 name = "safe-config-service"
-version = "0.0.0" # Not used, injected from git tags in the docker image
+version = "2.97.0" # Not used, injected from git tags in the docker image
 requires-python = ">=3.14"
 dependencies = [
     "boto3==1.43.6",
