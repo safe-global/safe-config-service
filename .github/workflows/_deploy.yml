@@ -105,9 +105,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    env:
+      _HAS_VPN: ${{ secrets.vpn_secret != '' }}
+      _HAS_ARN: ${{ secrets.aws_role_arn != '' }}
+      _HAS_ARGOCD_SECRET: ${{ secrets.argocd_token_secret != '' }}
     steps:
       - name: Validate AWS inputs
-        if: ${{ (secrets.vpn_secret != '' || secrets.argocd_token_secret != '') && secrets.aws_role_arn == '' }}
+        if: ${{ (env._HAS_VPN == 'true' || env._HAS_ARGOCD_SECRET == 'true') && env._HAS_ARN != 'true' }}
         run: |
           echo "::error::aws_role_arn is required when vpn_secret or argocd_token_secret is set"
           exit 1
@@ -219,14 +223,14 @@ jobs:
           echo "Deployed ${IMAGE_TAG} to ${ENVIRONMENT} — ${PR_URL}"
 
       - name: Configure AWS credentials
-        if: ${{ secrets.aws_role_arn != '' }}
+        if: ${{ env._HAS_ARN == 'true' }}
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           role-to-assume: ${{ secrets.aws_role_arn }}
           aws-region: ${{ inputs.aws_region }}
 
       - name: Fetch ArgoCD token from Secrets Manager
-        if: ${{ secrets.argocd_token_secret != '' }}
+        if: ${{ env._HAS_ARGOCD_SECRET == 'true' }}
         id: argocd-secrets
         run: |
           set -euo pipefail
@@ -237,7 +241,7 @@ jobs:
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
 
       - name: Start VPN
-        if: ${{ secrets.vpn_secret != '' }}
+        if: ${{ env._HAS_VPN == 'true' }}
         run: |
           set -euo pipefail
           aws secretsmanager get-secret-value \
@@ -307,7 +311,7 @@ jobs:
           exit 1
 
       - name: Stop VPN
-        if: ${{ always() && secrets.vpn_secret != '' }}
+        if: ${{ always() && env._HAS_VPN == 'true' }}
         run: |
           [ -f /tmp/openvpn.pid ] && sudo kill "$(cat /tmp/openvpn.pid)" 2>/dev/null || true
           rm -f /tmp/vpn.ovpn /tmp/openvpn.pid /tmp/openvpn.log
