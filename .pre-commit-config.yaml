@@ -24,6 +24,7 @@ repos:
         name: insert-license
         alias: license-headers
         files: \.(py|yaml|yml|md|sh|Dockerfile|ini)$
+        exclude: ^CHANGELOG\.md$
         stages: [pre-commit]
         args:
           - --license-filepath
