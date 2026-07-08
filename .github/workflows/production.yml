@@ -46,7 +46,7 @@ jobs:
       image_name: ghcr.io/safe-global/safe-config-service
       image_tag: ${{ needs.prepare.outputs.tag }}
       version: ${{ needs.prepare.outputs.tag }}
-      also_tag_latest: true
+      also_tag_latest: ${{ !github.event.release.prerelease }}
 
   deploy-production:
     needs: [prepare, build]

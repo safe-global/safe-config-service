@@ -215,6 +215,12 @@ jobs:
           echo "sha=${MERGE_SHA}" >> "$GITHUB_OUTPUT"
           echo "Deployed ${IMAGE_TAG} to ${ENVIRONMENT} — ${PR_URL}"
 
+      - name: Validate AWS inputs
+        if: ${{ (inputs.vpn_secret != '' || inputs.argocd_token_secret != '') && inputs.aws_role_arn == '' }}
+        run: |
+          echo "::error::aws_role_arn is required when vpn_secret or argocd_token_secret is set"
+          exit 1
+
       - name: Configure AWS credentials
         if: ${{ inputs.aws_role_arn != '' }}
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
@@ -240,7 +246,7 @@ jobs:
           aws secretsmanager get-secret-value \
             --secret-id "${{ inputs.vpn_secret }}" \
             --query SecretString --output text > /tmp/vpn.ovpn
-          sudo apt-get install -qq openvpn
+          sudo apt-get update -qq && sudo apt-get install -y -qq openvpn
           sudo openvpn --config /tmp/vpn.ovpn --daemon \
             --log /tmp/openvpn.log --writepid /tmp/openvpn.pid
           for i in $(seq 1 30); do
@@ -307,3 +313,4 @@ jobs:
         if: ${{ always() && inputs.vpn_secret != '' }}
         run: |
           [ -f /tmp/openvpn.pid ] && sudo kill "$(cat /tmp/openvpn.pid)" 2>/dev/null || true
+          rm -f /tmp/vpn.ovpn /tmp/openvpn.pid /tmp/openvpn.log
