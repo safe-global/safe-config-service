@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+# =============================================================================
+# CALLER: release-please → automated release PR + GitHub Release
+# =============================================================================
+# Runs on every push to main. release-please keeps ONE rolling Release PR whose
+# version and CHANGELOG are derived from Conventional Commits. Merging that PR
+# tags the commit, publishes the GitHub Release (using the App token so the
+# `release: published` event fires), and triggers production.yml automatically.
+# -----------------------------------------------------------------------------
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    uses: ./.github/workflows/_release.yml
+    with:
+      release_type: python
+    secrets:
+      app_id: ${{ secrets.CI_APP_ID }}
+      app_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
