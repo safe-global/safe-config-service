@@ -109,6 +109,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
+      - name: Validate AWS inputs
+        if: ${{ (inputs.vpn_secret != '' || inputs.argocd_token_secret != '') && inputs.aws_role_arn == '' }}
+        run: |
+          echo "::error::aws_role_arn is required when vpn_secret or argocd_token_secret is set"
+          exit 1
+
       - name: Resolve infra repo name
         id: infra
         env:
@@ -214,12 +220,6 @@ jobs:
           echo "pushed=true" >> "$GITHUB_OUTPUT"
           echo "sha=${MERGE_SHA}" >> "$GITHUB_OUTPUT"
           echo "Deployed ${IMAGE_TAG} to ${ENVIRONMENT} — ${PR_URL}"
-
-      - name: Validate AWS inputs
-        if: ${{ (inputs.vpn_secret != '' || inputs.argocd_token_secret != '') && inputs.aws_role_arn == '' }}
-        run: |
-          echo "::error::aws_role_arn is required when vpn_secret or argocd_token_secret is set"
-          exit 1
 
       - name: Configure AWS credentials
         if: ${{ inputs.aws_role_arn != '' }}
