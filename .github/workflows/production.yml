@@ -63,12 +63,12 @@ jobs:
       post_deploy_checks: |
         curl -fsS https://safe-config.safe.global/api/v1/chains/ | jq -e '.count > 0'
         curl -fsS https://safe-config.safe.global/api/v1/safe-apps/ | jq -e '.count > 0'
-      vpn_secret: ${{ secrets.VPN_SECRET_NAME }}
-      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
-      argocd_token_secret: ${{ secrets.ARGOCD_TOKEN_SECRET_NAME }}
     secrets:
       app_id: ${{ secrets.CI_APP_ID }}
       app_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
       gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
       gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
       argocd_server: ${{ secrets.ARGOCD_SERVER }}
+      vpn_secret: ${{ secrets.VPN_SECRET_NAME }}
+      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+      argocd_token_secret: ${{ secrets.ARGOCD_TOKEN_SECRET_NAME }}
