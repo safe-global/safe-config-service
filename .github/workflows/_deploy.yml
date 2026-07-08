@@ -163,12 +163,12 @@ jobs:
             --title "deploy(${ENVIRONMENT}): ${REPO} ${IMAGE_TAG}" \
             --body "Automated deploy · [CI run #${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})")
 
-          # --rebase keeps the locally-signed commit when the branch is already up-to-date
-          # with main; a server-side rebase (race window) produces a web-flow-signed commit
-          # instead — verify the infra repo accepts web-flow signatures end-to-end.
+          # --squash produces a single commit on main signed by GitHub web-flow (Verified badge).
           # Retry on conflict: rebase deploy branch on latest infra HEAD and re-attempt.
           for attempt in 1 2 3; do
-            if gh pr merge "$PR_URL" --rebase --delete-branch; then
+            if gh pr merge "$PR_URL" --squash --delete-branch \
+                 --subject "deploy(${ENVIRONMENT}): ${REPO} ${IMAGE_TAG}" \
+                 --body ""; then
               break
             fi
             [ "$attempt" -eq 3 ] && { echo "::error::PR merge failed after 3 attempts."; exit 1; }
