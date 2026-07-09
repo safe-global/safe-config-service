@@ -6,12 +6,23 @@
 # Runs CI on the release commit, builds an immutable image tagged with the
 # release version, then GitOps-deploys it to production with a full health gate:
 # ArgoCD wait + smoke test + auto-rollback on failure.
+#
+# workflow_dispatch is a manual recovery path: it runs THIS (fixed) workflow
+# from the default branch while building/deploying the tag you pass as `tag`.
+# Use it when a release's own tagged workflow is broken and the release event
+# can't be re-run cleanly.
 # -----------------------------------------------------------------------------
 name: Production
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Git tag / version to build and deploy (e.g. v2.97.0).
+        type: string
+        required: true
 
 permissions:
   contents: read
@@ -35,18 +46,21 @@ jobs:
     steps:
       - id: tag
         env:
-          TAG: ${{ github.event.release.tag_name }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
   build:
     needs: [ci, prepare]
-    if: ${{ !github.event.release.prerelease }}
+    # Build on manual dispatch, or on any non-prerelease GitHub Release.
+    if: ${{ github.event_name != 'release' || !github.event.release.prerelease }}
     uses: ./.github/workflows/_build-image.yml
     with:
       image_name: ghcr.io/safe-global/safe-config-service
       image_tag: ${{ needs.prepare.outputs.tag }}
       version: ${{ needs.prepare.outputs.tag }}
-      also_tag_latest: ${{ !github.event.release.prerelease }}
+      also_tag_latest: ${{ github.event_name != 'release' || !github.event.release.prerelease }}
+      # On dispatch, build the exact tagged source (not the default branch HEAD).
+      ref: ${{ github.event.release.tag_name || inputs.tag }}
 
   deploy-production:
     needs: [prepare, build]

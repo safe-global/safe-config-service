@@ -22,6 +22,14 @@ on:
         description: Immutable tag to publish (e.g. main-abc1234 or v4.38.0).
         type: string
         required: true
+      ref:
+        description: >-
+          Git ref (tag/branch/SHA) to check out and build. Empty = the ref that
+          triggered the workflow. Set explicitly when the caller runs from a
+          different ref than the source to build (e.g. a manual redeploy of an
+          existing tag dispatched from the default branch).
+        type: string
+        default: ""
       push:
         description: Push to the registry (false = build-only validation, e.g. on PRs).
         type: boolean
@@ -60,6 +68,8 @@ jobs:
       digest: ${{ steps.build.outputs.digest }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ inputs.ref }}
       - uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
       - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
       - name: Compute image tags
