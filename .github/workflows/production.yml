@@ -75,8 +75,8 @@ jobs:
       health_url: https://safe-config.safe.global/check/
       health_gate: true
       post_deploy_checks: |
-        curl -fsS https://safe-config.safe.global/api/v1/chains/ | jq -e '.count > 0'
-        curl -fsS https://safe-config.safe.global/api/v1/safe-apps/ | jq -e '.count > 0'
+        curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.safe.global/api/v1/chains/ | jq -e '.count > 0'
+        curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.safe.global/api/v1/safe-apps/ | jq -e 'length > 0'
     secrets:
       app_id: ${{ secrets.CI_APP_ID }}
       app_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
