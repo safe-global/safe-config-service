@@ -47,16 +47,27 @@ on:
         default: ""
       health_gate:
         description: >-
-          Enable the full production gate: ArgoCD wait + smoke test + auto-rollback
-          on failure. Set true for production only. For staging, set health_url
-          without health_gate to get a non-rolling smoke test (no rollback).
+          Enable the full production gate: ArgoCD wait + smoke test + post-deploy
+          checks. Set true for production only. For staging, set health_url
+          without health_gate to get a non-rolling smoke test.
         type: boolean
         default: false
+      auto_rollback:
+        description: >-
+          On a failed health gate, git-revert the image bump so ArgoCD rolls back
+          to the previous tag. Only meaningful when health_gate is true. Set FALSE
+          for services with forward-only DB migrations: reverting the image across
+          a migration leaves code and schema mismatched and breaks the service —
+          the safe recovery is to roll FORWARD with a fix, so the job just fails
+          loudly (no revert) and a human intervenes.
+        type: boolean
+        default: true
       post_deploy_checks:
         description: >-
           Optional bash commands run after the smoke test. Any non-zero exit
-          triggers rollback (same as the smoke test). Useful for service-specific
-          checks such as API endpoint assertions or DB migration verification.
+          fails the health gate (and triggers rollback only when auto_rollback is
+          true). Useful for service-specific checks such as API endpoint
+          assertions or DB migration verification.
           Only executed when health_gate is true.
           Example: |
             curl -fsS https://example.com/api/v1/chains/ | jq -e '.count > 0'
@@ -289,7 +300,7 @@ jobs:
           ${{ inputs.post_deploy_checks }}
 
       - name: Roll back on failed health gate
-        if: ${{ failure() && steps.commit.outputs.pushed == 'true' && inputs.health_gate }}
+        if: ${{ failure() && steps.commit.outputs.pushed == 'true' && inputs.health_gate && inputs.auto_rollback }}
         working-directory: infra
         env:
           DEPLOY_SHA: ${{ steps.commit.outputs.sha }}

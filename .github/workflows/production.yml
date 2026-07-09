@@ -43,11 +43,40 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
+      auto_rollback: ${{ steps.migrations.outputs.auto_rollback }}
     steps:
       - id: tag
         env:
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      # Auto-rollback is only safe when the release carries NO DB migration:
+      # reverting the image across a migration mismatches code and schema and
+      # breaks the service. Detect migration files added/changed since the
+      # previous tag; if any, disable rollback so a failed gate is recovered
+      # forward by a human. Default to false (no rollback) when unsure — safe.
+      - id: migrations
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          PREV=$(git tag --sort=-v:refname | grep -vFx "$TAG" | head -1 || true)
+          if [ -z "$PREV" ]; then
+            echo "No previous tag found — defaulting auto_rollback=false (safe)."
+            echo "auto_rollback=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only "$PREV" "$TAG" | grep -qE '(^|/)migrations/.+\.py$'; then
+            echo "DB migrations changed between ${PREV} and ${TAG} → auto_rollback=false (recover forward)."
+            echo "auto_rollback=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "No migration changes between ${PREV} and ${TAG} → auto_rollback=true."
+            echo "auto_rollback=true" >> "$GITHUB_OUTPUT"
+          fi
 
   build:
     needs: [ci, prepare]
@@ -74,6 +103,10 @@ jobs:
       argocd_app: safe-config-service
       health_url: https://safe-config.safe.global/check/
       health_gate: true
+      # Migration-aware rollback: prepare sets this true only when the release
+      # carries no DB migration (safe to revert the image); a migration-bearing
+      # release keeps it false so a failed gate is recovered forward, not reverted.
+      auto_rollback: ${{ needs.prepare.outputs.auto_rollback == 'true' }}
       post_deploy_checks: |
         curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.safe.global/api/v1/chains/ | jq -e '.count > 0'
         curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.safe.global/api/v1/safe-apps/ | jq -e 'length > 0'
