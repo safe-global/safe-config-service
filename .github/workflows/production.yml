@@ -23,6 +23,13 @@ on:
         description: Git tag / version to build and deploy (e.g. v2.97.0).
         type: string
         required: true
+      auto_rollback:
+        description: >-
+          Revert the image bump if the health gate fails (ArgoCD rolls back to
+          the previous tag). Leave OFF when the tag carries a DB migration —
+          reverting across a migration breaks the service (recover forward).
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -54,16 +61,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Auto-rollback is only safe when the release carries NO DB migration:
-      # reverting the image across a migration mismatches code and schema and
-      # breaks the service. Detect migration files added/changed since the
-      # previous tag; if any, disable rollback so a failed gate is recovered
-      # forward by a human. Default to false (no rollback) when unsure — safe.
+      # Auto-rollback safety:
+      #  - Manual dispatch: honour the `auto_rollback` input (operator decides).
+      #  - Release event: only safe when the release carries NO DB migration —
+      #    reverting the image across a migration mismatches code and schema and
+      #    breaks the service. Detect migration files added since the previous
+      #    tag; if any, disable rollback so a failed gate is recovered forward.
+      #    Default to false (no rollback) when unsure — safe.
       - id: migrations
         env:
           TAG: ${{ steps.tag.outputs.tag }}
+          EVENT: ${{ github.event_name }}
+          DISPATCH_ROLLBACK: ${{ inputs.auto_rollback }}
         run: |
           set -euo pipefail
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — auto_rollback=${DISPATCH_ROLLBACK} (from input)."
+            echo "auto_rollback=${DISPATCH_ROLLBACK}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           PREV=$(git tag --sort=-v:refname | grep -vFx "$TAG" | head -1 || true)
           if [ -z "$PREV" ]; then
             echo "No previous tag found — defaulting auto_rollback=false (safe)."
