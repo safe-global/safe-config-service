@@ -4,8 +4,10 @@
 # =============================================================================
 # Triggered when release-please publishes a GitHub Release (tag vX.Y.Z).
 # Runs CI on the release commit, builds an immutable image tagged with the
-# release version, then GitOps-deploys it to production with a full health gate:
-# ArgoCD wait + smoke test + auto-rollback on failure.
+# release version, then GitOps-deploys it to production with a health gate:
+# ArgoCD wait + smoke test + API checks. The gate does NOT auto-rollback on a
+# release: it fails loudly and recovery is roll-forward (auto_rollback=false;
+# see the deploy-production job). Reverting across a DB migration is unsafe.
 #
 # workflow_dispatch is a manual recovery path: it runs THIS (fixed) workflow
 # from the default branch while building/deploying the tag you pass as `tag`.
@@ -23,6 +25,13 @@ on:
         description: Git tag / version to build and deploy (e.g. v2.97.0).
         type: string
         required: true
+      auto_rollback:
+        description: >-
+          Revert the image bump if the health gate fails (ArgoCD rolls back to
+          the previous tag). Leave OFF when the tag carries a DB migration —
+          reverting across a migration breaks the service (recover forward).
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -43,11 +52,31 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
+      auto_rollback: ${{ steps.rollback.outputs.auto_rollback }}
     steps:
       - id: tag
         env:
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      # Roll-forward by default. This service ships forward-only / destructive DB
+      # migrations, so reverting the image across a migration mismatches code and
+      # schema and breaks the service — a failed health gate fails loudly and is
+      # recovered FORWARD, never auto-reverted. Auto-rollback is opt-in and only
+      # via a manual dispatch, for a deploy the operator knows is migration-free.
+      - id: rollback
+        env:
+          EVENT: ${{ github.event_name }}
+          DISPATCH_ROLLBACK: ${{ inputs.auto_rollback }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — auto_rollback=${DISPATCH_ROLLBACK} (operator opt-in)."
+            echo "auto_rollback=${DISPATCH_ROLLBACK}" >> "$GITHUB_OUTPUT"
+          else
+            echo "Release event — auto_rollback=false (roll forward on failure)."
+            echo "auto_rollback=false" >> "$GITHUB_OUTPUT"
+          fi
 
   build:
     needs: [ci, prepare]
@@ -74,6 +103,11 @@ jobs:
       argocd_app: safe-config-service
       health_url: https://safe-config.safe.global/check/
       health_gate: true
+      # Roll-forward for release: published (prepare hardcodes false); a manual
+      # workflow_dispatch may opt in via its auto_rollback input for a tag the
+      # operator knows is migration-free. Reverting across a DB migration is
+      # unsafe, so a failed release gate fails loudly and is recovered forward.
+      auto_rollback: ${{ needs.prepare.outputs.auto_rollback == 'true' }}
       post_deploy_checks: |
         curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.safe.global/api/v1/chains/ | jq -e '.count > 0'
         curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.safe.global/api/v1/safe-apps/ | jq -e 'length > 0'

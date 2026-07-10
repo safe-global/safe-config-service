@@ -55,7 +55,15 @@ jobs:
       values_file: apps/safe-config-service/values-staging.yaml
       image_tag_path: .web.imageTag
       health_url: https://safe-config.staging.5afe.dev/check/
+      # Staging's ArgoCD is behind a separate, unconfigurable VPN — so instead of
+      # an ArgoCD wait, poll /about/ until it reports the tag we just deployed.
+      # This proves the new image rolled out (not the old pods) before the smoke
+      # test + API checks run, making "staging OK" a meaningful gate for prod.
+      version_check_url: https://safe-config.staging.5afe.dev/api/v1/about/
       health_gate: false
+      post_deploy_checks: |
+        curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.staging.5afe.dev/api/v1/chains/ | jq -e '.count > 0'
+        curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.staging.5afe.dev/api/v1/safe-apps/ | jq -e 'length > 0'
     secrets:
       app_id: ${{ secrets.CI_APP_ID }}
       app_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
