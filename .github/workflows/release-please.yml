@@ -2,16 +2,22 @@
 # =============================================================================
 # CALLER: release-please → automated release PR + GitHub Release
 # =============================================================================
-# Runs on every push to main. release-please keeps ONE rolling Release PR whose
-# version and CHANGELOG are derived from Conventional Commits. Merging that PR
-# tags the commit, publishes the GitHub Release (using the App token so the
-# `release: published` event fires), and triggers production.yml automatically.
+# Gated on a SUCCESSFUL staging deploy: runs only after the Staging workflow
+# (triggered by the same push to main) completes green. Staging validates the
+# exact source (deploy + /about/ version poll + smoke + API checks) BEFORE we
+# cut a release — so we never promote to production something staging rejected.
+#
+# release-please keeps ONE rolling Release PR whose version and CHANGELOG are
+# derived from Conventional Commits. Merging that PR tags the commit, publishes
+# the GitHub Release (using the App token so the `release: published` event
+# fires), and triggers production.yml automatically.
 # -----------------------------------------------------------------------------
 name: Release Please
 
 on:
-  push:
-    branches: [main]
+  workflow_run:
+    workflows: ["Staging"]
+    types: [completed]
 
 permissions:
   contents: write
@@ -19,6 +25,9 @@ permissions:
 
 jobs:
   release:
+    # Only when the push-triggered staging deploy passed. Manual staging
+    # dispatches don't cut releases.
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
     uses: ./.github/workflows/_release.yml
     with:
       release_type: python

@@ -45,6 +45,14 @@ on:
         description: URL to smoke-test after deploy (optional; production gate).
         type: string
         default: ""
+      version_check_url:
+        description: >-
+          Optional JSON endpoint exposing a `.version` field (e.g. /api/v1/about/).
+          After deploy, poll it until `.version` equals image_tag — confirms the
+          new image actually rolled out. VPN-free alternative to the ArgoCD wait
+          when the controller is unreachable (e.g. staging behind a separate VPN).
+        type: string
+        default: ""
       health_gate:
         description: >-
           Enable the full production gate: ArgoCD wait + smoke test + post-deploy
@@ -64,11 +72,10 @@ on:
         default: true
       post_deploy_checks:
         description: >-
-          Optional bash commands run after the smoke test. Any non-zero exit
-          fails the health gate (and triggers rollback only when auto_rollback is
-          true). Useful for service-specific checks such as API endpoint
-          assertions or DB migration verification.
-          Only executed when health_gate is true.
+          Optional bash commands run after the smoke test (whenever provided, for
+          staging and production). Any non-zero exit fails the job (and triggers
+          rollback only when health_gate and auto_rollback are both true). Useful
+          for service-specific checks such as API endpoint assertions.
           Example: |
             curl -fsS https://example.com/api/v1/chains/ | jq -e '.count > 0'
             curl -fsS https://example.com/api/v1/safe-apps/ | jq -e '.count > 0'
@@ -268,6 +275,25 @@ jobs:
           grep -q "Initialization Sequence Completed" /tmp/openvpn.log \
             || { cat /tmp/openvpn.log; echo "::error::VPN failed to initialize"; exit 1; }
 
+      - name: Wait for version rollout
+        if: ${{ inputs.version_check_url != '' }}
+        env:
+          EXPECTED: ${{ inputs.image_tag }}
+          URL: ${{ inputs.version_check_url }}
+        run: |
+          set -euo pipefail
+          # Poll the service's version endpoint until it reports the tag we just
+          # deployed — proof that ArgoCD reconciled the NEW image (not the old
+          # pods). VPN-free readiness check for a GitOps rollout.
+          for i in $(seq 1 40); do
+            DEPLOYED=$(curl -fsS "$URL" | jq -r '.version' 2>/dev/null || echo "")
+            echo "attempt ${i}/40 — deployed=${DEPLOYED:-<none>} expected=${EXPECTED}"
+            [ "$DEPLOYED" = "$EXPECTED" ] && { echo "Rollout confirmed: ${EXPECTED}"; exit 0; }
+            sleep 15
+          done
+          echo "::error::Timed out (10m) waiting for ${URL} to report version ${EXPECTED}"
+          exit 1
+
       - name: Wait for ArgoCD sync & health
         if: ${{ inputs.health_gate && inputs.argocd_app != '' }}
         env:
@@ -294,7 +320,7 @@ jobs:
           curl -fsS --retry 6 --retry-delay 10 --retry-all-errors "${{ inputs.health_url }}"
 
       - name: Custom post-deploy checks
-        if: ${{ inputs.health_gate && inputs.post_deploy_checks != '' }}
+        if: ${{ inputs.post_deploy_checks != '' }}
         run: |
           set -euo pipefail
           ${{ inputs.post_deploy_checks }}
