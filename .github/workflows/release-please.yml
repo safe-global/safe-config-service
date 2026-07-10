@@ -7,6 +7,14 @@
 # exact source (deploy + /about/ version poll + smoke + API checks) BEFORE we
 # cut a release — so we never promote to production something staging rejected.
 #
+# Note: a workflow_run job checks out the default-branch HEAD at trigger time,
+# not the exact SHA staging validated. If main advances between staging turning
+# green and this firing, release-please runs against the newer commit. It is
+# mostly self-correcting — Staging uses cancel-in-progress, so a newer push
+# cancels the in-flight staging (conclusion != success) and must run its own
+# green staging to unlock a release — but the "only what staging validated"
+# guarantee is strict only while main doesn't advance in that narrow window.
+#
 # release-please keeps ONE rolling Release PR whose version and CHANGELOG are
 # derived from Conventional Commits. Merging that PR tags the commit, publishes
 # the GitHub Release (using the App token so the `release: published` event

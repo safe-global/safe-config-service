@@ -4,8 +4,10 @@
 # =============================================================================
 # Triggered when release-please publishes a GitHub Release (tag vX.Y.Z).
 # Runs CI on the release commit, builds an immutable image tagged with the
-# release version, then GitOps-deploys it to production with a full health gate:
-# ArgoCD wait + smoke test + auto-rollback on failure.
+# release version, then GitOps-deploys it to production with a health gate:
+# ArgoCD wait + smoke test + API checks. The gate does NOT auto-rollback on a
+# release: it fails loudly and recovery is roll-forward (auto_rollback=false;
+# see the deploy-production job). Reverting across a DB migration is unsafe.
 #
 # workflow_dispatch is a manual recovery path: it runs THIS (fixed) workflow
 # from the default branch while building/deploying the tag you pass as `tag`.
@@ -101,9 +103,10 @@ jobs:
       argocd_app: safe-config-service
       health_url: https://safe-config.safe.global/check/
       health_gate: true
-      # Migration-aware rollback: prepare sets this true only when the release
-      # carries no DB migration (safe to revert the image); a migration-bearing
-      # release keeps it false so a failed gate is recovered forward, not reverted.
+      # Roll-forward for release: published (prepare hardcodes false); a manual
+      # workflow_dispatch may opt in via its auto_rollback input for a tag the
+      # operator knows is migration-free. Reverting across a DB migration is
+      # unsafe, so a failed release gate fails loudly and is recovered forward.
       auto_rollback: ${{ needs.prepare.outputs.auto_rollback == 'true' }}
       post_deploy_checks: |
         curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.safe.global/api/v1/chains/ | jq -e '.count > 0'

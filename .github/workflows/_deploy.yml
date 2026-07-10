@@ -9,8 +9,10 @@
 # tag onto the cluster automatically — CI never touches kubectl/helm.
 # Each deploy leaves a merged PR in infra-tf, enabling one-click GitHub reverts.
 #
-# Optional production gate: wait for ArgoCD health + smoke-test the service;
-# on failure, `git revert` the bump (ArgoCD rolls back to the previous tag).
+# Optional production gate: wait for ArgoCD health + smoke-test the service.
+# On failure the bump is reverted (ArgoCD rolls back to the previous tag) ONLY
+# when both health_gate and auto_rollback are true; otherwise the job fails
+# loudly and recovery is roll-forward (never revert across a DB migration).
 # -----------------------------------------------------------------------------
 name: _deploy
 
@@ -285,8 +287,9 @@ jobs:
           # Poll the service's version endpoint until it reports the tag we just
           # deployed — proof that ArgoCD reconciled the NEW image (not the old
           # pods). VPN-free readiness check for a GitOps rollout.
+          [ -n "$EXPECTED" ] || { echo "::error::empty image_tag — cannot verify rollout"; exit 1; }
           for i in $(seq 1 40); do
-            DEPLOYED=$(curl -fsS "$URL" | jq -r '.version' 2>/dev/null || echo "")
+            DEPLOYED=$(curl -fsS "$URL" 2>/dev/null | jq -r '.version // ""' 2>/dev/null || true)
             echo "attempt ${i}/40 — deployed=${DEPLOYED:-<none>} expected=${EXPECTED}"
             [ "$DEPLOYED" = "$EXPECTED" ] && { echo "Rollout confirmed: ${EXPECTED}"; exit 0; }
             sleep 15
