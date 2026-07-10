@@ -50,48 +50,30 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
-      auto_rollback: ${{ steps.migrations.outputs.auto_rollback }}
+      auto_rollback: ${{ steps.rollback.outputs.auto_rollback }}
     steps:
       - id: tag
         env:
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          fetch-depth: 0
-
-      # Auto-rollback safety:
-      #  - Manual dispatch: honour the `auto_rollback` input (operator decides).
-      #  - Release event: only safe when the release carries NO DB migration —
-      #    reverting the image across a migration mismatches code and schema and
-      #    breaks the service. Detect migration files added since the previous
-      #    tag; if any, disable rollback so a failed gate is recovered forward.
-      #    Default to false (no rollback) when unsure — safe.
-      - id: migrations
+      # Roll-forward by default. This service ships forward-only / destructive DB
+      # migrations, so reverting the image across a migration mismatches code and
+      # schema and breaks the service — a failed health gate fails loudly and is
+      # recovered FORWARD, never auto-reverted. Auto-rollback is opt-in and only
+      # via a manual dispatch, for a deploy the operator knows is migration-free.
+      - id: rollback
         env:
-          TAG: ${{ steps.tag.outputs.tag }}
           EVENT: ${{ github.event_name }}
           DISPATCH_ROLLBACK: ${{ inputs.auto_rollback }}
         run: |
           set -euo pipefail
           if [ "$EVENT" = "workflow_dispatch" ]; then
-            echo "Manual dispatch — auto_rollback=${DISPATCH_ROLLBACK} (from input)."
+            echo "Manual dispatch — auto_rollback=${DISPATCH_ROLLBACK} (operator opt-in)."
             echo "auto_rollback=${DISPATCH_ROLLBACK}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          PREV=$(git tag --sort=-v:refname | grep -vFx "$TAG" | head -1 || true)
-          if [ -z "$PREV" ]; then
-            echo "No previous tag found — defaulting auto_rollback=false (safe)."
-            echo "auto_rollback=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          if git diff --name-only "$PREV" "$TAG" | grep -qE '(^|/)migrations/.+\.py$'; then
-            echo "DB migrations changed between ${PREV} and ${TAG} → auto_rollback=false (recover forward)."
-            echo "auto_rollback=false" >> "$GITHUB_OUTPUT"
           else
-            echo "No migration changes between ${PREV} and ${TAG} → auto_rollback=true."
-            echo "auto_rollback=true" >> "$GITHUB_OUTPUT"
+            echo "Release event — auto_rollback=false (roll forward on failure)."
+            echo "auto_rollback=false" >> "$GITHUB_OUTPUT"
           fi
 
   build:
