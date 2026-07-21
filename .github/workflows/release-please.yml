@@ -39,6 +39,10 @@ jobs:
     uses: ./.github/workflows/_release.yml
     with:
       release_type: python
+      # Manual production gate: the Release PR is NOT auto-merged. QA + the
+      # maintainers review and merge it deliberately once staging has been
+      # tested — merging is the "promote to production" decision.
+      auto_merge_release: false
     secrets:
       app_id: ${{ secrets.CI_APP_ID }}
       app_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
