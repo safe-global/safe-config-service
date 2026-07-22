@@ -271,6 +271,10 @@ jobs:
 
       - name: Start VPN
         if: ${{ env._HAS_VPN == 'true' }}
+        # Best-effort: the VPN only enables the deeper ArgoCD wait. If it fails,
+        # don't kill the deploy — the version-poll (/about/) + smoke + API checks
+        # below (all public, no VPN) are the real gate.
+        continue-on-error: true
         run: |
           set -euo pipefail
           aws secretsmanager get-secret-value \
@@ -279,12 +283,13 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq openvpn
           sudo openvpn --config /tmp/vpn.ovpn --daemon \
             --log /tmp/openvpn.log --writepid /tmp/openvpn.pid
+          # openvpn runs as root, so its log/pid are root-owned — read them with sudo.
           for i in $(seq 1 30); do
-            grep -q "Initialization Sequence Completed" /tmp/openvpn.log 2>/dev/null && break
+            sudo grep -q "Initialization Sequence Completed" /tmp/openvpn.log 2>/dev/null && break
             sleep 2
           done
-          grep -q "Initialization Sequence Completed" /tmp/openvpn.log \
-            || { cat /tmp/openvpn.log; echo "::error::VPN failed to initialize"; exit 1; }
+          sudo grep -q "Initialization Sequence Completed" /tmp/openvpn.log \
+            || { sudo cat /tmp/openvpn.log 2>/dev/null || true; echo "::error::VPN failed to initialize"; exit 1; }
 
       - name: Wait for version rollout
         if: ${{ inputs.version_check_url != '' }}
@@ -308,6 +313,10 @@ jobs:
 
       - name: Wait for ArgoCD sync & health
         if: ${{ inputs.health_gate && inputs.argocd_app != '' }}
+        # Best-effort deeper check (needs the VPN). A failure here — including the
+        # VPN being down — must NOT fail the deploy; the version-poll + smoke + API
+        # checks are the gate. This step's failure is surfaced but non-blocking.
+        continue-on-error: true
         env:
           ARGOCD_SERVER: ${{ secrets.argocd_server }}
           ARGOCD_AUTH_TOKEN: ${{ steps.argocd-secrets.outputs.token || secrets.argocd_token }}
@@ -362,5 +371,6 @@ jobs:
       - name: Stop VPN
         if: ${{ always() && env._HAS_VPN == 'true' }}
         run: |
-          [ -f /tmp/openvpn.pid ] && sudo kill "$(cat /tmp/openvpn.pid)" 2>/dev/null || true
-          rm -f /tmp/vpn.ovpn /tmp/openvpn.pid /tmp/openvpn.log
+          # pid/log are root-owned (openvpn ran via sudo) — kill and clean up with sudo.
+          [ -f /tmp/openvpn.pid ] && sudo kill "$(sudo cat /tmp/openvpn.pid)" 2>/dev/null || true
+          sudo rm -f /tmp/vpn.ovpn /tmp/openvpn.pid /tmp/openvpn.log
