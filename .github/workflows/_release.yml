@@ -81,3 +81,33 @@ jobs:
           set -euo pipefail
           PR_NUMBER=$(echo "$PR_JSON" | jq -r '.number')
           gh pr merge --auto --squash "$PR_NUMBER" --repo "$GITHUB_REPOSITORY"
+
+      # Safety-net for the recurring "stuck Release PR" problem.
+      # After publishing the Release, release-please tries to COMMENT on the
+      # merged Release PR — but this repo locks every PR on merge (org-wide
+      # policy), so the comment fails ("issue is locked") and the action aborts
+      # BEFORE swapping the PR label 'autorelease: pending' -> 'autorelease:
+      # tagged'. Left pending, the NEXT run retries creating the already-
+      # published release (422 already_exists) and no new release can be cut.
+      # We force the label swap here — editing labels is allowed on a locked
+      # PR (only commenting is blocked). Idempotent: a no-op when nothing is
+      # pending. (Relaxing the org lock policy would be the alternative, but it
+      # has org-wide blast radius; this fix is fully contained in our pipeline.)
+      - name: Mark released PRs as tagged (workaround for locked-PR comment failure)
+        if: ${{ steps.release.outputs.release_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          pending=$(gh pr list --repo "$GITHUB_REPOSITORY" --state merged \
+            --label "autorelease: pending" --json number --jq '.[].number')
+          if [ -z "$pending" ]; then
+            echo "No merged PR left on 'autorelease: pending' — nothing to do."
+            exit 0
+          fi
+          for n in $pending; do
+            echo "Relabeling merged Release PR #${n}: 'autorelease: pending' -> 'autorelease: tagged'"
+            gh pr edit "$n" --repo "$GITHUB_REPOSITORY" \
+              --remove-label "autorelease: pending" \
+              --add-label "autorelease: tagged"
+          done
