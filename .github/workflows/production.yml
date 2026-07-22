@@ -102,6 +102,10 @@ jobs:
       image_tag_path: .web.imageTag
       argocd_app: safe-config-service
       health_url: https://safe-config.safe.global/check/
+      # VPN-free rollout confirmation (in addition to the ArgoCD wait): poll
+      # /about/ until it reports the deployed tag. This gates prod even if the
+      # VPN/ArgoCD wait is unavailable.
+      version_check_url: https://safe-config.safe.global/api/v1/about/
       health_gate: true
       # Roll-forward for release: published (prepare hardcodes false); a manual
       # workflow_dispatch may opt in via its auto_rollback input for a tag the
