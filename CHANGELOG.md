@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.98.0](https://github.com/safe-global/safe-config-service/compare/v2.97.0...v2.98.0) (2026-07-22)
+
+
+### Features
+
+* **ci:** Add workflow_dispatch recovery path to production.yml ([#1622](https://github.com/safe-global/safe-config-service/issues/1622)) ([61c5675](https://github.com/safe-global/safe-config-service/commit/61c56758c034286aa3c385d2e033129ee5a3cd47))
+
+
+### Bug Fixes
+
+* **ci:** correct safe-apps post-deploy check to array length ([63d60be](https://github.com/safe-global/safe-config-service/commit/63d60bec4e7d81302eeda054b480699e051688b8))
+* **ci:** Correct safe-apps post-deploy check to array length ([#1624](https://github.com/safe-global/safe-config-service/issues/1624)) ([63d60be](https://github.com/safe-global/safe-config-service/commit/63d60bec4e7d81302eeda054b480699e051688b8))
+* **ci:** use env flags for secrets conditionals in _deploy.yml ([#1621](https://github.com/safe-global/safe-config-service/issues/1621)) ([188d940](https://github.com/safe-global/safe-config-service/commit/188d940001a594a8a47b7cf85fe89cf29c683da2))
+
 ## [2.97.0](https://github.com/safe-global/safe-config-service/compare/v2.96.2...v2.97.0) (2026-07-08)
 
 
