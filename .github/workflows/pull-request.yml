@@ -9,6 +9,9 @@
 # "Require branches up to date". Everything after merge is automated.
 #
 # (cla.yml and claude-code-review.yml stay as-is — they already run on PR events.)
+#
+# (no-op: merge triggers a full pipeline run to validate staging→release→prod
+#  end-to-end after the infra-tf bypass fix — 2026-07-22.)
 # -----------------------------------------------------------------------------
 name: Pull request
 
