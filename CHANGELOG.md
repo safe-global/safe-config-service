@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.98.1](https://github.com/safe-global/safe-config-service/compare/v2.98.0...v2.98.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* **ci:** make prod health gate VPN-independent; fix VPN log perms ([3fe7647](https://github.com/safe-global/safe-config-service/commit/3fe764778b1cd026b14fd62c37f9e8b70f2eb2aa))
+* **ci:** Make prod health gate VPN-independent; fix VPN log perms ([#1636](https://github.com/safe-global/safe-config-service/issues/1636)) ([3fe7647](https://github.com/safe-global/safe-config-service/commit/3fe764778b1cd026b14fd62c37f9e8b70f2eb2aa))
+
 ## [2.98.0](https://github.com/safe-global/safe-config-service/compare/v2.97.0...v2.98.0) (2026-07-22)
 
 
