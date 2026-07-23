@@ -290,6 +290,15 @@ jobs:
           done
           sudo grep -q "Initialization Sequence Completed" /tmp/openvpn.log \
             || { sudo cat /tmp/openvpn.log 2>/dev/null || true; echo "::error::VPN failed to initialize"; exit 1; }
+          # Route the private infra zone through the VPC resolver over the tunnel
+          # so the private ArgoCD server (athena.infra.safe.global) resolves.
+          # Raw `openvpn --daemon` brings up tun0 but does NOT wire its pushed DNS
+          # into systemd-resolved, so *.infra.safe.global has no route and the
+          # ArgoCD wait fails with "no such host". Set it explicitly (mirrors the
+          # working Terraform Workflow action's "Configure VPN DNS" step). 10.0.0.2
+          # is the shared-infra VPC resolver. Best-effort like the rest of this step.
+          sudo resolvectl dns tun0 10.0.0.2
+          sudo resolvectl domain tun0 "~infra.safe.global"
 
       - name: Wait for version rollout
         if: ${{ inputs.version_check_url != '' }}
