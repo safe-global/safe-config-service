@@ -81,3 +81,35 @@ jobs:
           set -euo pipefail
           PR_NUMBER=$(echo "$PR_JSON" | jq -r '.number')
           gh pr merge --auto --squash "$PR_NUMBER" --repo "$GITHUB_REPOSITORY"
+
+      # Safety-net for the recurring "stuck Release PR" problem.
+      # After publishing the Release, release-please tries to COMMENT on the
+      # just-merged Release PR — but this repo locks PRs on merge (org-wide
+      # policy), so the comment fails ("issue is locked") and the action aborts
+      # BEFORE swapping that PR's label 'autorelease: pending' -> 'autorelease:
+      # tagged'. Left pending, the NEXT run retries creating the already-
+      # published release (422 already_exists) and no new release can be cut.
+      # We swap the label ourselves — editing labels is allowed on a locked PR
+      # (only commenting is blocked). Scoped to the single PR that was just
+      # released (the one whose squash-merge commit is this run's release SHA),
+      # not every pending PR. Idempotent: a no-op if that PR is already tagged.
+      - name: Mark the released PR as tagged (workaround for locked-PR comment failure)
+        if: ${{ steps.release.outputs.release_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASED_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          # The Release PR just merged is the one whose merge commit is the
+          # released SHA and still carries the pending label — only touch that one.
+          pr=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${RELEASED_SHA}/pulls" \
+            --jq '.[] | select([.labels[].name] | index("autorelease: pending")) | .number' \
+            | head -n1)
+          if [ -z "$pr" ]; then
+            echo "No merged Release PR on 'autorelease: pending' for ${RELEASED_SHA} — nothing to do."
+            exit 0
+          fi
+          echo "Relabeling Release PR #${pr}: 'autorelease: pending' -> 'autorelease: tagged'"
+          gh pr edit "$pr" --repo "${GITHUB_REPOSITORY}" \
+            --remove-label "autorelease: pending" \
+            --add-label "autorelease: tagged"
