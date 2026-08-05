@@ -329,6 +329,7 @@ jobs:
         env:
           ARGOCD_SERVER: ${{ secrets.argocd_server }}
           ARGOCD_AUTH_TOKEN: ${{ steps.argocd-secrets.outputs.token || secrets.argocd_token }}
+          ARGOCD_APP: ${{ inputs.argocd_app }}
         run: |
           set -euo pipefail
           if [ -z "${ARGOCD_SERVER:-}" ] || [ -z "${ARGOCD_AUTH_TOKEN:-}" ]; then
@@ -340,20 +341,24 @@ jobs:
           curl -sSL -o /tmp/argocd \
             "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
           chmod +x /tmp/argocd
-          /tmp/argocd app wait "${{ inputs.argocd_app }}" \
+          /tmp/argocd app wait "${ARGOCD_APP}" \
             --health --sync --timeout 300 --grpc-web
 
       - name: Smoke test
         if: ${{ inputs.health_url != '' }}
+        env:
+          HEALTH_URL: ${{ inputs.health_url }}
         run: |
           set -euo pipefail
-          curl -fsS --retry 6 --retry-delay 10 --retry-all-errors "${{ inputs.health_url }}"
+          curl -fsS --retry 6 --retry-delay 10 --retry-all-errors "${HEALTH_URL}"
 
       - name: Custom post-deploy checks
         if: ${{ inputs.post_deploy_checks != '' }}
+        env:
+          POST_DEPLOY_CHECKS: ${{ inputs.post_deploy_checks }}
         run: |
           set -euo pipefail
-          ${{ inputs.post_deploy_checks }}
+          bash -lc "$POST_DEPLOY_CHECKS"
 
       - name: Roll back on failed health gate
         if: ${{ failure() && steps.commit.outputs.pushed == 'true' && inputs.health_gate && inputs.auto_rollback }}
