@@ -74,10 +74,14 @@ jobs:
       - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
       - name: Compute image tags
         id: tags
+        env:
+          IMAGE_NAME: ${{ inputs.image_name }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          ALSO_TAG_LATEST: ${{ inputs.also_tag_latest }}
         run: |
-          TAGS="${{ inputs.image_name }}:${{ inputs.image_tag }}"
-          if [ "${{ inputs.also_tag_latest }}" = "true" ]; then
-            TAGS="${TAGS}"$'\n'"${{ inputs.image_name }}:latest"
+          TAGS="${IMAGE_NAME}:${IMAGE_TAG}"
+          if [ "${ALSO_TAG_LATEST}" = "true" ]; then
+            TAGS="${TAGS}"$'\n'"${IMAGE_NAME}:latest"
           fi
           {
             echo "tags<<EOF"
