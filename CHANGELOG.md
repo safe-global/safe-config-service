@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.103.1](https://github.com/safe-global/safe-config-service/compare/v2.103.0...v2.103.1) (2026-08-20)
+
+
+### Bug Fixes
+
+* **deps:** bump sqlparse from 0.5.5 to 0.6.0 ([#1670](https://github.com/safe-global/safe-config-service/issues/1670)) ([61ff220](https://github.com/safe-global/safe-config-service/commit/61ff220d56b9d72360fa295a2d28444f71ce9eff))
+
 ## [2.98.1](https://github.com/safe-global/safe-config-service/compare/v2.98.0...v2.98.1) (2026-07-22)
 
 
