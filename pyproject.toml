@@ -14,7 +14,7 @@ dependencies = [
     "drf-yasg[validation]==1.21.15",
     "eth-typing==6.0.0",
     "eth-utils==6.0.0",
-    "gunicorn==26.0.0",
+    "gunicorn==26.2.0",
     "pillow==12.3.0",
     "psycopg[binary]==3.3.4",
     "requests==2.34.2",
