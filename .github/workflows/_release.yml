@@ -82,34 +82,34 @@ jobs:
           PR_NUMBER=$(echo "$PR_JSON" | jq -r '.number')
           gh pr merge --auto --squash "$PR_NUMBER" --repo "$GITHUB_REPOSITORY"
 
-      # Safety-net for the recurring "stuck Release PR" problem.
-      # After publishing the Release, release-please tries to COMMENT on the
-      # just-merged Release PR — but this repo locks PRs on merge (org-wide
-      # policy), so the comment fails ("issue is locked") and the action aborts
-      # BEFORE swapping that PR's label 'autorelease: pending' -> 'autorelease:
-      # tagged'. Left pending, the NEXT run retries creating the already-
-      # published release (422 already_exists) and no new release can be cut.
-      # We swap the label ourselves — editing labels is allowed on a locked PR
-      # (only commenting is blocked). Scoped to the single PR that was just
-      # released (the one whose squash-merge commit is this run's release SHA),
-      # not every pending PR. Idempotent: a no-op if that PR is already tagged.
-      - name: Mark the released PR as tagged (workaround for locked-PR comment failure)
-        if: ${{ steps.release.outputs.release_created == 'true' }}
+      # Self-healing safety-net for the recurring "stuck Release PR" problem.
+      # This repo locks PRs on merge (org-wide policy), so after publishing a
+      # Release, release-please's attempt to COMMENT on the just-merged Release PR
+      # fails ("issue is locked") and it aborts BEFORE swapping that PR's label
+      # 'autorelease: pending' -> 'autorelease: tagged'. Left pending, the NEXT run
+      # retries creating the already-published release and the whole job FAILS —
+      # which is exactly why a fix gated on release success is useless: it never
+      # runs (the failure happens first). So this step runs ALWAYS, independent of
+      # release-please's outcome: it finds every MERGED Release PR still on
+      # 'autorelease: pending' whose release tag ALREADY EXISTS and flips it to
+      # 'tagged'. Editing labels is allowed on a locked PR (only commenting is
+      # blocked). Idempotent; genuinely unreleased PRs are left untouched.
+      - name: Heal stuck Release PR labels (locked-PR workaround)
+        if: ${{ !cancelled() && steps.app-token.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          RELEASED_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
-          # The Release PR just merged is the one whose merge commit is the
-          # released SHA and still carries the pending label — only touch that one.
-          pr=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${RELEASED_SHA}/pulls" \
-            --jq '.[] | select([.labels[].name] | index("autorelease: pending")) | .number' \
-            | head -n1)
-          if [ -z "$pr" ]; then
-            echo "No merged Release PR on 'autorelease: pending' for ${RELEASED_SHA} — nothing to do."
-            exit 0
-          fi
-          echo "Relabeling Release PR #${pr}: 'autorelease: pending' -> 'autorelease: tagged'"
-          gh pr edit "$pr" --repo "${GITHUB_REPOSITORY}" \
-            --remove-label "autorelease: pending" \
-            --add-label "autorelease: tagged"
+          gh pr list --repo "${GITHUB_REPOSITORY}" --state merged \
+            --label "autorelease: pending" --json number,title \
+            --jq '.[] | "\(.number)\t\(.title)"' | while IFS=$'\t' read -r pr title; do
+            version="${title##*release }" # "chore(main): release X.Y.Z" -> "X.Y.Z"
+            if gh release view "v${version}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+              echo "Release v${version} exists — flipping PR #${pr}: 'pending' -> 'tagged'"
+              gh pr edit "$pr" --repo "${GITHUB_REPOSITORY}" \
+                --remove-label "autorelease: pending" \
+                --add-label "autorelease: tagged"
+            else
+              echo "Release v${version} not yet published — leaving PR #${pr} pending."
+            fi
+          done
