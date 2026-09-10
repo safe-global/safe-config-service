@@ -95,7 +95,7 @@ jobs:
       # 'tagged'. Editing labels is allowed on a locked PR (only commenting is
       # blocked). Idempotent; genuinely unreleased PRs are left untouched.
       - name: Heal stuck Release PR labels (locked-PR workaround)
-        if: ${{ always() && steps.app-token.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.app-token.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
