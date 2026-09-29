@@ -49,7 +49,9 @@ on:
         default: ""
       version_check_url:
         description: >-
-          Optional JSON endpoint exposing a `.version` field (e.g. /api/v1/about/).
+          Optional JSON endpoint exposing a `.version` field. The path is
+          service-specific — /api/v1/about/ here, /about in safe-client-gateway,
+          whose controller declares no version prefix.
           After deploy, poll it until `.version` equals image_tag — confirms the
           new image actually rolled out. VPN-free alternative to the ArgoCD wait
           when the controller is unreachable (e.g. staging behind a separate VPN).

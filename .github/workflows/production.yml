@@ -2,23 +2,28 @@
 # =============================================================================
 # CALLER: GitHub Release → PRODUCTION
 # =============================================================================
-# Triggered when release-please publishes a GitHub Release (tag vX.Y.Z).
-# Runs CI on the release commit, builds an immutable image tagged with the
+# Triggered when a GitHub Release is published (tag vX.Y.Z), which is cut by
+# hand. Runs CI on the release commit, builds an immutable image tagged with the
 # release version, then GitOps-deploys it to production with a health gate:
 # ArgoCD wait + smoke test + API checks. The gate does NOT auto-rollback on a
 # release: it fails loudly and recovery is roll-forward (auto_rollback=false;
 # see the deploy-production job). Reverting across a DB migration is unsafe.
 #
-# workflow_dispatch is a manual recovery path: it runs THIS (fixed) workflow
-# from the default branch while building/deploying the tag you pass as `tag`.
-# Use it when a release's own tagged workflow is broken and the release event
-# can't be re-run cleanly.
+# workflow_dispatch deploys the tag you pass as `tag`, running THIS (fixed)
+# workflow from the default branch. It serves both as the recovery path for a
+# release whose own run was broken, and as a way to ship an existing tag with no
+# Release object behind it. Note that a dispatch emits no `release` event, so no
+# release notes are produced.
 # -----------------------------------------------------------------------------
 name: Production
 
 on:
+  # `released`, not `published`. The two differ in more than pre-release
+  # coverage: `published` does not fire again when a pre-release is promoted to a
+  # full release, so that flow would tag a release and silently never deploy it.
+  # `released` covers the promotion.
   release:
-    types: [published]
+    types: [released]
   workflow_dispatch:
     inputs:
       tag:
