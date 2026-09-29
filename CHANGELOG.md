@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.107.0](https://github.com/safe-global/safe-config-service/compare/v2.106.0...v2.107.0) (2026-09-29)
+
+
+### Features
+
+* Add per-chain gas payment options to the relayer ([#1698](https://github.com/safe-global/safe-config-service/issues/1698)) ([100b76a](https://github.com/safe-global/safe-config-service/commit/100b76ae7c6ad1653fdb6321157daa190cdde49a))
+
 ## [2.103.1](https://github.com/safe-global/safe-config-service/compare/v2.103.0...v2.103.1) (2026-08-20)
 
 
