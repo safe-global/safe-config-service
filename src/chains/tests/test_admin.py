@@ -2,13 +2,14 @@
 from unittest.mock import patch
 
 from django.contrib.admin import site
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 
 import web3
 
-from ..admin import ChainAdmin, FeatureInline
+from ..admin import ChainAdmin, ChainAdminForm, FeatureInline
 from ..models import Chain, Feature, GasToken
 from .factories import ChainFactory, FeatureFactory, GasTokenFactory
 
@@ -208,6 +209,62 @@ class ChainAdminGlobalFeaturesContextTests(TestCase):
         self.assertTrue(
             all(f.scope == Feature.Scope.GLOBAL for f in passed["global_features"])
         )
+
+
+class ChainAdminGasPaymentOptionsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.superuser = User.objects.create_superuser(
+            "gas_admin", "gas_admin@example.com", "password"
+        )
+
+    def setUp(self) -> None:
+        self.client = Client()
+        self.client.force_login(self.superuser)
+
+    def test_change_view_renders_a_checkbox_per_option(self) -> None:
+        chain = ChainFactory.create(
+            relayer_gas_payment_options=[Chain.GasPaymentOption.SUBSCRIPTION.value]
+        )
+        url = reverse("admin:chains_chain_change", args=[chain.pk])
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        field = response.context["adminform"].form["relayer_gas_payment_options"]
+        checkboxes = list(field)
+        self.assertEqual(
+            [checkbox.data["value"] for checkbox in checkboxes],
+            [option.value for option in Chain.GasPaymentOption],
+        )
+        self.assertEqual(
+            [
+                checkbox.data["value"]
+                for checkbox in checkboxes
+                if checkbox.data["selected"]
+            ],
+            [Chain.GasPaymentOption.SUBSCRIPTION.value],
+        )
+
+    def test_field_accepts_no_option(self) -> None:
+        field = ChainAdminForm.base_fields["relayer_gas_payment_options"]
+
+        self.assertEqual(field.clean([]), [])
+
+    def test_field_accepts_several_options(self) -> None:
+        field = ChainAdminForm.base_fields["relayer_gas_payment_options"]
+        options = [
+            Chain.GasPaymentOption.FREE_DAILY_LIMIT.value,
+            Chain.GasPaymentOption.SUBSCRIPTION.value,
+        ]
+
+        self.assertEqual(field.clean(options), options)
+
+    def test_field_rejects_unknown_option(self) -> None:
+        field = ChainAdminForm.base_fields["relayer_gas_payment_options"]
+
+        with self.assertRaises(ValidationError):
+            field.clean(["UNKNOWN"])
 
 
 class TokenAdminTests(TestCase):

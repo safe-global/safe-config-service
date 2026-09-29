@@ -92,16 +92,37 @@ class BalancesProviderSerializer(serializers.Serializer[Chain]):
     enabled = serializers.BooleanField(source="balances_provider_enabled")
 
 
+class GasPaymentOptionsField(serializers.ListField):
+    child = serializers.ChoiceField(choices=Chain.GasPaymentOption.choices)
+
+    def to_representation(self, data: list[str]) -> list[str]:
+        # In declaration order, not in the order they were ticked.
+        return [
+            option.value
+            for option in Chain.GasPaymentOption
+            if option.value in data
+        ]
+
+
 class RelayerSerializer(serializers.Serializer[Chain]):
-    type = serializers.CharField(source="relayer_type", allow_null=True)
+    type = serializers.CharField(
+        source="relayer_type",
+        allow_null=True,
+        help_text="Deprecated: superseded by gasPaymentOptions and to be removed.",
+    )
     safe_creation_sponsored = serializers.BooleanField(
         source="relayer_safe_creation_sponsored"
     )
     safe_transaction_sponsored = serializers.BooleanField(
-        source="relayer_safe_transaction_sponsored"
+        source="relayer_safe_transaction_sponsored",
+        help_text="Deprecated: superseded by gasPaymentOptions and to be removed.",
     )
     enable_tenderly_simulation_before_relay = serializers.BooleanField(
         source="relayer_enable_tenderly_simulation_before_relay"
+    )
+    gas_payment_options = GasPaymentOptionsField(
+        source="relayer_gas_payment_options",
+        help_text="Ways a relayed transaction may be paid for on this chain. Empty when none is offered.",
     )
 
 

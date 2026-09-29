@@ -67,6 +67,13 @@ class ChainFactory(DjangoModelFactory):  # type: ignore[misc]
     relayer_enable_tenderly_simulation_before_relay = factory.LazyAttribute(
         lambda o: random.choice([True, False])
     )
+    relayer_gas_payment_options = factory.LazyAttribute(
+        lambda o: [
+            option.value
+            for option in Chain.GasPaymentOption
+            if random.choice([True, False])
+        ]
+    )
 
 
 class GasPriceFactory(DjangoModelFactory):  # type: ignore[misc]

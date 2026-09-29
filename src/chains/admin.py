@@ -68,8 +68,23 @@ class FeatureServiceInline(admin.TabularInline[Model, Model]):
     verbose_name_plural = "Features enabled for this service"
 
 
+class ChainAdminForm(forms.ModelForm[Chain]):
+    # Checkboxes instead of the comma-separated text an ArrayField renders.
+    relayer_gas_payment_options = forms.MultipleChoiceField(
+        choices=Chain.GasPaymentOption.choices,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        help_text=Chain._meta.get_field("relayer_gas_payment_options").help_text,
+    )
+
+    class Meta:
+        model = Chain
+        fields = "__all__"
+
+
 @admin.register(Chain)
 class ChainAdmin(admin.ModelAdmin[Chain]):
+    form = ChainAdminForm
     list_display = (
         "id",
         "name",

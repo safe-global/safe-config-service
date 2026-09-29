@@ -4,6 +4,7 @@ import re
 from typing import IO, Union
 from urllib.parse import urlparse
 
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
 from django.core.validators import RegexValidator
@@ -72,6 +73,12 @@ class Chain(models.Model):
         GTF = "GTF", "GTF"
         RELAY_FEE = "RELAY_FEE", "Relay Fee"
         DAILY_LIMIT = "DAILY_LIMIT", "Daily Limit"
+        NO_FEE_CAMPAIGN = "NO_FEE_CAMPAIGN", "No Fee Campaign"
+
+    class GasPaymentOption(models.TextChoices):
+        FREE_DAILY_LIMIT = "FREE_DAILY_LIMIT", "Free Daily Limit"
+        SUBSCRIPTION = "SUBSCRIPTION", "Subscription"
+        PAY_FROM_SAFE = "PAY_FROM_SAFE", "Pay From Safe"
         NO_FEE_CAMPAIGN = "NO_FEE_CAMPAIGN", "No Fee Campaign"
 
     id = models.PositiveBigIntegerField(verbose_name="Chain Id", primary_key=True)
@@ -188,28 +195,39 @@ class Chain(models.Model):
     relayer_safe_creation_sponsored = models.BooleanField(
         default=False,
         db_default=False,
-        help_text="Sponsor/relay Safe account creation transactions. Requires a relayer type.",
+        help_text="Sponsor/relay Safe account creation transactions. Requires a relayer type or a gas payment option.",
     )
     relayer_safe_transaction_sponsored = models.BooleanField(
         default=False,
         db_default=False,
-        help_text="Sponsor/relay Safe transaction execution. Requires a relayer type.",
+        help_text="Deprecated: superseded by the gas payment options. Sponsor/relay Safe transaction execution. Requires a relayer type or a gas payment option.",
     )
     relayer_enable_tenderly_simulation_before_relay = models.BooleanField(
         default=False,
         db_default=False,
         help_text="Enable/disable Tenderly simulation on the Safe Client Gateway when relaying a transaction on this chain.",
     )
+    relayer_gas_payment_options = ArrayField(
+        models.CharField(max_length=32, choices=GasPaymentOption.choices),
+        default=list,
+        db_default=[],
+        blank=True,
+        help_text="Ways the Safe Client Gateway may pay for a relayed transaction on this chain. Leave empty to offer none.",
+    )
 
     def clean(self) -> None:
-        if self.relayer_type is None and (
+        has_relayer = (
+            self.relayer_type is not None or len(self.relayer_gas_payment_options) > 0
+        )
+        if not has_relayer and (
             self.relayer_safe_creation_sponsored
             or self.relayer_safe_transaction_sponsored
         ):
-            msg = "Sponsoring options require a relayer type to be set."
+            msg = "Sponsoring options require a relayer type or a gas payment option to be set."
             raise ValidationError(
                 {
                     "relayer_type": msg,
+                    "relayer_gas_payment_options": msg,
                     "relayer_safe_creation_sponsored": msg,
                     "relayer_safe_transaction_sponsored": msg,
                 }
