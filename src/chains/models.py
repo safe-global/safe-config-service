@@ -210,6 +210,7 @@ class Chain(models.Model):
     relayer_gas_payment_options = ArrayField(
         models.CharField(max_length=32, choices=GasPaymentOption.choices),
         default=list,
+        db_default=[],
         blank=True,
         help_text="Ways the Safe Client Gateway may pay for a relayed transaction on this chain. Leave empty to offer none.",
     )
