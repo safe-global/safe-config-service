@@ -192,9 +192,29 @@ class ChainRelayerSponsoringValidationTestCase(TransactionTestCase):
                     "relayer_safe_transaction_sponsored": False,
                     field: True,
                 }
-                chain = ChainFactory.build(relayer_type=None, **sponsoring)
+                chain = ChainFactory.build(
+                    relayer_type=None, relayer_gas_payment_options=[], **sponsoring
+                )
                 with self.assertRaises(ValidationError):
                     chain.clean()
+
+    def test_sponsoring_with_gas_payment_option_only_is_valid(self) -> None:
+        for option in Chain.GasPaymentOption:
+            with self.subTest(option=option.value):
+                chain = ChainFactory.build(
+                    relayer_type=None,
+                    relayer_gas_payment_options=[option.value],
+                    relayer_safe_creation_sponsored=True,
+                    relayer_safe_transaction_sponsored=True,
+                )
+                # Should not raise
+                chain.clean()
+
+    def test_unknown_gas_payment_option_is_invalid(self) -> None:
+        chain = ChainFactory.create(relayer_gas_payment_options=["UNKNOWN"])
+        with self.assertRaises(ValidationError) as context:
+            chain.full_clean()
+        self.assertIn("relayer_gas_payment_options", context.exception.message_dict)
 
     def test_sponsoring_with_relayer_type_is_valid(self) -> None:
         chain = ChainFactory.build(
