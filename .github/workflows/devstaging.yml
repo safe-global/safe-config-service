@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: FSL-1.1-MIT
 # =============================================================================
-# CALLER: Trunk pipeline → STAGING (event: push to main or manual dispatch)
+# CALLER: Trunk pipeline → DEVSTAGING (event: push to main or manual dispatch)
 # =============================================================================
 # Every merge to main: re-run CI on the merge result, build an immutable image
-# tagged main-<short-sha>, then GitOps-deploy it to staging. No manual steps.
-# workflow_dispatch allows triggering a staging deploy without a code commit
+# tagged main-<short-sha>, then GitOps-deploy it to devstaging. No manual steps.
+# workflow_dispatch allows triggering a devstaging deploy without a code commit
 # (useful for soak testing and hotfix verification).
 # -----------------------------------------------------------------------------
-name: Staging
+name: Devstaging
 
 on:
   push:
@@ -20,7 +20,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: staging
+  group: devstaging
   cancel-in-progress: true
 
 jobs:
@@ -45,20 +45,20 @@ jobs:
       image_tag: ${{ needs.prepare.outputs.tag }}
       version: ${{ needs.prepare.outputs.tag }}
 
-  deploy-staging:
+  deploy-devstaging:
     needs: [prepare, build]
     uses: ./.github/workflows/_deploy.yml
     with:
-      environment: staging
+      environment: devstaging
       image_tag: ${{ needs.prepare.outputs.tag }}
       infra_repo: safe-global/safe-config-service-infra-tf
-      values_file: apps/safe-config-service/values-staging.yaml
+      values_file: apps/safe-config-service/values-devstaging.yaml
       image_tag_path: .web.imageTag
       health_url: https://safe-config.staging.5afe.dev/check/
       # Staging's ArgoCD is behind a separate, unconfigurable VPN — so instead of
       # an ArgoCD wait, poll /about/ until it reports the tag we just deployed.
       # This proves the new image rolled out (not the old pods) before the smoke
-      # test + API checks run, making "staging OK" a meaningful gate for prod.
+      # test + API checks run, making "devstaging OK" a meaningful gate for prod.
       version_check_url: https://safe-config.staging.5afe.dev/api/v1/about/
       health_gate: false
       post_deploy_checks: |
