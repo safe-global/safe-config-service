@@ -16,7 +16,7 @@ dependencies = [
     "eth-utils==6.0.0",
     "gunicorn==26.2.0",
     "pillow==12.3.0",
-    "psycopg[binary]==3.3.5",
+    "psycopg[binary]==3.3.6",
     "requests==2.34.2",
     "safe-eth-py[django]==7.25.0",
 ]
