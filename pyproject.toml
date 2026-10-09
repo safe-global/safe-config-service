@@ -10,7 +10,7 @@ dependencies = [
     "django-stubs-ext==6.1.0",
     "django==6.1.1",
     "djangorestframework-camel-case==1.4.2",
-    "djangorestframework==3.18.0",
+    "djangorestframework==3.18.1",
     "drf-yasg[validation]==1.21.15",
     "eth-typing==6.0.0",
     "eth-utils==6.0.0",
@@ -18,7 +18,7 @@ dependencies = [
     "pillow==12.3.0",
     "psycopg[binary]==3.3.5",
     "requests==2.34.2",
-    "safe-eth-py[django]==7.24.0",
+    "safe-eth-py[django]==7.25.0",
 ]
 
 [dependency-groups]
