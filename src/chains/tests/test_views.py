@@ -109,6 +109,7 @@ class ChainJsonPayloadFormatViewTests(APITestCase):
                         "safeCreationSponsored": chain.relayer_safe_creation_sponsored,
                         "safeTransactionSponsored": chain.relayer_safe_transaction_sponsored,
                         "enableTenderlySimulationBeforeRelay": chain.relayer_enable_tenderly_simulation_before_relay,
+                        "gasPaymentOptions": chain.relayer_gas_payment_options,
                     },
                 }
             ],
@@ -247,6 +248,7 @@ class ChainDetailViewTests(APITestCase):
                 "safeCreationSponsored": chain.relayer_safe_creation_sponsored,
                 "safeTransactionSponsored": chain.relayer_safe_transaction_sponsored,
                 "enableTenderlySimulationBeforeRelay": chain.relayer_enable_tenderly_simulation_before_relay,
+                "gasPaymentOptions": chain.relayer_gas_payment_options,
             },
         }
 
@@ -398,6 +400,25 @@ class ChainRelayerTypeTests(APITestCase):
         relayer = response.json()["relayer"]
         self.assertFalse(relayer["safeCreationSponsored"])
         self.assertFalse(relayer["safeTransactionSponsored"])
+
+    def test_gas_payment_options_empty(self) -> None:
+        ChainFactory.create(id=1, relayer_gas_payment_options=[])
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["relayer"]["gasPaymentOptions"], [])
+
+    def test_gas_payment_options_in_declaration_order(self) -> None:
+        options = [option.value for option in Chain.GasPaymentOption]
+        ChainFactory.create(id=1, relayer_gas_payment_options=options[::-1])
+        url = reverse("v1:chains:detail", args=[1])
+
+        response = self.client.get(path=url, data=None, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["relayer"]["gasPaymentOptions"], options)
 
 
 class ChainGasPriceTests(APITestCase):
