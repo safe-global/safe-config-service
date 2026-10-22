@@ -11,7 +11,7 @@ dependencies = [
     "django==6.1.2",
     "djangorestframework-camel-case==1.4.2",
     "djangorestframework==3.18.1",
-    "drf-yasg[validation]==1.21.15",
+    "drf-yasg[validation]==1.21.18",
     "eth-typing==6.0.0",
     "eth-utils==6.0.0",
     "gunicorn==26.2.0",
