@@ -80,6 +80,14 @@ class ExportViewTestCase(TestCase):
         assert response.status_code == 200
         self.assertContains(response, "SPACES")
 
+    def test_warns_about_blank_descriptions(self) -> None:
+        service = ServiceFactory(key="WALLET_WEB")
+        FeatureFactory(key="NO_TEXT", description="", services=[service])
+
+        response = self.client.get(self.url, {"service": "WALLET_WEB"})
+
+        self.assertContains(response, "Add a description first: NO_TEXT")
+
     def test_download_returns_json_attachment(self) -> None:
         service = ServiceFactory(key="WALLET_WEB")
         FeatureFactory(key="SPACES", scope=Feature.Scope.GLOBAL, services=[service])

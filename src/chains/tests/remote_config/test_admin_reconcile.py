@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: FSL-1.1-MIT
 import responses
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from chains.models import Feature, RemoteConfigReconcileRef
+from chains.models import Feature, RemoteConfigReconcileRef, Service
 from chains.remote_config.diff import Change, ChangeType
 from chains.remote_config.tokens import change_to_token
 
@@ -93,6 +94,48 @@ class ReconcileAdminViewTestCase(TestCase):
         remembered = RemoteConfigReconcileRef.objects.get(service_key="WALLET_WEB")
         assert remembered.ref == "feat/my-branch"
         assert remembered.updated_by == self.user
+
+    def test_apply_refuses_changes_the_user_lacks_permissions_for(self) -> None:
+        staff = get_user_model().objects.create_user(
+            username="editor", email="editor@example.test", password="pw", is_staff=True
+        )
+        staff.user_permissions.add(
+            *Permission.objects.filter(
+                content_type__app_label="chains",
+                codename__in=("change_feature", "view_feature"),
+            )
+        )
+        self.client.force_login(staff)
+        feature = Feature.objects.create(key="KEEP", description="x")
+        feature.services.add(Service.objects.create(key="WALLET_WEB", name="Web"))
+        add = Change(
+            type=ChangeType.ADD,
+            service_key="NEW_SERVICE",
+            key="NEWFLAG",
+            declared_description="x",
+            declared_scope="GLOBAL",
+        )
+        delete = Change(
+            type=ChangeType.DELETE,
+            service_key="WALLET_WEB",
+            key="KEEP",
+            feature_id=feature.pk,
+            remaining_services_after=0,
+        )
+
+        response = self.client.post(
+            self.url,
+            {"apply": [change_to_token(add), change_to_token(delete)], "ref_WALLET_WEB": "main"},
+            follow=True,
+        )
+
+        self.assertContains(
+            response,
+            "chains.add_feature, chains.add_service, chains.delete_feature",
+        )
+        assert Feature.objects.filter(key="KEEP").exists()
+        assert not Feature.objects.filter(key="NEWFLAG").exists()
+        assert not Service.objects.filter(key="NEW_SERVICE").exists()
 
     def test_apply_rejects_malformed_token(self) -> None:
         before = Feature.objects.count()

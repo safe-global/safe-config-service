@@ -200,6 +200,68 @@ class ApplyChangesTestCase(TestCase):
         assert result.deleted == 1
         assert LogEntry.objects.filter(action_flag=DELETION).count() == 1
 
+    def test_delete_keeps_feature_when_a_service_attached_after_the_diff(self) -> None:
+        web = ServiceFactory(key="WALLET_WEB")
+        feature = FeatureFactory(key="SHARED", services=[web])
+        change = Change(
+            type=ChangeType.DELETE,
+            service_key="WALLET_WEB",
+            key="SHARED",
+            feature_id=feature.pk,
+            remaining_services_after=0,
+        )
+        feature.services.add(ServiceFactory(key="MOBILE"))
+
+        result = apply_changes([change], actor=_actor())
+
+        feature.refresh_from_db()
+        assert set(feature.services.values_list("key", flat=True)) == {"MOBILE"}
+        assert result.deleted == 0
+        assert result.detached == 1
+
+    def test_flag_moved_between_services_survives_in_any_selection_order(self) -> None:
+        chain = ChainFactory()
+        web = ServiceFactory(key="WALLET_WEB")
+        ServiceFactory(key="MOBILE")
+        feature = FeatureFactory(key="MOVED", services=[web], chains=[chain])
+        delete_from_web = Change(
+            type=ChangeType.DELETE,
+            service_key="WALLET_WEB",
+            key="MOVED",
+            feature_id=feature.pk,
+            remaining_services_after=0,
+        )
+        attach_mobile = Change(
+            type=ChangeType.ATTACH, service_key="MOBILE", key="MOVED", feature_id=feature.pk
+        )
+
+        apply_changes([delete_from_web, attach_mobile], actor=_actor())
+
+        feature.refresh_from_db()
+        assert set(feature.services.values_list("key", flat=True)) == {"MOBILE"}
+        assert list(feature.chains.all()) == [chain]
+
+    def test_detaching_every_service_in_one_batch_deletes_the_row(self) -> None:
+        web = ServiceFactory(key="WALLET_WEB")
+        mobile = ServiceFactory(key="MOBILE")
+        feature = FeatureFactory(key="UNUSED", services=[web, mobile])
+        changes = [
+            Change(
+                type=ChangeType.DETACH,
+                service_key=service_key,
+                key="UNUSED",
+                feature_id=feature.pk,
+                remaining_services_after=1,
+            )
+            for service_key in ("WALLET_WEB", "MOBILE")
+        ]
+
+        result = apply_changes(changes, actor=_actor())
+
+        assert not Feature.objects.filter(key="UNUSED").exists()
+        assert result.detached == 1
+        assert result.deleted == 1
+
     def test_is_transactional_on_error(self) -> None:
         good = Change(
             type=ChangeType.ADD,

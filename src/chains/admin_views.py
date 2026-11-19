@@ -28,7 +28,11 @@ from .remote_config.declaration import (
     parse_declaration_text,
 )
 from .remote_config.diff import Change, ChangeType, FieldDelta, diff_service
-from .remote_config.export import ServiceNotFound, build_declaration_document
+from .remote_config.export import (
+    ServiceNotFound,
+    blank_description_keys,
+    build_declaration_document,
+)
 from .remote_config.github import DeclarationFetchError, fetch_declaration_text
 from .remote_config.sources import RemoteConfigSource, get_sources
 from .remote_config.state import known_chain_ids, load_feature_states
@@ -135,8 +139,22 @@ def units_for_change(
         detail = f"scope={change.declared_scope}"
         if change.declared_chains:
             detail += f", chains={', '.join(change.declared_chains)}"
+        warnings = change.warnings
+        if conflicted_fields:
+            names = " and ".join(sorted(conflicted_fields))
+            warnings += (
+                f"Another service declares '{change.key}' with a different {names}. "
+                f"The first applied ADD sets it for all services; align the declarations "
+                f"in code before applying.",
+            )
         return [
-            ApplyUnit(change_to_token(change), f"ADD {change.key}", detail, True, change.warnings)
+            ApplyUnit(
+                change_to_token(change),
+                f"ADD {change.key}",
+                detail,
+                not conflicted_fields,
+                warnings,
+            )
         ]
 
     if change.type is ChangeType.ATTACH:
@@ -179,6 +197,29 @@ def units_for_change(
         ]
 
     assert_never(change.type)
+
+
+# Beyond chains.change_feature, which the view itself requires.
+_REQUIRED_PERMISSIONS: dict[ChangeType, tuple[str, ...]] = {
+    ChangeType.ADD: ("chains.add_feature",),
+    ChangeType.ATTACH: (),
+    ChangeType.UPDATE: (),
+    # A DETACH deletes the row when it removes the last service.
+    ChangeType.DETACH: ("chains.delete_feature",),
+    ChangeType.DELETE: ("chains.delete_feature",),
+}
+
+
+def _missing_permissions(user: User, changes: list[Change]) -> set[str]:
+    """Return the permissions the selected changes need that ``user`` does not have."""
+    existing_services = set(Service.objects.values_list("key", flat=True))
+    required: set[str] = set()
+    for change in changes:
+        required.update(_REQUIRED_PERMISSIONS[change.type])
+        adds_service = change.type in (ChangeType.ADD, ChangeType.ATTACH)
+        if adds_service and change.service_key not in existing_services:
+            required.add("chains.add_service")
+    return {permission for permission in required if not user.has_perm(permission)}
 
 
 def _cross_source_conflicts(
@@ -341,6 +382,14 @@ class ReconcileAdminMixin(admin.ModelAdmin[Feature]):
                 error = f"No Service with key '{service_key}'."
             else:
                 payload = json.dumps(document, indent=2)
+                blank = blank_description_keys(document)
+                if blank:
+                    self.message_user(
+                        request,
+                        "These features have a blank description, which the declaration "
+                        f"schema rejects. Add a description first: {', '.join(blank)}",
+                        level=messages.WARNING,
+                    )
                 if request.GET.get("download") == "1":
                     response = HttpResponse(payload, content_type="application/json")
                     response["Content-Disposition"] = (
@@ -406,6 +455,15 @@ class ReconcileAdminMixin(admin.ModelAdmin[Feature]):
         actor = request.user
         if not isinstance(actor, get_user_model()):
             raise PermissionDenied
+        missing = _missing_permissions(actor, changes)
+        if missing:
+            self.message_user(
+                request,
+                f"Nothing applied. The selection needs these permissions: "
+                f"{', '.join(sorted(missing))}.",
+                level=messages.ERROR,
+            )
+            return redirect(request.path)
         result = apply_changes(changes, actor=actor)
         self._remember_refs(request, sources, actor)
         message = (

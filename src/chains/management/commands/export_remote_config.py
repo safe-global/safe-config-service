@@ -13,7 +13,11 @@ from typing import Any
 
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 
-from chains.remote_config.export import ServiceNotFound, build_declaration_document
+from chains.remote_config.export import (
+    ServiceNotFound,
+    blank_description_keys,
+    build_declaration_document,
+)
 
 
 class Command(BaseCommand):
@@ -31,4 +35,10 @@ class Command(BaseCommand):
             document = build_declaration_document(options["service"])
         except ServiceNotFound as error:
             raise CommandError(f"No Service with key '{error}'") from error
+        blank = blank_description_keys(document)
+        if blank:
+            self.stderr.write(
+                "These features have a blank description, which the declaration schema "
+                f"rejects. Add a description before you use the file: {', '.join(blank)}"
+            )
         self.stdout.write(json.dumps(document, indent=2))

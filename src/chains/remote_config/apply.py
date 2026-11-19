@@ -124,23 +124,23 @@ def _apply_update(change: Change, actor: AbstractBaseUser, result: ApplyResult) 
     result.updated += 1
 
 
-def _apply_detach(change: Change, actor: AbstractBaseUser, result: ApplyResult) -> None:
+def _apply_removal(change: Change, actor: AbstractBaseUser, result: ApplyResult) -> None:
+    """DETACH or DELETE: detach the service, then delete the row only if no service is left.
+
+    The live services decide, not the diff: another service may have attached
+    after the diff, or several removals in one batch may empty the row.
+    """
     feature = _existing_feature(change)
     service = Service.objects.filter(key=change.service_key).first()
     if feature is None or service is None:
         result.skipped += 1
         return
     feature.services.remove(service)
-    _log(actor, feature, CHANGE, f"Detached service {change.service_key}")
-    result.detached += 1
-
-
-def _apply_delete(change: Change, actor: AbstractBaseUser, result: ApplyResult) -> None:
-    feature = _existing_feature(change)
-    if feature is None:
-        result.skipped += 1
+    if feature.services.exists():
+        _log(actor, feature, CHANGE, f"Detached service {change.service_key}")
+        result.detached += 1
         return
-    _log(actor, feature, DELETION, "Removed: no remaining services")
+    _log(actor, feature, DELETION, f"Removed: {change.service_key} was the last service")
     feature.delete()
     result.deleted += 1
 
@@ -149,8 +149,17 @@ _APPLIERS: dict[ChangeType, Callable[[Change, AbstractBaseUser, ApplyResult], No
     ChangeType.ADD: _apply_add,
     ChangeType.ATTACH: _apply_attach,
     ChangeType.UPDATE: _apply_update,
-    ChangeType.DETACH: _apply_detach,
-    ChangeType.DELETE: _apply_delete,
+    ChangeType.DETACH: _apply_removal,
+    ChangeType.DELETE: _apply_removal,
+}
+
+# Additions first: a flag moving between services is attached before its old service leaves.
+_APPLY_ORDER = {
+    ChangeType.ADD: 0,
+    ChangeType.ATTACH: 0,
+    ChangeType.UPDATE: 1,
+    ChangeType.DETACH: 2,
+    ChangeType.DELETE: 2,
 }
 
 
@@ -158,8 +167,10 @@ _APPLIERS: dict[ChangeType, Callable[[Change, AbstractBaseUser, ApplyResult], No
 def apply_changes(changes: list[Change], actor: AbstractBaseUser) -> ApplyResult:
     """Apply the selected changes transactionally and write audit log entries.
 
-    A change whose Feature (or, for DETACH, Service) no longer exists is counted
-    as skipped: the page was computed before someone else changed the database.
+    Additions are applied before removals. A change whose Feature (or, for
+    DETACH/DELETE, Service) no longer exists is counted as skipped: the page was
+    computed before someone else changed the database. A DETACH or DELETE deletes
+    the row only if no service is left on it.
 
     Args:
         changes: The exact changes the operator selected (already filtered to
@@ -170,6 +181,6 @@ def apply_changes(changes: list[Change], actor: AbstractBaseUser) -> ApplyResult
         An :class:`ApplyResult` with per-type counts.
     """
     result = ApplyResult()
-    for change in changes:
+    for change in sorted(changes, key=lambda change: _APPLY_ORDER[change.type]):
         _APPLIERS[change.type](change, actor, result)
     return result

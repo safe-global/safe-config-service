@@ -89,6 +89,26 @@ class ConflictAwareUnitsTestCase(TestCase):
         assert units[0].default_checked is True
         assert units[0].warnings == ()
 
+    def _add(self) -> Change:
+        return Change(
+            type=ChangeType.ADD,
+            service_key="WALLET_WEB",
+            key="SHARED",
+            declared_description="web text",
+            declared_scope="GLOBAL",
+        )
+
+    def test_conflicting_add_is_unchecked_and_warned(self) -> None:
+        units = units_for_change(self._add(), frozenset({"scope"}))
+        assert len(units) == 1
+        assert units[0].default_checked is False
+        assert "different scope" in units[0].warnings[0]
+
+    def test_nonconflicting_add_is_prechecked(self) -> None:
+        units = units_for_change(self._add(), frozenset())
+        assert units[0].default_checked is True
+        assert units[0].warnings == ()
+
 
 @override_settings(REMOTE_CONFIG_RAW_BASE_URL=BASE, REMOTE_CONFIG_SOURCES=TWO_SOURCES)
 class BuildSourceResultsConflictTestCase(TestCase):

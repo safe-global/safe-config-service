@@ -47,3 +47,18 @@ class ExportRemoteConfigTestCase(TestCase):
     def test_errors_on_unknown_service(self) -> None:
         with self.assertRaises(CommandError):
             call_command("export_remote_config", service="DOES_NOT_EXIST")
+
+    def test_warns_about_blank_descriptions(self) -> None:
+        service = ServiceFactory(key="WALLET_WEB")
+        FeatureFactory(key="NO_TEXT", description="", services=[service])
+        FeatureFactory(key="HAS_TEXT", description="Text.", services=[service])
+
+        out, err = StringIO(), StringIO()
+        call_command("export_remote_config", service="WALLET_WEB", stdout=out, stderr=err)
+
+        assert "NO_TEXT" in err.getvalue()
+        assert "HAS_TEXT" not in err.getvalue()
+        assert [f["key"] for f in json.loads(out.getvalue())["features"]] == [
+            "HAS_TEXT",
+            "NO_TEXT",
+        ]

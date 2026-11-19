@@ -55,3 +55,8 @@ def build_declaration_document(service_key: str) -> dict[str, Any]:
         "service": service_key,
         "features": entries,
     }
+
+
+def blank_description_keys(document: dict[str, Any]) -> list[str]:
+    """Keys whose description is blank; the schema rejects them, so fix the rows first."""
+    return [entry["key"] for entry in document["features"] if not entry["description"].strip()]
