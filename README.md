@@ -69,8 +69,7 @@ executed.
 
 Runtime feature flags are declared as checked-in `remote-config.json` files in each
 consuming repo (web, mobile, CGW) and reconciled into `Feature` rows via the admin
-**"Reconcile flags"** view. See [`docs/remote-config.md`](docs/remote-config.md) for
-the canonical service keys, the release runbook, drift detection, and how to add a flag.
+**"Reconcile flags"** view.
 
 ## Testing
 
