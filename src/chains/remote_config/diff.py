@@ -15,6 +15,10 @@ from .declaration import FeatureDecl
 SCOPE_GLOBAL = "GLOBAL"
 SCOPE_PER_CHAIN = "PER_CHAIN"
 
+DISABLED_WARNING = (
+    "The code declares this flag with enabled: false. Applying removes it from this service."
+)
+
 
 class ChangeType(str, Enum):
     ADD = "ADD"  # key absent from DB entirely -> create Feature + attach service
@@ -176,7 +180,9 @@ def diff_service(
 
     Args:
         service_key: The owning service key (e.g. ``WALLET_WEB``).
-        declared: Declared features for this service.
+        declared: Declared features for this service. A feature with
+            ``enabled=False`` is treated as undeclared: no ADD, and an existing
+            row for this service gets a removal with a warning.
         all_states: Every DB feature keyed by ``key`` (any service), used to
             distinguish ADD (no row) from ATTACH (row exists, other service).
         known_chain_ids: All chain ids known to the DB. When provided,
@@ -187,18 +193,21 @@ def diff_service(
         (declared keys first in declaration order, then removals sorted by key).
     """
     changes: list[Change] = []
-    declared_keys = {d.key for d in declared}
+    enabled = [d for d in declared if d.enabled]
+    enabled_keys = {d.key for d in enabled}
+    disabled_keys = {d.key for d in declared if not d.enabled}
 
-    for decl in declared:
+    for decl in enabled:
         change = _declared_change(service_key, decl, all_states.get(decl.key), known_chain_ids)
         if change is not None:
             changes.append(change)
 
     for key in sorted(all_states):
         state = all_states[key]
-        if service_key in state.services and key not in declared_keys:
+        if service_key in state.services and key not in enabled_keys:
             remaining = len(state.services - {service_key})
             change_type = ChangeType.DETACH if remaining else ChangeType.DELETE
+            warnings = (DISABLED_WARNING,) if key in disabled_keys else ()
             changes.append(
                 Change(
                     type=change_type,
@@ -206,6 +215,7 @@ def diff_service(
                     key=key,
                     feature_id=state.feature_id,
                     remaining_services_after=remaining,
+                    warnings=warnings,
                 )
             )
 

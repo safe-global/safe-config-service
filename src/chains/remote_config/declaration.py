@@ -33,6 +33,7 @@ class FeatureDecl:
     description: str
     scope: str
     default_chains: tuple[str, ...] = ()
+    enabled: bool = True
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,9 @@ class Declaration:
 
     def keys(self) -> set[str]:
         return {f.key for f in self.features}
+
+    def enabled_features(self) -> tuple[FeatureDecl, ...]:
+        return tuple(f for f in self.features if f.enabled)
 
 
 def parse_declaration(document: Any) -> Declaration:
@@ -78,6 +82,7 @@ def parse_declaration(document: Any) -> Declaration:
             description=entry["description"],
             scope=entry["scope"],
             default_chains=tuple(entry.get("defaultChains", [])),
+            enabled=entry["enabled"],
         )
         for entry in document["features"]
     )

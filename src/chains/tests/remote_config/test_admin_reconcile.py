@@ -53,7 +53,7 @@ class ReconcileAdminViewTestCase(TestCase):
             WEB_URL,
             status=200,
             body='{"service":"WALLET_WEB","features":'
-            '[{"key":"NEWFLAG","description":"x","scope":"GLOBAL"}]}',
+            '[{"key":"NEWFLAG","description":"x","scope":"GLOBAL","enabled":true}]}',
         )
 
         response = self.client.get(

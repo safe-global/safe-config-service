@@ -3,6 +3,7 @@
 from chains.remote_config.declaration import FeatureDecl
 from chains.remote_config.diff import (
     Change,
+    DISABLED_WARNING,
     ChangeType,
     FeatureState,
     diff_service,
@@ -37,8 +38,9 @@ def _decl(
     description: str = "desc",
     scope: str = "PER_CHAIN",
     default_chains: tuple[str, ...] = (),
+    enabled: bool = True,
 ) -> FeatureDecl:
-    return FeatureDecl(key, description, scope, default_chains)
+    return FeatureDecl(key, description, scope, default_chains, enabled)
 
 
 def test_add_new_global() -> None:
@@ -179,3 +181,30 @@ def test_change_ordering_declared_first_then_removals() -> None:
         ChangeType.DELETE,
     ]
     assert [c.key for c in changes] == ["NEW", "ALPHA", "ZEBRA"]
+
+
+def test_disabled_flag_without_row_is_not_added() -> None:
+    assert diff_service(WEB, [_decl("NEW", enabled=False)], {}) == []
+
+
+def test_disabled_flag_with_row_is_removed_with_warning() -> None:
+    states = {"OLD": _state("OLD", services={WEB})}
+
+    changes = diff_service(WEB, [_decl("OLD", enabled=False)], states)
+
+    assert [c.type for c in changes] == [ChangeType.DELETE]
+    assert changes[0].warnings == (DISABLED_WARNING,)
+
+
+def test_disabled_flag_is_not_attached_to_a_row_of_another_service() -> None:
+    states = {"SHARED": _state("SHARED", services={CGW})}
+
+    assert diff_service(WEB, [_decl("SHARED", enabled=False)], states) == []
+
+
+def test_undeclared_removal_has_no_disabled_warning() -> None:
+    states = {"OLD": _state("OLD", services={WEB})}
+
+    changes = diff_service(WEB, [], states)
+
+    assert changes[0].warnings == ()

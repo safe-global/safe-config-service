@@ -16,7 +16,8 @@ class ServiceNotFound(Exception):
 def build_declaration_document(service_key: str) -> dict[str, Any]:
     """Return the declaration JSON for ``service_key`` from current DB state.
 
-    Features are ordered by key; ``defaultChains`` holds the numerically-sorted
+    Every exported feature has a row, so it is ``enabled``. Features are ordered
+    by key; ``defaultChains`` holds the numerically-sorted
     enabled chain ids for PER_CHAIN features and is empty for GLOBAL ones.
 
     Raises:
@@ -46,6 +47,7 @@ def build_declaration_document(service_key: str) -> dict[str, Any]:
                 "key": feature.key,
                 "description": feature.description,
                 "scope": feature.scope,
+                "enabled": True,
                 "defaultChains": default_chains,
             }
         )

@@ -39,6 +39,7 @@ class ExportRemoteConfigTestCase(TestCase):
 
         spaces = next(f for f in document["features"] if f["key"] == "SPACES")
         assert spaces["scope"] == "PER_CHAIN"
+        assert spaces["enabled"] is True
         assert spaces["defaultChains"] == [str(chain.id)]
 
         csv = next(f for f in document["features"] if f["key"] == "CSV_TX_EXPORT")

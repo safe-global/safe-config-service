@@ -35,11 +35,20 @@ TWO_SOURCES = [
 ]
 
 
-def _decl(service: str, description: str, scope: str = "PER_CHAIN") -> object:
+def _decl(
+    service: str, description: str, scope: str = "PER_CHAIN", enabled: bool = True
+) -> object:
     return parse_declaration(
         {
             "service": service,
-            "features": [{"key": "SHARED", "description": description, "scope": scope}],
+            "features": [
+                {
+                    "key": "SHARED",
+                    "description": description,
+                    "scope": scope,
+                    "enabled": enabled,
+                }
+            ],
         }
     )
 
@@ -59,6 +68,15 @@ class CrossSourceConflictTestCase(TestCase):
             }
         )
         assert conflicts == {"SHARED": frozenset({"scope"})}
+
+    def test_ignores_a_disabled_declaration(self) -> None:
+        conflicts = _cross_source_conflicts(
+            {
+                "WALLET_WEB": _decl("WALLET_WEB", "A"),
+                "CGW": _decl("CGW", "B", enabled=False),
+            }
+        )
+        assert conflicts == {}
 
     def test_no_conflict_when_fields_match(self) -> None:
         conflicts = _cross_source_conflicts(
@@ -126,13 +144,13 @@ class BuildSourceResultsConflictTestCase(TestCase):
             responses.GET,
             WEB_URL,
             body='{"service":"WALLET_WEB","features":'
-            '[{"key":"SHARED","description":"web text","scope":"PER_CHAIN"}]}',
+            '[{"key":"SHARED","description":"web text","scope":"PER_CHAIN","enabled":true}]}',
         )
         responses.add(
             responses.GET,
             CGW_URL,
             body='{"service":"CGW","features":'
-            '[{"key":"SHARED","description":"cgw text","scope":"PER_CHAIN"}]}',
+            '[{"key":"SHARED","description":"cgw text","scope":"PER_CHAIN","enabled":true}]}',
         )
 
         results = build_source_results({"WALLET_WEB": "main", "CGW": "main"})

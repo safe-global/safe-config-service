@@ -23,12 +23,14 @@ def test_parses_valid_per_chain_and_global() -> None:
                     "key": "SPACES",
                     "description": "Spaces.",
                     "scope": "PER_CHAIN",
+                    "enabled": True,
                     "defaultChains": ["1", "11155111"],
                 },
                 {
                     "key": "CSV_TX_EXPORT",
                     "description": "CSV export.",
                     "scope": "GLOBAL",
+                    "enabled": True,
                 },
             ]
         )
@@ -50,7 +52,12 @@ def test_ignores_top_level_schema_pointer() -> None:
             "$schema": "./remote-config.schema.json",
             "service": "CGW",
             "features": [
-                {"key": "PORTFOLIO_ENDPOINT", "description": "x", "scope": "PER_CHAIN"}
+                {
+                    "key": "PORTFOLIO_ENDPOINT",
+                    "description": "x",
+                    "scope": "PER_CHAIN",
+                    "enabled": True,
+                }
             ],
         }
     )
@@ -71,6 +78,7 @@ def test_rejects_global_with_chains() -> None:
                         "key": "GLOBAL_FLAG",
                         "description": "x",
                         "scope": "GLOBAL",
+                        "enabled": True,
                         "defaultChains": ["1"],
                     }
                 ]
@@ -81,21 +89,21 @@ def test_rejects_global_with_chains() -> None:
 def test_rejects_unknown_scope() -> None:
     with pytest.raises(DeclarationError, match="schema validation"):
         parse_declaration(
-            _doc([{"key": "X", "description": "x", "scope": "SOMETIMES"}])
+            _doc([{"key": "X", "description": "x", "scope": "SOMETIMES", "enabled": True}])
         )
 
 
 def test_rejects_lowercase_key() -> None:
     with pytest.raises(DeclarationError, match="schema validation"):
         parse_declaration(
-            _doc([{"key": "lowercase", "description": "x", "scope": "GLOBAL"}])
+            _doc([{"key": "lowercase", "description": "x", "scope": "GLOBAL", "enabled": True}])
         )
 
 
 def test_rejects_empty_description() -> None:
     with pytest.raises(DeclarationError, match="schema validation"):
         parse_declaration(
-            _doc([{"key": "X", "description": "", "scope": "GLOBAL"}])
+            _doc([{"key": "X", "description": "", "scope": "GLOBAL", "enabled": True}])
         )
 
 
@@ -108,6 +116,7 @@ def test_rejects_non_numeric_chain_id() -> None:
                         "key": "X",
                         "description": "x",
                         "scope": "PER_CHAIN",
+                        "enabled": True,
                         "defaultChains": ["mainnet"],
                     }
                 ]
@@ -124,6 +133,7 @@ def test_rejects_additional_properties() -> None:
                         "key": "X",
                         "description": "x",
                         "scope": "GLOBAL",
+                        "enabled": True,
                         "owner": "team-web",
                     }
                 ]
@@ -141,8 +151,8 @@ def test_rejects_duplicate_keys() -> None:
         parse_declaration(
             _doc(
                 [
-                    {"key": "SPACES", "description": "a", "scope": "GLOBAL"},
-                    {"key": "SPACES", "description": "b", "scope": "GLOBAL"},
+                    {"key": "SPACES", "description": "a", "scope": "GLOBAL", "enabled": True},
+                    {"key": "SPACES", "description": "b", "scope": "GLOBAL", "enabled": True},
                 ]
             )
         )
@@ -156,7 +166,21 @@ def test_parse_text_rejects_malformed_json() -> None:
 def test_parse_text_happy_path() -> None:
     declaration = parse_declaration_text(
         '{"service": "MOBILE", "features": '
-        '[{"key": "SEND_FLOW", "description": "x", "scope": "GLOBAL"}]}'
+        '[{"key": "SEND_FLOW", "description": "x", "scope": "GLOBAL", "enabled": true}]}'
     )
     assert declaration.service == "MOBILE"
     assert declaration.features[0].key == "SEND_FLOW"
+
+
+def test_rejects_feature_without_enabled() -> None:
+    with pytest.raises(DeclarationError, match="'enabled' is a required property"):
+        parse_declaration(_doc([{"key": "X", "description": "x", "scope": "GLOBAL"}]))
+
+
+def test_parses_disabled_feature() -> None:
+    declaration = parse_declaration(
+        _doc([{"key": "X", "description": "x", "scope": "GLOBAL", "enabled": False}])
+    )
+
+    assert declaration.features[0].enabled is False
+    assert declaration.enabled_features() == ()

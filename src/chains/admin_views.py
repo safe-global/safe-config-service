@@ -181,7 +181,7 @@ def units_for_change(
                 f"DETACH {change.key} from {change.service_key}",
                 f"remaining services: {change.remaining_services_after}",
                 False,
-                (),
+                change.warnings,
             )
         ]
 
@@ -192,7 +192,7 @@ def units_for_change(
                 f"DELETE {change.key}",
                 "no remaining services",
                 False,
-                (),
+                change.warnings,
             )
         ]
 
@@ -234,7 +234,7 @@ def _cross_source_conflicts(
     descriptions: dict[str, set[str]] = defaultdict(set)
     scopes: dict[str, set[str]] = defaultdict(set)
     for declaration in parsed.values():
-        for feature in declaration.features:
+        for feature in declaration.enabled_features():
             descriptions[feature.key].add(feature.description)
             scopes[feature.key].add(feature.scope)
 
@@ -293,7 +293,8 @@ def build_source_results(refs: dict[str, str]) -> list[SourceResult]:
                 f"Declared service '{declaration.service}' does not match configured "
                 f"'{source.service_key}'; diffing against '{source.service_key}'."
             )
-        for key in sorted(declaration.keys() & conflicts.keys()):
+        enabled_keys = {feature.key for feature in declaration.enabled_features()}
+        for key in sorted(enabled_keys & conflicts.keys()):
             fields = ", ".join(sorted(conflicts[key]))
             warnings.append(
                 f"'{key}' is declared with a different {fields} by another service; "
