@@ -106,6 +106,26 @@ class ReconcileAdminViewTestCase(TestCase):
         # net change rather than an empty table).
         assert Feature.objects.count() == before
 
+    def test_apply_reports_change_for_feature_deleted_after_the_diff(self) -> None:
+        feature = Feature.objects.create(key="GONE", description="x")
+        token = change_to_token(
+            Change(
+                type=ChangeType.DELETE,
+                service_key="WALLET_WEB",
+                key="GONE",
+                feature_id=feature.pk,
+                remaining_services_after=0,
+            )
+        )
+        feature.delete()
+
+        response = self.client.post(
+            self.url, {"apply": [token], "ref_WALLET_WEB": "main"}, follow=True
+        )
+
+        assert response.status_code == 200
+        self.assertContains(response, "Skipped 1 change(s)")
+
     @responses.activate
     def test_drift_view_is_read_only(self) -> None:
         responses.add(responses.GET, WEB_URL, status=404)

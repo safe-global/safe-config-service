@@ -9,18 +9,18 @@ import json
 from collections.abc import Sequence
 from typing import Any, cast
 
-from .diff import Change, ChangeType, FieldDelta
+from .diff import Change, ChangeType, FieldDelta, FieldName
 
 
-def _encode_value(name: str, value: object) -> Any:
-    if name == "chains":
+def _encode_value(name: FieldName, value: object) -> Any:
+    if name is FieldName.CHAINS:
         return list(cast(Sequence[str], value))
     return value
 
 
 def _delta_to_dict(delta: FieldDelta) -> dict[str, Any]:
     return {
-        "name": delta.name,
+        "name": delta.name.value,
         "current": _encode_value(delta.name, delta.current),
         "declared": _encode_value(delta.name, delta.declared),
         "authoritative": delta.authoritative,
@@ -28,10 +28,11 @@ def _delta_to_dict(delta: FieldDelta) -> dict[str, Any]:
 
 
 def _delta_from_dict(data: dict[str, Any]) -> FieldDelta:
-    is_chains = data["name"] == "chains"
+    name = FieldName(data["name"])
+    is_chains = name is FieldName.CHAINS
     current = tuple(data["current"]) if is_chains else data["current"]
     declared = tuple(data["declared"]) if is_chains else data["declared"]
-    return FieldDelta(data["name"], current, declared, data["authoritative"])
+    return FieldDelta(name, current, declared, data["authoritative"])
 
 
 def change_to_token(change: Change) -> str:
@@ -59,16 +60,16 @@ def change_from_token(token: str) -> Change:
     """
     try:
         payload = json.loads(base64.urlsafe_b64decode(token.encode()))
-    except (ValueError, json.JSONDecodeError) as error:
-        raise ValueError(f"Invalid change token: {error}") from error
-    return Change(
-        type=ChangeType(payload["type"]),
-        service_key=payload["service_key"],
-        key=payload["key"],
-        feature_id=payload["feature_id"],
-        declared_description=payload["declared_description"],
-        declared_scope=payload["declared_scope"],
-        declared_chains=tuple(payload["declared_chains"]),
-        deltas=tuple(_delta_from_dict(delta) for delta in payload["deltas"]),
-        remaining_services_after=payload["remaining_services_after"],
-    )
+        return Change(
+            type=ChangeType(payload["type"]),
+            service_key=payload["service_key"],
+            key=payload["key"],
+            feature_id=payload["feature_id"],
+            declared_description=payload["declared_description"],
+            declared_scope=payload["declared_scope"],
+            declared_chains=tuple(payload["declared_chains"]),
+            deltas=tuple(_delta_from_dict(delta) for delta in payload["deltas"]),
+            remaining_services_after=payload["remaining_services_after"],
+        )
+    except (ValueError, KeyError, TypeError) as error:
+        raise ValueError(f"Invalid change token: {error!r}") from error

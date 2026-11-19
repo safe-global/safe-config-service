@@ -24,11 +24,17 @@ class ChangeType(str, Enum):
     DELETE = "DELETE"  # detach would leave zero services -> offer row delete
 
 
+class FieldName(str, Enum):
+    DESCRIPTION = "description"
+    SCOPE = "scope"
+    CHAINS = "chains"
+
+
 @dataclass(frozen=True)
 class FieldDelta:
     """A single field that differs between declaration and database."""
 
-    name: str  # "description" | "scope" | "chains"
+    name: FieldName
     current: object
     declared: object
     # True: code is authoritative (description/scope). False: informational
@@ -95,22 +101,21 @@ def _field_deltas(
 
     if decl.description != state.description:
         deltas.append(
-            FieldDelta("description", state.description, decl.description, True)
+            FieldDelta(
+                FieldName.DESCRIPTION, state.description, decl.description, True
+            )
         )
 
     if decl.scope != state.scope:
-        deltas.append(FieldDelta("scope", state.scope, decl.scope, True))
+        deltas.append(FieldDelta(FieldName.SCOPE, state.scope, decl.scope, True))
 
-    # Chains are only meaningful for PER_CHAIN features. The comparison is
-    # informational: the declaration's defaultChains is a release-time seed, not
-    # an ongoing desired state, so this delta is never authoritative.
     if decl.scope == SCOPE_PER_CHAIN:
         known, _ = _seedable_chains(decl, known_chain_ids)
         declared_set = set(known)
         if declared_set != set(state.chains):
             deltas.append(
                 FieldDelta(
-                    "chains",
+                    FieldName.CHAINS,
                     tuple(sorted(state.chains, key=_chain_sort_key)),
                     tuple(sorted(declared_set, key=_chain_sort_key)),
                     False,
@@ -123,6 +128,42 @@ def _field_deltas(
 def _chain_sort_key(chain_id: str) -> tuple[int, str]:
     """Sort numeric chain ids numerically, with a stable fallback."""
     return (int(chain_id), chain_id) if chain_id.isdigit() else (1 << 62, chain_id)
+
+
+def _declared_change(
+    service_key: str,
+    decl: FeatureDecl,
+    existing: FeatureState | None,
+    known_chain_ids: set[str] | None,
+) -> Change | None:
+    """Return the ADD/ATTACH/UPDATE change for one declared key, or None if in sync."""
+    change_type: ChangeType
+    feature_id: int | None = None
+    deltas: tuple[FieldDelta, ...] = ()
+    if existing is None:
+        change_type = ChangeType.ADD
+    else:
+        deltas = _field_deltas(decl, existing, known_chain_ids)
+        feature_id = existing.feature_id
+        if service_key not in existing.services:
+            change_type = ChangeType.ATTACH
+        elif deltas:
+            change_type = ChangeType.UPDATE
+        else:
+            return None
+
+    known, unknown = _seedable_chains(decl, known_chain_ids)
+    return Change(
+        type=change_type,
+        service_key=service_key,
+        key=decl.key,
+        feature_id=feature_id,
+        declared_description=decl.description,
+        declared_scope=decl.scope,
+        declared_chains=known,
+        deltas=deltas,
+        warnings=_unknown_chain_warning(unknown),
+    )
 
 
 def diff_service(
@@ -149,52 +190,9 @@ def diff_service(
     declared_keys = {d.key for d in declared}
 
     for decl in declared:
-        existing = all_states.get(decl.key)
-        if existing is None:
-            known, unknown = _seedable_chains(decl, known_chain_ids)
-            changes.append(
-                Change(
-                    type=ChangeType.ADD,
-                    service_key=service_key,
-                    key=decl.key,
-                    declared_description=decl.description,
-                    declared_scope=decl.scope,
-                    declared_chains=known,
-                    warnings=_unknown_chain_warning(unknown),
-                )
-            )
-        elif service_key not in existing.services:
-            known, unknown = _seedable_chains(decl, known_chain_ids)
-            changes.append(
-                Change(
-                    type=ChangeType.ATTACH,
-                    service_key=service_key,
-                    key=decl.key,
-                    feature_id=existing.feature_id,
-                    declared_description=decl.description,
-                    declared_scope=decl.scope,
-                    declared_chains=known,
-                    deltas=_field_deltas(decl, existing, known_chain_ids),
-                    warnings=_unknown_chain_warning(unknown),
-                )
-            )
-        else:
-            deltas = _field_deltas(decl, existing, known_chain_ids)
-            if deltas:
-                known, unknown = _seedable_chains(decl, known_chain_ids)
-                changes.append(
-                    Change(
-                        type=ChangeType.UPDATE,
-                        service_key=service_key,
-                        key=decl.key,
-                        feature_id=existing.feature_id,
-                        declared_description=decl.description,
-                        declared_scope=decl.scope,
-                        declared_chains=known,
-                        deltas=deltas,
-                        warnings=_unknown_chain_warning(unknown),
-                    )
-                )
+        change = _declared_change(service_key, decl, all_states.get(decl.key), known_chain_ids)
+        if change is not None:
+            changes.append(change)
 
     for key in sorted(all_states):
         state = all_states[key]

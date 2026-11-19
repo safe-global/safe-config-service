@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from chains.models import Feature, Service
 from chains.remote_config.apply import apply_changes
-from chains.remote_config.diff import Change, ChangeType, FieldDelta
+from chains.remote_config.diff import Change, ChangeType, FieldDelta, FieldName
 from chains.remote_config.state import known_chain_ids, load_feature_states
 
 from ..factories import ChainFactory, FeatureFactory, ServiceFactory
@@ -134,7 +134,7 @@ class ApplyChangesTestCase(TestCase):
             service_key="WALLET_WEB",
             key="X",
             feature_id=feature.pk,
-            deltas=(FieldDelta("description", "old", "new", True),),
+            deltas=(FieldDelta(FieldName.DESCRIPTION, "old", "new", True),),
         )
         result = apply_changes([change], actor=_actor())
 
@@ -156,7 +156,7 @@ class ApplyChangesTestCase(TestCase):
             feature_id=feature.pk,
             deltas=(
                 FieldDelta(
-                    "chains", (str(keep.id),), (str(keep.id), str(add.id)), False
+                    FieldName.CHAINS, (str(keep.id),), (str(keep.id), str(add.id)), False
                 ),
             ),
         )
@@ -208,17 +208,52 @@ class ApplyChangesTestCase(TestCase):
             declared_description="x",
             declared_scope="GLOBAL",
         )
-        # feature_id that does not exist -> Feature.DoesNotExist mid-transaction.
+        # An UPDATE without feature_id is a programming error -> ValueError mid-transaction.
         bad = Change(
             type=ChangeType.UPDATE,
             service_key="WALLET_WEB",
             key="MISSING",
-            feature_id=999999,
-            deltas=(FieldDelta("description", "a", "b", True),),
+            deltas=(FieldDelta(FieldName.DESCRIPTION, "a", "b", True),),
         )
 
-        with self.assertRaises(Feature.DoesNotExist):
+        with self.assertRaises(ValueError):
             apply_changes([good, bad], actor=_actor())
 
         # The whole transaction rolled back: GOOD must not persist.
         assert not Feature.objects.filter(key="GOOD").exists()
+
+    def test_skips_changes_for_a_feature_deleted_after_the_diff(self) -> None:
+        feature = FeatureFactory(key="GONE", services=[ServiceFactory(key="WALLET_WEB")])
+        stale_id = feature.pk
+        feature.delete()
+        changes = [
+            Change(type=change_type, service_key="WALLET_WEB", key="GONE", feature_id=stale_id)
+            for change_type in (
+                ChangeType.ATTACH,
+                ChangeType.UPDATE,
+                ChangeType.DETACH,
+                ChangeType.DELETE,
+            )
+        ]
+
+        result = apply_changes(changes, actor=_actor())
+
+        assert result.skipped == 4
+        assert result.total == 0
+        assert LogEntry.objects.count() == 0
+
+    def test_skips_detach_when_service_row_is_missing(self) -> None:
+        feature = FeatureFactory(key="KEEP", services=[ServiceFactory(key="CGW")])
+        change = Change(
+            type=ChangeType.DETACH,
+            service_key="WALLET_WEB",
+            key="KEEP",
+            feature_id=feature.pk,
+            remaining_services_after=1,
+        )
+
+        result = apply_changes([change], actor=_actor())
+
+        assert result.skipped == 1
+        assert result.detached == 0
+        assert list(feature.services.values_list("key", flat=True)) == ["CGW"]

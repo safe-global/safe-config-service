@@ -13,7 +13,7 @@ This is a _configuration-as-code → reconcile_ workflow on the **existing**
 operational table, `RemoteConfigReconcileRef`, just remembers the last ref used
 per service so the form can pre-fill it.)
 
-## Canonical service keys (Phase 0)
+## Canonical service keys
 
 Declarations are diffed **per service**. The canonical `Service.key` values and
 the repo → service → path mapping (configured in `REMOTE_CONFIG_SOURCES`):
@@ -45,11 +45,13 @@ A `Service` row must exist for each key. An ADD/ATTACH will auto-create a missin
    service's last-used ref.
 4. **Compute diff.** Each source shows a git-diff-style table of
    `ADD` / `ATTACH` / `UPDATE` / `DETACH` / `DELETE`.
-5. Review the checkboxes (smart defaults, decision #6):
+5. Review the checkboxes (smart defaults):
    - **Pre-checked:** ADD, ATTACH, and authoritative `description`/`scope` updates.
    - **Un-checked:** `chains` divergences and DETACH/DELETE — these are deliberate.
 6. **Apply selected changes.** Mutations run in one transaction and are written to
    the admin History (`LogEntry`). The refs you used are remembered for next time.
+   If someone changed a selected flag after you computed the diff, that change is
+   skipped and reported; compute the diff again.
 
 ### Diff semantics
 

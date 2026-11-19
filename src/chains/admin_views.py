@@ -8,17 +8,19 @@ admin extension (``get_urls`` + ``TemplateResponse``), following the existing
 import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
-from typing import Any
+from typing import Any, assert_never
 
 from django import forms
-from django.contrib import messages
+from django.contrib import admin, messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path
 
-from .models import RemoteConfigReconcileRef, Service
+from .models import Feature, RemoteConfigReconcileRef, Service
 from .remote_config.apply import apply_changes
 from .remote_config.declaration import (
     Declaration,
@@ -65,20 +67,21 @@ class SourceResult:
 
 def _update_unit(
     change: Change,
-    delta: FieldDelta,
+    deltas: tuple[FieldDelta, ...],
     label: str,
     checked: bool,
-    warns: tuple[str, ...],
+    warnings: tuple[str, ...] = (),
 ) -> ApplyUnit:
+    """Build one checkbox that applies ``deltas`` to an existing Feature."""
     unit_change = Change(
         type=ChangeType.UPDATE,
         service_key=change.service_key,
         key=change.key,
         feature_id=change.feature_id,
-        deltas=(delta,),
+        deltas=deltas,
     )
-    detail = f"{delta.name}: {delta.current!r} → {delta.declared!r}"
-    return ApplyUnit(change_to_token(unit_change), label, detail, checked, warns)
+    detail = "; ".join(f"{d.name.value}: {d.current!r} → {d.declared!r}" for d in deltas)
+    return ApplyUnit(change_to_token(unit_change), label, detail, checked, warnings)
 
 
 def _delta_units(change: Change, conflicted_fields: frozenset[str]) -> list[ApplyUnit]:
@@ -87,8 +90,8 @@ def _delta_units(change: Change, conflicted_fields: frozenset[str]) -> list[Appl
     Authoritative (description/scope) deltas are pre-checked and grouped — unless
     the field conflicts across services (the same key declared with a different
     value elsewhere). A conflicting field is a code bug, not a DB drift, so it is
-    a separate un-checked unit with a warning to avoid a flip-flop. The chains
-    delta is always a separate, un-checked unit (decision #6).
+    a separate un-checked unit with a warning to avoid a flip-flop. Informational
+    (chains) deltas are a separate, un-checked unit.
     """
     units: list[ApplyUnit] = []
     authoritative = tuple(
@@ -100,47 +103,22 @@ def _delta_units(change: Change, conflicted_fields: frozenset[str]) -> list[Appl
     informational = tuple(d for d in change.deltas if not d.authoritative)
 
     if authoritative:
-        unit_change = Change(
-            type=ChangeType.UPDATE,
-            service_key=change.service_key,
-            key=change.key,
-            feature_id=change.feature_id,
-            deltas=authoritative,
-        )
-        detail = "; ".join(
-            f"{d.name}: {d.current!r} → {d.declared!r}" for d in authoritative
-        )
-        units.append(
-            ApplyUnit(change_to_token(unit_change), f"UPDATE {change.key}", detail, True, ())
-        )
+        units.append(_update_unit(change, authoritative, f"UPDATE {change.key}", True))
 
     for delta in conflicting:
+        name = delta.name.value
         warning = (
-            f"'{change.key}' is declared with a different {delta.name} by another "
-            f"service. A shared feature has one {delta.name}; align the declarations "
+            f"'{change.key}' is declared with a different {name} by another "
+            f"service. A shared feature has one {name}; align the declarations "
             f"in code rather than applying (applying flip-flops between services).",
         )
-        units.append(
-            _update_unit(
-                change, delta, f"UPDATE {change.key} ({delta.name}, conflicting)", False, warning
-            )
-        )
+        label = f"UPDATE {change.key} ({name}, conflicting)"
+        units.append(_update_unit(change, (delta,), label, False, warning))
 
     if informational:
-        unit_change = Change(
-            type=ChangeType.UPDATE,
-            service_key=change.service_key,
-            key=change.key,
-            feature_id=change.feature_id,
-            deltas=informational,
-        )
-        delta = informational[0]
-        detail = f"chains: {delta.current} → {delta.declared} (release default — review)"
-        units.append(
-            ApplyUnit(
-                change_to_token(unit_change), f"UPDATE {change.key} chains", detail, False, ()
-            )
-        )
+        names = ", ".join(d.name.value for d in informational)
+        label = f"UPDATE {change.key} {names} (release default)"
+        units.append(_update_unit(change, informational, label, False))
     return units
 
 
@@ -189,15 +167,18 @@ def units_for_change(
             )
         ]
 
-    return [
-        ApplyUnit(
-            change_to_token(change),
-            f"DELETE {change.key}",
-            "no remaining services",
-            False,
-            (),
-        )
-    ]
+    if change.type is ChangeType.DELETE:
+        return [
+            ApplyUnit(
+                change_to_token(change),
+                f"DELETE {change.key}",
+                "no remaining services",
+                False,
+                (),
+            )
+        ]
+
+    assert_never(change.type)
 
 
 def _cross_source_conflicts(
@@ -228,9 +209,7 @@ def _cross_source_conflicts(
     return conflicts
 
 
-def build_source_results(
-    refs: dict[str, str], read_only: bool = False
-) -> list[SourceResult]:
+def build_source_results(refs: dict[str, str]) -> list[SourceResult]:
     """Fetch + diff every configured source at its ref. Errors are per-source.
 
     All declarations are fetched first so cross-source field conflicts (a shared
@@ -329,27 +308,27 @@ class ReconcileForm(forms.Form):
         }
 
 
-class ReconcileAdminMixin:
-    """Adds the ``reconcile/`` admin URL and view to a ModelAdmin."""
+class ReconcileAdminMixin(admin.ModelAdmin[Feature]):
+    """Adds the ``reconcile/`` and ``export/`` admin URLs and views to the Feature admin."""
 
     def get_urls(self) -> list[Any]:
-        urls: list[Any] = super().get_urls()  # type: ignore[misc]
+        urls: list[Any] = super().get_urls()
         custom: list[Any] = [
             path(
                 "reconcile/",
-                self.admin_site.admin_view(self.reconcile_view),  # type: ignore[attr-defined]
+                self.admin_site.admin_view(self.reconcile_view),
                 name="chains_feature_reconcile",
             ),
             path(
                 "export/",
-                self.admin_site.admin_view(self.export_view),  # type: ignore[attr-defined]
+                self.admin_site.admin_view(self.export_view),
                 name="chains_feature_export",
             ),
         ]
         return custom + urls
 
     def export_view(self, request: HttpRequest) -> HttpResponse:
-        if not self.has_view_permission(request):  # type: ignore[attr-defined]
+        if not self.has_view_permission(request):
             raise PermissionDenied
 
         service_key = request.GET.get("service", "")
@@ -370,7 +349,7 @@ class ReconcileAdminMixin:
                     return response
 
         context = {
-            **self.admin_site.each_context(request),  # type: ignore[attr-defined]
+            **self.admin_site.each_context(request),
             "title": "Export declaration",
             "service_keys": _export_service_keys(),
             "selected": service_key,
@@ -380,7 +359,7 @@ class ReconcileAdminMixin:
         return TemplateResponse(request, "admin/chains/export_flags.html", context)
 
     def reconcile_view(self, request: HttpRequest) -> HttpResponse:
-        if not self.has_change_permission(request):  # type: ignore[attr-defined]
+        if not self.has_change_permission(request):
             raise PermissionDenied
 
         sources = get_sources()
@@ -392,7 +371,7 @@ class ReconcileAdminMixin:
         if drift:
             form = ReconcileForm(sources, drift=True)
             refs = {source.service_key: source.default_ref for source in sources}
-            results = build_source_results(refs, read_only=True)
+            results = build_source_results(refs)
         elif "compute" in request.GET:
             form = ReconcileForm(sources, request.GET)
             if form.is_valid():
@@ -401,7 +380,7 @@ class ReconcileAdminMixin:
             form = ReconcileForm(sources)
 
         context = {
-            **self.admin_site.each_context(request),  # type: ignore[attr-defined]
+            **self.admin_site.each_context(request),
             "title": "Reconcile flags",
             "form": form,
             "results": results,
@@ -419,30 +398,41 @@ class ReconcileAdminMixin:
         try:
             changes = [change_from_token(token) for token in tokens]
         except ValueError as error:
-            self.message_user(  # type: ignore[attr-defined]
+            self.message_user(
                 request, f"Invalid selection: {error}", level=messages.ERROR
             )
             return redirect(request.path)
 
-        result = apply_changes(changes, actor=request.user)
-        self._remember_refs(request, sources)
-        self.message_user(  # type: ignore[attr-defined]
-            request,
+        actor = request.user
+        if not isinstance(actor, get_user_model()):
+            raise PermissionDenied
+        result = apply_changes(changes, actor=actor)
+        self._remember_refs(request, sources, actor)
+        message = (
             f"Applied {result.total} change(s): {result.added} add, "
             f"{result.attached} attach, {result.updated} update, "
-            f"{result.detached} detach, {result.deleted} delete.",
+            f"{result.detached} detach, {result.deleted} delete."
+        )
+        if result.skipped:
+            message += (
+                f" Skipped {result.skipped} change(s) because the database changed "
+                f"after the diff; compute the diff again."
+            )
+        self.message_user(
+            request, message, level=messages.WARNING if result.skipped else messages.SUCCESS
         )
         return redirect(request.path)
 
     def _remember_refs(
-        self, request: HttpRequest, sources: list[RemoteConfigSource]
+        self,
+        request: HttpRequest,
+        sources: list[RemoteConfigSource],
+        actor: User,
     ) -> None:
         for source in sources:
             ref = request.POST.get(f"ref_{source.service_key}")
             if ref:
                 RemoteConfigReconcileRef.objects.update_or_create(
                     service_key=source.service_key,
-                    # reconcile_view requires an authenticated staff user, so
-                    # request.user is never AnonymousUser here.
-                    defaults={"ref": ref, "updated_by": request.user},  # type: ignore[misc]
+                    defaults={"ref": ref, "updated_by": actor},
                 )

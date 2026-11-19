@@ -10,7 +10,7 @@ from chains.admin_views import (
 )
 from chains.models import Feature
 from chains.remote_config.declaration import parse_declaration
-from chains.remote_config.diff import Change, ChangeType, FieldDelta
+from chains.remote_config.diff import Change, ChangeType, FieldDelta, FieldName
 
 from ..factories import FeatureFactory, ServiceFactory
 
@@ -74,7 +74,7 @@ class ConflictAwareUnitsTestCase(TestCase):
             service_key="WALLET_WEB",
             key="SHARED",
             feature_id=1,
-            deltas=(FieldDelta("description", "old", "new", True),),
+            deltas=(FieldDelta(FieldName.DESCRIPTION, "old", "new", True),),
         )
 
     def test_conflicting_update_is_unchecked_and_warned(self) -> None:
