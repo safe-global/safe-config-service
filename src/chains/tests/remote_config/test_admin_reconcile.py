@@ -1,0 +1,203 @@
+# SPDX-License-Identifier: FSL-1.1-MIT
+import base64
+import json
+
+import responses
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
+from django.test import TestCase, override_settings
+from django.urls import reverse
+
+from chains.models import Feature, RemoteConfigReconcileRef, Service
+from chains.remote_config.diff import Change, ChangeType
+from chains.remote_config.tokens import change_to_token
+
+BASE = "https://raw.example.test"
+WEB_URL = f"{BASE}/safe-global/safe-wallet-monorepo/main/apps/web/config/remote-config.json"
+SOURCES = [
+    {
+        "label": "Web",
+        "service_key": "WALLET_WEB",
+        "repo": "safe-global/safe-wallet-monorepo",
+        "path": "apps/web/config/remote-config.json",
+        "default_ref": "main",
+    }
+]
+
+
+@override_settings(
+    REMOTE_CONFIG_RAW_BASE_URL=BASE,
+    REMOTE_CONFIG_SOURCES=SOURCES,
+    REMOTE_CONFIG_GITHUB_TOKEN=None,
+)
+class ReconcileAdminViewTestCase(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_superuser(
+            username="op", email="op@example.test", password="pw"
+        )
+        self.client.force_login(self.user)
+        self.url = reverse("admin:chains_feature_reconcile")
+
+    def test_requires_login(self) -> None:
+        self.client.logout()
+        response = self.client.get(self.url)
+        assert response.status_code in (302, 403)
+
+    def test_get_renders_ref_form(self) -> None:
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+        self.assertContains(response, "Reconcile flags")
+        self.assertContains(response, "ref_WALLET_WEB")
+
+    @responses.activate
+    def test_compute_lists_add_for_declared_missing_flag(self) -> None:
+        responses.add(
+            responses.GET,
+            WEB_URL,
+            status=200,
+            body='{"service":"WALLET_WEB","features":'
+            '[{"key":"NEWFLAG","description":"x","scope":"GLOBAL","enabled":true}]}',
+        )
+
+        response = self.client.get(
+            self.url, {"compute": "1", "ref_WALLET_WEB": "main"}
+        )
+
+        assert response.status_code == 200
+        self.assertContains(response, "ADD NEWFLAG")
+
+    @responses.activate
+    def test_compute_surfaces_fetch_error_per_source(self) -> None:
+        responses.add(responses.GET, WEB_URL, status=404)
+
+        response = self.client.get(
+            self.url, {"compute": "1", "ref_WALLET_WEB": "main"}
+        )
+
+        assert response.status_code == 200
+        self.assertContains(response, "not found")
+
+    def test_apply_creates_feature_and_remembers_ref(self) -> None:
+        token = change_to_token(
+            Change(
+                type=ChangeType.ADD,
+                service_key="WALLET_WEB",
+                key="NEWFLAG",
+                declared_description="x",
+                declared_scope="GLOBAL",
+            )
+        )
+
+        response = self.client.post(
+            self.url, {"apply": [token], "ref_WALLET_WEB": "feat/my-branch"}
+        )
+
+        assert response.status_code == 302
+        assert Feature.objects.filter(key="NEWFLAG").exists()
+        remembered = RemoteConfigReconcileRef.objects.get(service_key="WALLET_WEB")
+        assert remembered.ref == "feat/my-branch"
+        assert remembered.updated_by == self.user
+
+    def test_apply_refuses_changes_the_user_lacks_permissions_for(self) -> None:
+        staff = get_user_model().objects.create_user(
+            username="editor", email="editor@example.test", password="pw", is_staff=True
+        )
+        staff.user_permissions.add(
+            *Permission.objects.filter(
+                content_type__app_label="chains",
+                codename__in=("change_feature", "view_feature"),
+            )
+        )
+        self.client.force_login(staff)
+        feature = Feature.objects.create(key="KEEP", description="x")
+        feature.services.add(Service.objects.create(key="WALLET_WEB", name="Web"))
+        add = Change(
+            type=ChangeType.ADD,
+            service_key="NEW_SERVICE",
+            key="NEWFLAG",
+            declared_description="x",
+            declared_scope="GLOBAL",
+        )
+        delete = Change(
+            type=ChangeType.DELETE,
+            service_key="WALLET_WEB",
+            key="KEEP",
+            feature_id=feature.pk,
+            remaining_services_after=0,
+        )
+
+        response = self.client.post(
+            self.url,
+            {"apply": [change_to_token(add), change_to_token(delete)], "ref_WALLET_WEB": "main"},
+            follow=True,
+        )
+
+        self.assertContains(
+            response,
+            "chains.add_feature, chains.add_service, chains.delete_feature",
+        )
+        assert Feature.objects.filter(key="KEEP").exists()
+        assert not Feature.objects.filter(key="NEWFLAG").exists()
+        assert not Service.objects.filter(key="NEW_SERVICE").exists()
+
+    def test_apply_rejects_malformed_token(self) -> None:
+        before = Feature.objects.count()
+
+        response = self.client.post(
+            self.url, {"apply": ["not-a-valid-token"], "ref_WALLET_WEB": "main"}
+        )
+
+        assert response.status_code == 302
+        # Nothing was applied (the DB has migration-seeded features, so assert no
+        # net change rather than an empty table).
+        assert Feature.objects.count() == before
+
+    def test_apply_reports_a_token_with_a_wrong_field_type(self) -> None:
+        payload = {
+            "type": "UPDATE",
+            "service_key": "WALLET_WEB",
+            "key": "X",
+            "feature_id": "abc",
+            "declared_description": None,
+            "declared_scope": None,
+            "declared_chains": [],
+            "deltas": [],
+            "remaining_services_after": None,
+        }
+        token = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode()
+
+        response = self.client.post(
+            self.url, {"apply": [token], "ref_WALLET_WEB": "main"}, follow=True
+        )
+
+        assert response.status_code == 200
+        self.assertContains(response, "feature_id must be an integer")
+
+    def test_apply_reports_change_for_feature_deleted_after_the_diff(self) -> None:
+        feature = Feature.objects.create(key="GONE", description="x")
+        token = change_to_token(
+            Change(
+                type=ChangeType.DELETE,
+                service_key="WALLET_WEB",
+                key="GONE",
+                feature_id=feature.pk,
+                remaining_services_after=0,
+            )
+        )
+        feature.delete()
+
+        response = self.client.post(
+            self.url, {"apply": [token], "ref_WALLET_WEB": "main"}, follow=True
+        )
+
+        assert response.status_code == 200
+        self.assertContains(response, "Skipped 1 change(s)")
+
+    @responses.activate
+    def test_drift_view_is_read_only(self) -> None:
+        responses.add(responses.GET, WEB_URL, status=404)
+
+        response = self.client.get(self.url, {"drift": "1"})
+
+        assert response.status_code == 200
+        self.assertNotContains(response, "Apply selected changes")

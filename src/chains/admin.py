@@ -7,8 +7,18 @@ from django.db.models import Model, QuerySet
 from django.forms import BaseInlineFormSet, ModelChoiceField, ModelForm
 from django.http import HttpRequest, HttpResponse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
-from .models import Chain, Feature, GasPrice, GasToken, Service, Wallet
+from .admin_views import ReconcileAdminMixin
+from .models import (
+    Chain,
+    Feature,
+    GasPrice,
+    GasToken,
+    RemoteConfigReconcileRef,
+    Service,
+    Wallet,
+)
 
 
 class WalletInlineFormSet(BaseInlineFormSet[Model, Model, ModelForm[Model]]):
@@ -224,10 +234,14 @@ class GasTokenAdmin(admin.ModelAdmin[GasToken]):
 
 
 @admin.register(Feature)
-class FeatureAdmin(admin.ModelAdmin[Feature]):
-    list_display = ("key", "scope", "description")
+class FeatureAdmin(ReconcileAdminMixin):
+    list_display = ("id", "key", "scope", "services_display", "chains_display", "description")
+    list_display_links = ("id", "key")
     list_editable = ("scope",)
-    list_filter = ("scope", "services")
+    list_filter = ("scope", "services", "chains")
+    search_fields = ("key", "description")
+    ordering = ("key",)
+    change_list_template = "admin/chains/feature_changelist.html"
     fieldsets = (
         (None, {"fields": ("key", "description")}),
         (
@@ -239,5 +253,37 @@ class FeatureAdmin(admin.ModelAdmin[Feature]):
         ),
     )
 
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Feature]:
+        return super().get_queryset(request).prefetch_related("services", "chains")
+
+    @admin.display(description="Services")
+    def services_display(self, obj: Feature) -> str:
+        keys = sorted(service.key for service in obj.services.all())
+        if not keys:
+            return mark_safe("<span style='color:#999'>—</span>")
+        return ", ".join(keys)
+
+    @admin.display(description="Chains")
+    def chains_display(self, obj: Feature) -> str:
+        if obj.scope == Feature.Scope.GLOBAL:
+            return mark_safe(
+                "<span style='color:#1a7f37;font-weight:600'>all chains (global)</span>"
+            )
+        chain_ids = sorted(chain.id for chain in obj.chains.all())
+        if not chain_ids:
+            return mark_safe("<span style='color:#999'>none</span>")
+        return format_html(
+            "<span style='font-family:monospace'>{}</span>",
+            ", ".join(str(chain_id) for chain_id in chain_ids),
+        )
+
     class Media:
         js = ("admin/chains/feature_admin.js",)
+
+
+@admin.register(RemoteConfigReconcileRef)
+class RemoteConfigReconcileRefAdmin(admin.ModelAdmin[RemoteConfigReconcileRef]):
+    list_display = ("service_key", "ref", "updated_at", "updated_by")
+    search_fields = ("service_key",)
+    ordering = ("service_key",)
+    readonly_fields = ("updated_at", "updated_by")

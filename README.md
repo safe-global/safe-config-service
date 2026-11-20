@@ -65,6 +65,12 @@ The service is already configured for development purposes however if you wish t
 We provide the `.dev.env` file which explains the role of each environment variable. You can set the configuration using this file and read it in terminal session where the application will be
 executed.
 
+## Remote-config flag reconciliation
+
+Runtime feature flags are declared as checked-in `remote-config.json` files in each
+consuming repo (web, mobile, CGW) and reconciled into `Feature` rows via the admin
+**"Reconcile flags"** view.
+
 ## Testing
 
 Pytest is used to run the available tests in the project. **Some of these tests validate the integration with the database
