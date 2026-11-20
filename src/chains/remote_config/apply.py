@@ -14,7 +14,8 @@ from django.db import transaction
 from django.db.models import Model
 
 from ..models import Chain, Feature, Service
-from .diff import SCOPE_PER_CHAIN, Change, ChangeType, FieldName
+from ..services import batched_chain_updates
+from .diff import SCOPE_PER_CHAIN, Change, ChangeType, FieldDelta, FieldName
 
 
 @dataclass
@@ -63,6 +64,16 @@ def _existing_feature(change: Change) -> Feature | None:
     return Feature.objects.filter(pk=change.feature_id).first()
 
 
+def _is_stale(feature: Feature, delta: FieldDelta) -> bool:
+    """True if the field no longer has the value that the diff saw."""
+    if delta.name is FieldName.DESCRIPTION:
+        return feature.description != delta.current
+    if delta.name is FieldName.SCOPE:
+        return feature.scope != delta.current
+    chain_ids = {str(chain_id) for chain_id in feature.chains.values_list("id", flat=True)}
+    return not isinstance(delta.current, tuple) or chain_ids != set(delta.current)
+
+
 def _apply_deltas(feature: Feature, change: Change) -> None:
     """Apply only the deltas carried on ``change`` (operator-selected)."""
     dirty_fields: list[str] = []
@@ -105,7 +116,7 @@ def _apply_add(change: Change, actor: AbstractBaseUser, result: ApplyResult) -> 
 
 def _apply_attach(change: Change, actor: AbstractBaseUser, result: ApplyResult) -> None:
     feature = _existing_feature(change)
-    if feature is None:
+    if feature is None or any(_is_stale(feature, delta) for delta in change.deltas):
         result.skipped += 1
         return
     feature.services.add(_get_or_create_service(change))
@@ -116,7 +127,7 @@ def _apply_attach(change: Change, actor: AbstractBaseUser, result: ApplyResult) 
 
 def _apply_update(change: Change, actor: AbstractBaseUser, result: ApplyResult) -> None:
     feature = _existing_feature(change)
-    if feature is None:
+    if feature is None or any(_is_stale(feature, delta) for delta in change.deltas):
         result.skipped += 1
         return
     _apply_deltas(feature, change)
@@ -168,9 +179,10 @@ def apply_changes(changes: list[Change], actor: AbstractBaseUser) -> ApplyResult
     """Apply the selected changes transactionally and write audit log entries.
 
     Additions are applied before removals. A change whose Feature (or, for
-    DETACH/DELETE, Service) no longer exists is counted as skipped: the page was
-    computed before someone else changed the database. A DETACH or DELETE deletes
-    the row only if no service is left on it.
+    DETACH/DELETE, Service) no longer exists, or whose field changed since the
+    diff, is counted as skipped: the page was computed before someone else
+    changed the database. A DETACH or DELETE deletes the row only if no service
+    is left on it. CGW hooks are sent once per chain and service, after commit.
 
     Args:
         changes: The exact changes the operator selected (already filtered to
@@ -181,6 +193,7 @@ def apply_changes(changes: list[Change], actor: AbstractBaseUser) -> ApplyResult
         An :class:`ApplyResult` with per-type counts.
     """
     result = ApplyResult()
-    for change in sorted(changes, key=lambda change: _APPLY_ORDER[change.type]):
-        _APPLIERS[change.type](change, actor, result)
+    with batched_chain_updates():
+        for change in sorted(changes, key=lambda change: _APPLY_ORDER[change.type]):
+            _APPLIERS[change.type](change, actor, result)
     return result

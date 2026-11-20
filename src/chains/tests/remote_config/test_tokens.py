@@ -76,3 +76,40 @@ def test_token_with_unknown_field_name_raises_value_error() -> None:
 
     with pytest.raises(ValueError):
         change_from_token(token)
+
+
+def _token_with(**fields: object) -> str:
+    change = Change(type=ChangeType.UPDATE, service_key="CGW", key="X", feature_id=1)
+    payload = json.loads(base64.urlsafe_b64decode(change_to_token(change)))
+    payload.update(fields)
+    return base64.urlsafe_b64encode(json.dumps(payload).encode()).decode()
+
+
+def _delta(name: str, current: object, declared: object) -> dict[str, object]:
+    return {"name": name, "current": current, "declared": declared, "authoritative": False}
+
+
+@pytest.mark.parametrize(
+    ("fields", "message"),
+    [
+        ({"feature_id": "abc"}, "feature_id must be an integer"),
+        ({"feature_id": True}, "feature_id must be an integer"),
+        ({"feature_id": None}, "UPDATE change needs a feature_id"),
+        ({"key": 7}, "key must be a string"),
+        ({"declared_scope": "SOMETIMES"}, "declared_scope must be one of"),
+        ({"declared_chains": "1"}, "declared_chains must be a list"),
+        (
+            {"deltas": [_delta("chains", [1], [])]},
+            "delta current must be a string",
+        ),
+        (
+            {"deltas": [_delta("scope", "GLOBAL", "X")]},
+            "delta declared must be one of",
+        ),
+    ],
+)
+def test_token_with_a_wrong_field_type_raises_value_error(
+    fields: dict[str, object], message: str
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        change_from_token(_token_with(**fields))

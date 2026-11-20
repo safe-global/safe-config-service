@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: FSL-1.1-MIT
+from unittest.mock import MagicMock, patch
+
 from django.contrib.admin.models import ADDITION, DELETION, LogEntry
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -141,6 +143,49 @@ class ApplyChangesTestCase(TestCase):
         feature.refresh_from_db()
         assert feature.description == "new"
         assert result.updated == 1
+
+    def test_update_skips_a_description_changed_after_the_diff(self) -> None:
+        web = ServiceFactory(key="WALLET_WEB")
+        feature = FeatureFactory(
+            key="X", description="edited by hand", scope=Feature.Scope.PER_CHAIN, services=[web]
+        )
+        change = Change(
+            type=ChangeType.UPDATE,
+            service_key="WALLET_WEB",
+            key="X",
+            feature_id=feature.pk,
+            deltas=(FieldDelta(FieldName.DESCRIPTION, "old", "new", True),),
+        )
+
+        result = apply_changes([change], actor=_actor())
+
+        feature.refresh_from_db()
+        assert feature.description == "edited by hand"
+        assert (result.updated, result.skipped) == (0, 1)
+
+    def test_update_skips_chains_changed_after_the_diff(self) -> None:
+        web = ServiceFactory(key="WALLET_WEB")
+        seen, added_later, declared = ChainFactory(), ChainFactory(), ChainFactory()
+        feature = FeatureFactory(
+            key="X",
+            scope=Feature.Scope.PER_CHAIN,
+            chains=[seen, added_later],
+            services=[web],
+        )
+        change = Change(
+            type=ChangeType.UPDATE,
+            service_key="WALLET_WEB",
+            key="X",
+            feature_id=feature.pk,
+            deltas=(
+                FieldDelta(FieldName.CHAINS, (str(seen.id),), (str(declared.id),), False),
+            ),
+        )
+
+        result = apply_changes([change], actor=_actor())
+
+        assert set(feature.chains.values_list("id", flat=True)) == {seen.id, added_later.id}
+        assert result.skipped == 1
 
     def test_update_chains_delta_sets_chains(self) -> None:
         web = ServiceFactory(key="WALLET_WEB")
@@ -319,3 +364,36 @@ class ApplyChangesTestCase(TestCase):
         assert result.skipped == 1
         assert result.detached == 0
         assert list(feature.services.values_list("key", flat=True)) == ["CGW"]
+
+
+class ApplyWebhookTestCase(TestCase):
+    @patch("chains.services.hook_event")
+    def test_sends_each_chain_and_service_hook_once_after_commit(
+        self, hook_event: MagicMock
+    ) -> None:
+        first, second = ChainFactory(), ChainFactory()
+        changes = [
+            Change(
+                type=ChangeType.ADD,
+                service_key="WALLET_WEB",
+                key=key,
+                declared_description=key,
+                declared_scope="GLOBAL",
+            )
+            for key in ("ONE", "TWO")
+        ]
+        hook_event.reset_mock()
+
+        with self.captureOnCommitCallbacks(execute=False) as callbacks:
+            apply_changes(changes, actor=_actor())
+        assert hook_event.call_count == 0
+
+        for callback in callbacks:
+            callback()
+
+        sent = [(call.args[0].chain_id, call.args[0].service) for call in hook_event.call_args_list]
+        chain_ids = {first.id, second.id}
+        assert len(sent) == len(set(sent))
+        assert set(sent) == {
+            (chain_id, service) for chain_id in chain_ids for service in (None, "WALLET_WEB")
+        }

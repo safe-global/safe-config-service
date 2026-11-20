@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: FSL-1.1-MIT
+import base64
+import json
+
 import responses
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
@@ -148,6 +151,27 @@ class ReconcileAdminViewTestCase(TestCase):
         # Nothing was applied (the DB has migration-seeded features, so assert no
         # net change rather than an empty table).
         assert Feature.objects.count() == before
+
+    def test_apply_reports_a_token_with_a_wrong_field_type(self) -> None:
+        payload = {
+            "type": "UPDATE",
+            "service_key": "WALLET_WEB",
+            "key": "X",
+            "feature_id": "abc",
+            "declared_description": None,
+            "declared_scope": None,
+            "declared_chains": [],
+            "deltas": [],
+            "remaining_services_after": None,
+        }
+        token = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode()
+
+        response = self.client.post(
+            self.url, {"apply": [token], "ref_WALLET_WEB": "main"}, follow=True
+        )
+
+        assert response.status_code == 200
+        self.assertContains(response, "feature_id must be an integer")
 
     def test_apply_reports_change_for_feature_deleted_after_the_diff(self) -> None:
         feature = Feature.objects.create(key="GONE", description="x")

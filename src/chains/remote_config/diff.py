@@ -120,8 +120,8 @@ def _field_deltas(
             deltas.append(
                 FieldDelta(
                     FieldName.CHAINS,
-                    tuple(sorted(state.chains, key=_chain_sort_key)),
-                    tuple(sorted(declared_set, key=_chain_sort_key)),
+                    tuple(sorted(state.chains, key=chain_sort_key)),
+                    tuple(sorted(declared_set, key=chain_sort_key)),
                     False,
                 )
             )
@@ -129,7 +129,7 @@ def _field_deltas(
     return tuple(deltas)
 
 
-def _chain_sort_key(chain_id: str) -> tuple[int, str]:
+def chain_sort_key(chain_id: str) -> tuple[int, str]:
     """Sort numeric chain ids numerically, with a stable fallback."""
     return (int(chain_id), chain_id) if chain_id.isdigit() else (1 << 62, chain_id)
 

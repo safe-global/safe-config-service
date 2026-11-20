@@ -84,3 +84,8 @@ class RawUrlTestCase(SimpleTestCase):
         assert raw_url("/owner/repo/", "abc123", "/some/path.json") == (
             f"{BASE}/owner/repo/abc123/some/path.json"
         )
+
+    def test_encodes_the_ref_but_keeps_its_slashes(self) -> None:
+        assert raw_url("owner/repo", "feat/a#b c?d", "f.json") == (
+            f"{BASE}/owner/repo/feat/a%23b%20c%3Fd/f.json"
+        )

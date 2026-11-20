@@ -27,7 +27,7 @@ from .remote_config.declaration import (
     DeclarationError,
     parse_declaration_text,
 )
-from .remote_config.diff import Change, ChangeType, FieldDelta, diff_service
+from .remote_config.diff import Change, ChangeType, FieldDelta, FieldName, diff_service
 from .remote_config.export import (
     ServiceNotFound,
     blank_description_keys,
@@ -88,26 +88,42 @@ def _update_unit(
     return ApplyUnit(change_to_token(unit_change), label, detail, checked, warnings)
 
 
+def _scope_warning(delta: FieldDelta) -> tuple[str, ...]:
+    if delta.declared == Feature.Scope.PER_CHAIN:
+        return (
+            "PER_CHAIN turns the flag off on every chain that is not in its chain list. "
+            "Select the chains in the Feature admin before applying.",
+        )
+    return ("GLOBAL turns the flag on for every chain.",)
+
+
 def _delta_units(change: Change, conflicted_fields: frozenset[str]) -> list[ApplyUnit]:
     """Split a change's field deltas into checkbox units.
 
-    Authoritative (description/scope) deltas are pre-checked and grouped — unless
-    the field conflicts across services (the same key declared with a different
-    value elsewhere). A conflicting field is a code bug, not a DB drift, so it is
-    a separate un-checked unit with a warning to avoid a flip-flop. Informational
+    A description delta is pre-checked — unless the field conflicts across
+    services (the same key declared with a different value elsewhere). A
+    conflicting field is a code bug, not a DB drift, so it is a separate
+    un-checked unit with a warning to avoid a flip-flop. A scope delta switches
+    the flag on or off on chains, so it is never pre-checked. Informational
     (chains) deltas are a separate, un-checked unit.
     """
     units: list[ApplyUnit] = []
-    authoritative = tuple(
-        d for d in change.deltas if d.authoritative and d.name not in conflicted_fields
-    )
     conflicting = tuple(
         d for d in change.deltas if d.authoritative and d.name in conflicted_fields
     )
+    unconflicted = tuple(
+        d for d in change.deltas if d.authoritative and d.name not in conflicted_fields
+    )
+    description = tuple(d for d in unconflicted if d.name is FieldName.DESCRIPTION)
+    scope = tuple(d for d in unconflicted if d.name is FieldName.SCOPE)
     informational = tuple(d for d in change.deltas if not d.authoritative)
 
-    if authoritative:
-        units.append(_update_unit(change, authoritative, f"UPDATE {change.key}", True))
+    if description:
+        units.append(_update_unit(change, description, f"UPDATE {change.key}", True))
+
+    for delta in scope:
+        label = f"UPDATE {change.key} (scope)"
+        units.append(_update_unit(change, (delta,), label, False, _scope_warning(delta)))
 
     for delta in conflicting:
         name = delta.name.value
@@ -275,6 +291,11 @@ def build_source_results(refs: dict[str, str]) -> list[SourceResult]:
             errors[source.service_key] = str(error)
 
     conflicts = _cross_source_conflicts(parsed)
+    incomplete = [
+        f"Conflict check is incomplete: {source.label} could not be fetched."
+        for source in sources
+        if source.service_key in errors
+    ]
     results: list[SourceResult] = []
 
     for source in sources:
@@ -287,7 +308,7 @@ def build_source_results(refs: dict[str, str]) -> list[SourceResult]:
             continue
 
         declaration = parsed[source.service_key]
-        warnings: list[str] = []
+        warnings: list[str] = list(incomplete)
         if declaration.service != source.service_key:
             warnings.append(
                 f"Declared service '{declaration.service}' does not match configured "
@@ -465,7 +486,13 @@ class ReconcileAdminMixin(admin.ModelAdmin[Feature]):
                 level=messages.ERROR,
             )
             return redirect(request.path)
-        result = apply_changes(changes, actor=actor)
+        try:
+            result = apply_changes(changes, actor=actor)
+        except ValueError as error:
+            self.message_user(
+                request, f"Nothing applied: {error}", level=messages.ERROR
+            )
+            return redirect(request.path)
         self._remember_refs(request, sources, actor)
         message = (
             f"Applied {result.total} change(s): {result.added} add, "

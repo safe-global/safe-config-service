@@ -128,6 +128,38 @@ class ConflictAwareUnitsTestCase(TestCase):
         assert units[0].warnings == ()
 
 
+class ScopeUnitsTestCase(TestCase):
+    def _update(self, current: str, declared: str) -> Change:
+        return Change(
+            type=ChangeType.UPDATE,
+            service_key="WALLET_WEB",
+            key="X",
+            feature_id=1,
+            deltas=(
+                FieldDelta(FieldName.DESCRIPTION, "old", "new", True),
+                FieldDelta(FieldName.SCOPE, current, declared, True),
+            ),
+        )
+
+    def test_scope_change_to_per_chain_is_unchecked_and_warns_it_turns_the_flag_off(
+        self,
+    ) -> None:
+        description, scope = units_for_change(self._update("GLOBAL", "PER_CHAIN"))
+
+        assert description.default_checked is True
+        assert "scope" not in description.detail
+        assert scope.default_checked is False
+        assert "turns the flag off" in scope.warnings[0]
+
+    def test_scope_change_to_global_is_unchecked_and_warns_it_turns_the_flag_on(
+        self,
+    ) -> None:
+        _, scope = units_for_change(self._update("PER_CHAIN", "GLOBAL"))
+
+        assert scope.default_checked is False
+        assert "turns the flag on for every chain" in scope.warnings[0]
+
+
 @override_settings(REMOTE_CONFIG_RAW_BASE_URL=BASE, REMOTE_CONFIG_SOURCES=TWO_SOURCES)
 class BuildSourceResultsConflictTestCase(TestCase):
     @responses.activate
@@ -160,3 +192,18 @@ class BuildSourceResultsConflictTestCase(TestCase):
         # The conflicting description update must not be pre-checked.
         assert web_result.units
         assert all(not unit.default_checked for unit in web_result.units)
+
+    @responses.activate
+    def test_warns_that_the_conflict_check_is_incomplete_when_a_source_fails(self) -> None:
+        responses.add(
+            responses.GET,
+            WEB_URL,
+            body='{"service":"WALLET_WEB","features":'
+            '[{"key":"SHARED","description":"web text","scope":"PER_CHAIN","enabled":true}]}',
+        )
+        responses.add(responses.GET, CGW_URL, status=500)
+
+        results = build_source_results({"WALLET_WEB": "main", "CGW": "main"})
+
+        web_result = next(r for r in results if r.source.service_key == "WALLET_WEB")
+        assert "Conflict check is incomplete: CGW could not be fetched." in web_result.warnings

@@ -8,6 +8,7 @@ and schema validation are the caller's job (see
 Mirrors the existing CGW client pattern (``requests`` + settings timeout/token).
 """
 import logging
+from urllib.parse import quote
 
 import requests
 from django.conf import settings
@@ -30,7 +31,7 @@ def raw_url(repo: str, ref: str, path: str) -> str:
     return RAW_URL.format(
         base=settings.REMOTE_CONFIG_RAW_BASE_URL.rstrip("/"),
         repo=repo.strip("/"),
-        ref=ref,
+        ref=quote(ref, safe="/"),
         path=path.lstrip("/"),
     )
 

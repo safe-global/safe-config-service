@@ -7,6 +7,7 @@ Shared by the ``export_remote_config`` management command and the admin
 from typing import Any
 
 from ..models import Feature, Service
+from .diff import chain_sort_key
 
 
 class ServiceNotFound(Exception):
@@ -38,7 +39,7 @@ def build_declaration_document(service_key: str) -> dict[str, Any]:
     for feature in features:
         if feature.scope == Feature.Scope.PER_CHAIN:
             default_chains = sorted(
-                (str(chain.id) for chain in feature.chains.all()), key=int
+                (str(chain.id) for chain in feature.chains.all()), key=chain_sort_key
             )
         else:
             default_chains = []
