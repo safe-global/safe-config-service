@@ -85,7 +85,17 @@ class RawUrlTestCase(SimpleTestCase):
             f"{BASE}/owner/repo/abc123/some/path.json"
         )
 
-    def test_encodes_the_ref_but_keeps_its_slashes(self) -> None:
-        assert raw_url("owner/repo", "feat/a#b c?d", "f.json") == (
-            f"{BASE}/owner/repo/feat/a%23b%20c%3Fd/f.json"
+    def test_accepts_a_branch_with_slashes(self) -> None:
+        assert raw_url("owner/repo", "feat/a-b_1.2", "f.json") == (
+            f"{BASE}/owner/repo/feat/a-b_1.2/f.json"
         )
+
+    def test_rejects_a_ref_that_leaves_the_repository(self) -> None:
+        for ref in ("../../attacker/repo/main", "main/../x", "./main", "a//b", "/main", "main/"):
+            with self.subTest(ref=ref), self.assertRaises(DeclarationFetchError):
+                raw_url("owner/repo", ref, "f.json")
+
+    def test_rejects_a_ref_with_url_characters(self) -> None:
+        for ref in ("main?x=1", "main#x", "ma in", "main%2F..", ""):
+            with self.subTest(ref=ref), self.assertRaises(DeclarationFetchError):
+                raw_url("owner/repo", ref, "f.json")

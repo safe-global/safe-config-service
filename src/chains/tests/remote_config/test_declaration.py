@@ -100,6 +100,13 @@ def test_rejects_lowercase_key() -> None:
         )
 
 
+def test_rejects_key_longer_than_the_feature_column() -> None:
+    with pytest.raises(DeclarationError, match="schema validation"):
+        parse_declaration(
+            _doc([{"key": "K" * 256, "description": "x", "scope": "GLOBAL", "enabled": True}])
+        )
+
+
 def test_rejects_empty_description() -> None:
     with pytest.raises(DeclarationError, match="schema validation"):
         parse_declaration(

@@ -8,7 +8,7 @@ and schema validation are the caller's job (see
 Mirrors the existing CGW client pattern (``requests`` + settings timeout/token).
 """
 import logging
-from urllib.parse import quote
+import re
 
 import requests
 from django.conf import settings
@@ -26,12 +26,30 @@ class DeclarationNotFound(DeclarationFetchError):
     """The declaration file does not exist at the requested ref (HTTP 404)."""
 
 
+_REF_PATTERN = re.compile(r"[A-Za-z0-9._/-]+")
+
+
+def _check_ref(ref: str) -> None:
+    """Reject a ref that could leave the configured repository once the URL is normalized."""
+    segments = ref.split("/")
+    if not _REF_PATTERN.fullmatch(ref) or any(s in ("", ".", "..") for s in segments):
+        raise DeclarationFetchError(
+            f"Invalid Git ref {ref!r}: use a branch, tag or commit SHA "
+            "(letters, digits, '.', '_', '-', '/'; no empty, '.' or '..' segments)."
+        )
+
+
 def raw_url(repo: str, ref: str, path: str) -> str:
-    """Build the raw file URL for ``repo`` at ``ref`` for ``path``."""
+    """Build the raw file URL for ``repo`` at ``ref`` for ``path``.
+
+    Raises:
+        DeclarationFetchError: If ``ref`` is not a plain branch, tag or SHA.
+    """
+    _check_ref(ref)
     return RAW_URL.format(
         base=settings.REMOTE_CONFIG_RAW_BASE_URL.rstrip("/"),
         repo=repo.strip("/"),
-        ref=quote(ref, safe="/"),
+        ref=ref,
         path=path.lstrip("/"),
     )
 

@@ -23,6 +23,7 @@
           "key": {
             "type": "string",
             "pattern": "^[A-Z0-9_]+$",
+            "maxLength": 255,
             "description": "Unique feature key. Matches Feature.key."
           },
           "description": {
