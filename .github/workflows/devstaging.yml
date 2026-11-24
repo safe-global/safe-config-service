@@ -53,7 +53,7 @@ jobs:
       image_tag: ${{ needs.prepare.outputs.tag }}
       infra_repo: safe-global/safe-config-service-infra-tf
       values_file: apps/safe-config-service/values-devstaging.yaml
-      image_tag_path: .web.imageTag
+      image_tag_path: .image.tag
       health_url: https://safe-config.staging.5afe.dev/check/
       # Staging's ArgoCD is behind a separate, unconfigurable VPN — so instead of
       # an ArgoCD wait, poll /about/ until it reports the tag we just deployed.
