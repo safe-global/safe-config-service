@@ -17,7 +17,7 @@ dependencies = [
     "gunicorn==26.2.0",
     "jsonschema==4.26.0",
     "pillow==13.0.0",
-    "psycopg[binary]==3.3.6",
+    "psycopg[binary]==3.3.9",
     "requests==2.34.2",
     "safe-eth-py[django]==7.27.0",
 ]
