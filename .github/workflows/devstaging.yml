@@ -65,6 +65,7 @@ jobs:
       post_deploy_checks: |
         curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.staging.5afe.dev/api/v1/chains/ | jq -e '.count > 0'
         curl -fsS --retry 6 --retry-delay 10 --retry-all-errors https://safe-config.staging.5afe.dev/api/v1/safe-apps/ | jq -e 'length > 0'
+        test "$(curl -sS -o /dev/null -w '%{http_code}' https://safe-config.staging.5afe.dev/internal/api/v1/chains/)" = 404
     secrets:
       app_id: ${{ secrets.CI_APP_ID }}
       app_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
